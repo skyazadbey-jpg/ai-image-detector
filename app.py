@@ -1,12 +1,17 @@
 from fastapi import FastAPI, UploadFile, File
 import os
-from huggingface_hub import InferenceClient
+import requests
 
 app = FastAPI()
 
-# Hugging Face Inference istemcisini güvenli token ile başlatıyoruz
+API_URL = "https://router.huggingface.co/hf-inference/models/umm-maybe/AI-image-detector"
 HF_TOKEN = os.getenv("HF_TOKEN")
-client = InferenceClient(model="umm-maybe/AI-image-detector", token=HF_TOKEN)
+
+# Hugging Face'in beklediği content-type başlığını ekliyoruz
+HEADERS = {
+    "Authorization": f"Bearer {HF_TOKEN}",
+    "Content-Type": "application/octet-stream"
+}
 
 @app.get("/")
 def home():
@@ -15,11 +20,13 @@ def home():
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     try:
-        image_bytes = await file.read()
+        contents = await file.read()
+        response = requests.post(API_URL, headers=HEADERS, data=contents)
         
-        # Resmi InferenceClient üzerinden doğrudan modele gönderiyoruz
-        result = client.image_classification(image_bytes)
-        
+        if response.status_code != 200:
+            return {"error": f"Hugging Face API Error: {response.text}"}
+
+        result = response.json()
         return {"result": result}
     except Exception as e:
         return {"error": str(e)}
