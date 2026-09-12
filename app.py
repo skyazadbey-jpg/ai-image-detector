@@ -1,11 +1,16 @@
 from fastapi import FastAPI, UploadFile, File
 import requests
 import io
+import os
 
 app = FastAPI()
 
 API_URL = "https://router.huggingface.co/hf-inference/models/umm-maybe/AI-image-detector"
-HEADERS = {"Authorization": "Bearer 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"}
+
+# Token'ı doğrudan açık yazmak yerine Render'ın Environment Variables alanından güvenle çekiyoruz
+HF_TOKEN = os.getenv("HF_TOKEN")
+HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
+
 @app.get("/")
 def home():
     return {"status": "AI Image Detector API is running (Lightweight Mode)"}
