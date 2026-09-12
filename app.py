@@ -11,7 +11,7 @@ HEADERS = {"Authorization": "Bearer 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"}
 def home():
     return {"status": "AI Image Detector API is running (Lightweight Mode)"}
 
-@post("/predict")
+@app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     try:
         contents = await file.read()
