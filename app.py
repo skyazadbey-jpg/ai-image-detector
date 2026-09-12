@@ -4,10 +4,8 @@ import io
 
 app = FastAPI()
 
-# Hugging Face Inference API adresi (sunucusuz / serverless)
-API_URL = "https://api-inference.huggingface.co/models/umm-maybe/AI-image-detector"
-# İstersen daha sonra kendi Hugging Face ücretsiz token'ını buraya yazabilirsin, şimdilik token olmadan da temel istek atabilir
-HEADERS = {} 
+API_URL = "https://router.huggingface.co/hf-inference/models/umm-maybe/AI-image-detector"
+HEADERS = {}
 
 @app.get("/")
 def home():
@@ -16,13 +14,13 @@ def home():
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     try:
-        # Gelen resmi oku
         contents = await file.read()
-        
-        # Hugging Face API'sine gönder
         response = requests.post(API_URL, headers=HEADERS, data=contents)
+
+        if response.status_code != 200:
+            return {"error": f"Hugging Face API Error: {response.text}"}
+
         result = response.json()
-        
         return {"result": result}
     except Exception as e:
         return {"error": str(e)}
