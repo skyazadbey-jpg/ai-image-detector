@@ -1,4 +1,4 @@
 fastapi
 uvicorn
 requests
-python-multipart
+huggingface_hub

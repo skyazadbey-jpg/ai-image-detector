@@ -1,30 +1,25 @@
 from fastapi import FastAPI, UploadFile, File
-import requests
-import io
 import os
+from huggingface_hub import InferenceClient
 
 app = FastAPI()
 
-API_URL = "https://router.huggingface.co/hf-inference/models/umm-maybe/AI-image-detector"
-
-# Token'ı doğrudan açık yazmak yerine Render'ın Environment Variables alanından güvenle çekiyoruz
+# Hugging Face Inference istemcisini güvenli token ile başlatıyoruz
 HF_TOKEN = os.getenv("HF_TOKEN")
-HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
+client = InferenceClient(model="umm-maybe/AI-image-detector", token=HF_TOKEN)
 
 @app.get("/")
 def home():
-    return {"status": "AI Image Detector API is running (Lightweight Mode)"}
+    return {"status": "AI Image Detector API is running"}
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     try:
-        contents = await file.read()
-        response = requests.post(API_URL, headers=HEADERS, data=contents)
+        image_bytes = await file.read()
         
-        if response.status_code != 200:
-            return {"error": f"Hugging Face API Error: {response.text}"}
-
-        result = response.json()
+        # Resmi InferenceClient üzerinden doğrudan modele gönderiyoruz
+        result = client.image_classification(image_bytes)
+        
         return {"result": result}
     except Exception as e:
         return {"error": str(e)}
