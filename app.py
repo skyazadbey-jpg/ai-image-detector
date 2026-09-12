@@ -5,8 +5,7 @@ import io
 app = FastAPI()
 
 API_URL = "https://router.huggingface.co/hf-inference/models/umm-maybe/AI-image-detector"
-HEADERS = {"Authorization": "Bearer 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"}
-
+HEADERS = {"Authorization": "Bearer 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"}
 @app.get("/")
 def home():
     return {"status": "AI Image Detector API is running (Lightweight Mode)"}
