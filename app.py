@@ -22,7 +22,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ---------- CONFIG ----------
 HF_TOKEN = os.getenv("HF_TOKEN")
 API_URL = "https://router.huggingface.co/hf-inference/models/umm-maybe/AI-image-detector"
 
@@ -33,7 +32,7 @@ FROM_EMAIL = os.getenv("FROM_EMAIL", "onboarding@resend.dev")
 
 DB_PATH = "users.db"
 
-# ---------- DATABASE ----------
+
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -43,51 +42,12 @@ def get_db():
 def init_db():
     conn = get_db()
     conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL,
-            password_hash TEXT,
-            google_id TEXT,
-            is_verified INTEGER DEFAULT 0,
-            otp_code TEXT,
-            otp_expires REAL,
-            created_at REAL
-        )
-        """
-    )
-    conn.commit()
-    conn.close()
-
-
-init_db()
-
-
-# ---------- MODELS ----------
-class RegisterRequest(BaseModel):
-    email: EmailStr
-    password: str
-
-
-class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
-
-
-class VerifyRequest(BaseModel):
-    email: EmailStr
-    otp: str
-
-
-class ResendRequest(BaseModel):
-    email: EmailStr
-
-
-class GoogleAuthRequest(BaseModel):
-    id_token: str
-
-
-# ---------- HELPERS ----------
-def make_jwt(user_id: int, email: str) -> str:
-    payload = {"user_id": user_id, "email": email, "exp": time.time() + 60 * 60 * 24 * 7}
-    return jwt.encode(payload,
+        "CREATE TABLE IF NOT EXISTS users ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "email TEXT UNIQUE NOT NULL,"
+        "password_hash TEXT,"
+        "google_id TEXT,"
+        "is_verified INTEGER DEFAULT 0,"
+        "otp_code TEXT,"
+        "otp_expires REAL,"
+        "created_at
