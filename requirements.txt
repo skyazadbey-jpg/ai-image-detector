@@ -2,3 +2,7 @@ fastapi
 uvicorn
 requests
 python-multipart
+passlib[bcrypt]
+pyjwt
+google-auth
+email-validator
