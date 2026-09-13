@@ -54,6 +54,73 @@
             animation: scanSweep 4.5s ease-in-out infinite;
         }
         .scan-frame { position: relative; overflow: hidden; }
+        /* ---- PRO KULLANICI STİLLERİ ---- */
+        .pro-user #authNavBtn {
+            background: linear-gradient(135deg, #f59e0b 0%, #eab308 50%, #f59e0b 100%) !important;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4), 0 0 20px rgba(245, 158, 11, 0.3) !important;
+            position: relative;
+        }
+        .pro-user #authNavBtn::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b, #fbbf24);
+            z-index: -1;
+            opacity: 0.5;
+            filter: blur(6px);
+        }
+        .pro-user #authNavBtn:hover {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #fbbf24 100%) !important;
+        }
+        .pro-user #creditBadge {
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%) !important;
+            color: #1e2433 !important;
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+        }
+        .pro-user #creditBadge i {
+            color: #1e2433 !important;
+        }
+        .pro-user #scanButton {
+            background: linear-gradient(135deg, #f59e0b 0%, #8b5cf6 100%) !important;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.4) !important;
+        }
+        .pro-user #scanButton:hover {
+            background: linear-gradient(135deg, #fbbf24 0%, #a78bfa 100%) !important;
+        }
+        .pro-badge-pill {
+            position: fixed;
+            top: 6rem;
+            right: 1.5rem;
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            color: #1e2433;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.5);
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            animation: proPulse 2s ease-in-out infinite;
+        }
+        @keyframes proPulse {
+            0%, 100% { box-shadow: 0 4px 20px rgba(245, 158, 11, 0.5); }
+            50% { box-shadow: 0 4px 30px rgba(245, 158, 11, 0.8); }
+        }
+        .pro-crown {
+            display: inline-block;
+            color: #fbbf24;
+            margin-left: 0.25rem;
+            animation: crownShine 2s ease-in-out infinite;
+        }
+        @keyframes crownShine {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px #fbbf24); }
+            50% { transform: scale(1.15); filter: drop-shadow(0 0 6px #fbbf24); }
+        }
         @media (prefers-reduced-motion: reduce) { .scan-line { animation: none; display: none; } }
     </style>
 </head>
@@ -266,7 +333,6 @@
             <div id="historyList" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
         </div>
     </div>
-
     <div class="max-w-2xl w-full mx-auto mt-10 px-2">
         <h3 class="text-center font-display text-lg font-semibold text-slate-200 mb-6" data-i18n="howTitle">Nasıl çalışır</h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -323,6 +389,11 @@
         </div>
     </footer>
 
+    <div id="proBadgePill" class="pro-badge-pill hidden">
+        <i class="fas fa-crown"></i>
+        <span>PRO</span>
+    </div>
+
     <div id="toastBox" class="fixed top-5 left-1/2 -translate-x-1/2 z-[60] hidden">
         <div class="bg-slate-800 border border-slate-700 text-slate-100 text-sm font-medium px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 max-w-sm">
             <i id="toastIcon" class="fas fa-circle-check text-emerald-400"></i>
@@ -334,6 +405,7 @@
         <p class="text-xs text-slate-300 leading-relaxed" data-i18n="cookieText">We use cookies.</p>
         <button onclick="acceptCookies()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-md" data-i18n="cookieBtn">Accept & Close</button>
     </div>
+
     <div id="authModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-700 pb-3">
@@ -619,6 +691,11 @@
         window.addEventListener('DOMContentLoaded', () => {
             applyLanguage(); applyTheme(); loadHistory(); updateCreditDisplay();
             checkCookieConsent(); checkReferralParam(); initDragAndDrop(); restoreSession();
+            checkUpgradeParam();
+            if (isProUser()) {
+                document.body.classList.add('pro-user');
+                setTimeout(() => updateAuthUI(), 100);
+            }
         });
 
         let toastTimer = null;
@@ -661,19 +738,13 @@
         }
 
         function openAuthModal() {
-            if (currentUser) {
-                toggleUserMenu();
-                return;
-            }
+            if (currentUser) { toggleUserMenu(); return; }
             document.getElementById('authModal').classList.remove('hidden');
             resetAuthForm();
         }
 
         function toggleUserMenu() {
-            if (!currentUser) {
-                openAuthModal();
-                return;
-            }
+            if (!currentUser) { openAuthModal(); return; }
             const menu = document.getElementById('userDropdown');
             menu.classList.toggle('hidden');
         }
@@ -740,6 +811,53 @@
                 dropdown.classList.add('hidden');
             }
         });
+
+        // ---------- PRO KULLANICI YÖNETİMİ ----------
+        function setProUser(showToastMsg = true) {
+            localStorage.setItem('isPro', 'true');
+            document.body.classList.add('pro-user');
+            const proBadge = document.getElementById('proBadgePill');
+            if (proBadge) proBadge.classList.remove('hidden');
+            const creditBadge = document.getElementById('creditBadge');
+            if (creditBadge) {
+                creditBadge.innerHTML = '<i class="fas fa-infinity"></i> <span>' + (currentLang === 'tr' ? 'Sınırsız' : 'Unlimited') + '</span>';
+            }
+            const btnText = document.getElementById('buttonText');
+            if (btnText) btnText.innerText = currentLang === 'tr' ? 'Pro Tara' : 'Pro Scan';
+            const authNavText = document.getElementById('authNavText');
+            if (authNavText && !authNavText.querySelector('.pro-crown')) {
+                authNavText.innerHTML += ' <i class="fas fa-crown pro-crown"></i>';
+            }
+            if (showToastMsg) {
+                showToast(currentLang === 'tr' ? '👑 Pro üyeliğiniz aktif!' : '👑 Pro membership activated!', 'success');
+            }
+        }
+
+        function removeProUser() {
+            localStorage.removeItem('isPro');
+            document.body.classList.remove('pro-user');
+            const proBadge = document.getElementById('proBadgePill');
+            if (proBadge) proBadge.classList.add('hidden');
+            const btnText = document.getElementById('buttonText');
+            if (btnText) btnText.innerText = translations[currentLang].scanBtn;
+            const authNavText = document.getElementById('authNavText');
+            if (authNavText) {
+                const crown = authNavText.querySelector('.pro-crown');
+                if (crown) crown.remove();
+            }
+        }
+
+        function isProUser() {
+            return localStorage.getItem('isPro') === 'true';
+        }
+
+        function checkUpgradeParam() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('upgrade') && urlParams.get('upgrade') === 'success') {
+                setProUser(true);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
 
         function closeAuthModal() { document.getElementById('authModal').classList.add('hidden'); }
 
@@ -923,7 +1041,7 @@
             showToast(currentLang === 'tr' ? "Giriş başarılı!" : "Signed in!", 'success');
         }
 
-        function updateAuthUI() {
+               function updateAuthUI() {
             const btnText = document.getElementById('authNavText');
             const chevron = document.getElementById('userMenuChevron');
             const dropdownEmail = document.getElementById('dropdownEmail');
@@ -931,11 +1049,25 @@
                 btnText.innerText = currentUser.email.split('@')[0];
                 if (chevron) chevron.classList.remove('hidden');
                 if (dropdownEmail) dropdownEmail.innerText = currentUser.email;
+                if (isProUser() && !btnText.querySelector('.pro-crown')) {
+                    btnText.innerHTML += ' <i class="fas fa-crown pro-crown"></i>';
+                }
             } else {
                 btnText.innerText = translations[currentLang].loginBtn;
                 if (chevron) chevron.classList.add('hidden');
                 const dropdown = document.getElementById('userDropdown');
                 if (dropdown) dropdown.classList.add('hidden');
+            }
+            if (isProUser()) {
+                document.body.classList.add('pro-user');
+                const proBadge = document.getElementById('proBadgePill');
+                if (proBadge) proBadge.classList.remove('hidden');
+                const creditBadge = document.getElementById('creditBadge');
+                if (creditBadge) {
+                    creditBadge.innerHTML = '<i class="fas fa-infinity"></i> <span>' + (currentLang === 'tr' ? 'Sınırsız' : 'Unlimited') + '</span>';
+                }
+                const btn = document.getElementById('buttonText');
+                if (btn && !btn.innerText.includes('Pro')) btn.innerText = currentLang === 'tr' ? 'Pro Tara' : 'Pro Scan';
             }
         }
         function checkReferralParam() {
@@ -1115,7 +1247,7 @@
         }
 
         async function analyzeImage() {
-            if (freeCredits <= 0) { document.getElementById('upgradeModal').classList.remove('hidden'); return; }
+            if (freeCredits <= 0 && !isProUser()) { document.getElementById('upgradeModal').classList.remove('hidden'); return; }
             if (!currentLoadedFile) { alert(translations[currentLang].selectFirst); return; }
             const scanButton = document.getElementById('scanButton');
             const buttonText = document.getElementById('buttonText');
@@ -1128,7 +1260,11 @@
             const aiProgressBar = document.getElementById('aiProgressBar');
             const humanProgressBar = document.getElementById('humanProgressBar');
 
-            freeCredits--; localStorage.setItem('freeCredits', freeCredits); updateCreditDisplay();
+            if (!isProUser()) {
+                freeCredits--;
+                localStorage.setItem('freeCredits', freeCredits);
+                updateCreditDisplay();
+            }
             scanButton.disabled = true;
             scanButton.classList.add('opacity-70', 'cursor-not-allowed');
             buttonText.innerText = currentLang === 'tr' ? "Analiz Ediliyor..." : "Analyzing...";
@@ -1178,12 +1314,18 @@
             } finally {
                 scanButton.disabled = false;
                 scanButton.classList.remove('opacity-70', 'cursor-not-allowed');
-                buttonText.innerText = translations[currentLang].scanBtn;
+                buttonText.innerText = isProUser() ? (currentLang === 'tr' ? 'Pro Tara' : 'Pro Scan') : translations[currentLang].scanBtn;
                 buttonIcon.className = "fas fa-robot";
             }
         }
 
-        function checkBatchAccess() { document.getElementById('upgradeModal').classList.remove('hidden'); }
+        function checkBatchAccess() {
+            if (isProUser()) {
+                showToast(currentLang === 'tr' ? '👑 Pro üyeler için toplu tarama açık!' : '👑 Batch mode enabled for Pro!', 'success');
+            } else {
+                document.getElementById('upgradeModal').classList.remove('hidden');
+            }
+        }
 
         function toggleCheckoutButton() {
             const checked = document.getElementById('withdrawalConsentCheckbox').checked;
