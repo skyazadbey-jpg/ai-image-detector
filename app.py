@@ -54,6 +54,7 @@ def init_db():
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT UNIQUE NOT NULL,
+                        is_pro INTEGER DEFAULT 0,
             password_hash TEXT,
             google_id TEXT,
             is_verified INTEGER DEFAULT 0,
@@ -325,6 +326,45 @@ def api_home():
 
 
 # ---------- PREDICT ----------
+# ---------- LEMON SQUEEZY WEBHOOK ----------
+from fastapi import Request
+import hmac
+import hashlib
+import json
+
+@app.post("/webhooks/lemonsqueezy")
+async def lemonsqueezy_webhook(request: Request):
+    try:
+        raw_body = await request.body()
+        signature = request.headers.get("X-Signature", "")
+        webhook_secret = os.getenv("LEMONSQUEEZY_WEBHOOK_SECRET", "")
+
+        if webhook_secret:
+            computed = hmac.new(
+                webhook_secret.encode('utf-8'),
+                raw_body,
+                hashlib.sha256
+            ).hexdigest()
+            if not hmac.compare_digest(computed, signature):
+                return {"error": "Gecersiz imza"}
+
+        payload = json.loads(raw_body)
+        event_name = payload.get("meta", {}).get("event_name")
+        data = payload.get("data", {})
+        attributes = data.get("attributes", {})
+        user_email = attributes.get("user_email")
+
+        if user_email:
+            conn = get_db()
+            conn.execute("UPDATE users SET is_pro = 1 WHERE email = ?", (user_email,))
+            conn.commit()
+            conn.close()
+            print(f"PRO: {user_email}")
+
+        return {"status": "ok", "received": event_name}
+    except Exception as e:
+        print(f"Webhook Hatasi: {e}")
+        return {"status": "error", "message": str(e)}
 @app.post("/predict")
 async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
     try:
