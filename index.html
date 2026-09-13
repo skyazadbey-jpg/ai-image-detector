@@ -1309,8 +1309,16 @@
 
             if (!isProUser()) {
                 freeCredits--;
+                     if (!isProUser()) {
+                if (freeCredits <= 0) {
+                    document.getElementById('upgradeModal').classList.remove('hidden');
+                    return;
+                }
+                freeCredits--;
                 localStorage.setItem('freeCredits', freeCredits);
                 updateCreditDisplay();
+            }
+                eCreditDisplay();
             }
             scanButton.disabled = true;
             scanButton.classList.add('opacity-70', 'cursor-not-allowed');
