@@ -60,9 +60,38 @@
 <body class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300 min-h-screen flex flex-col items-center justify-between p-4 sm:p-6 font-sans relative">
 
     <div class="absolute top-4 right-4 sm:top-6 sm:right-6 flex items-center gap-2 sm:gap-3 z-30">
-        <button onclick="openAuthModal()" id="authNavBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 sm:px-4 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5">
-            <i class="fas fa-user-circle"></i> <span id="authNavText" data-i18n="loginBtn">Sign In</span>
-        </button>
+        <div class="relative" id="userMenuWrapper">
+            <button onclick="toggleUserMenu()" id="authNavBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 sm:px-4 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5">
+                <i class="fas fa-user-circle"></i> <span id="authNavText" data-i18n="loginBtn">Sign In</span>
+                <i class="fas fa-chevron-down text-[10px] opacity-60 hidden" id="userMenuChevron"></i>
+            </button>
+            <div id="userDropdown" class="hidden absolute right-0 mt-2 w-56 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl overflow-hidden z-50">
+                <div class="p-3 border-b border-slate-700 bg-slate-900/60">
+                    <p class="text-[10px] text-slate-500 uppercase font-semibold tracking-wider" data-i18n="signedInAs">Signed in as</p>
+                    <p id="dropdownEmail" class="text-xs text-slate-200 font-semibold truncate mt-0.5"></p>
+                </div>
+                <div class="p-1.5">
+                    <button onclick="openUpgradeFromMenu()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-700/60 transition flex items-center gap-2.5 text-xs text-slate-200">
+                        <i class="fas fa-crown text-yellow-400 w-4"></i>
+                        <span data-i18n="upgradeMenuBtn">Pro'ya Yükselt</span>
+                    </button>
+                    <button onclick="openInviteFromMenu()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-700/60 transition flex items-center gap-2.5 text-xs text-slate-200">
+                        <i class="fas fa-user-plus text-indigo-400 w-4"></i>
+                        <span data-i18n="inviteMenuBtn">Arkadaş Davet Et</span>
+                    </button>
+                    <button onclick="showMyHistory()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-700/60 transition flex items-center gap-2.5 text-xs text-slate-200">
+                        <i class="fas fa-history text-indigo-400 w-4"></i>
+                        <span data-i18n="historyMenuBtn">Tarama Geçmişim</span>
+                    </button>
+                </div>
+                <div class="p-1.5 border-t border-slate-700">
+                    <button onclick="confirmLogout()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-red-950/60 transition flex items-center gap-2.5 text-xs text-red-400">
+                        <i class="fas fa-right-from-bracket w-4"></i>
+                        <span data-i18n="logoutMenuBtn">Çıkış Yap</span>
+                    </button>
+                </div>
+            </div>
+        </div>
         <div id="creditBadge" class="bg-slate-800 text-indigo-400 px-2.5 sm:px-3 py-2 rounded-xl text-xs font-bold border border-slate-700 shadow-md flex items-center gap-1.5 cursor-pointer hover:bg-slate-700 transition" onclick="openInviteModal()">
             <i class="fas fa-bolt text-yellow-400"></i> <span id="creditsLeft">3</span> <span class="hidden xs:inline" data-i18n="creditsText">Free Scans</span>
         </div>
@@ -237,6 +266,7 @@
             <div id="historyList" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
         </div>
     </div>
+
     <div class="max-w-2xl w-full mx-auto mt-10 px-2">
         <h3 class="text-center font-display text-lg font-semibold text-slate-200 mb-6" data-i18n="howTitle">Nasıl çalışır</h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -304,7 +334,6 @@
         <p class="text-xs text-slate-300 leading-relaxed" data-i18n="cookieText">We use cookies.</p>
         <button onclick="acceptCookies()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-md" data-i18n="cookieBtn">Accept & Close</button>
     </div>
-
     <div id="authModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-700 pb-3">
@@ -408,7 +437,7 @@
             <h3 class="text-2xl font-bold text-white" data-i18n="inviteTitle">Invite Friends</h3>
             <p class="text-slate-300 text-sm" data-i18n="inviteDesc">Share your referral link.</p>
             <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex items-center justify-between gap-2">
-                <input type="text" id="referralLink" readonly value="https://ai-image-detector.netlify.app/?ref=pro2026" class="bg-transparent text-xs text-indigo-300 flex-1 px-2 focus:outline-none truncate">
+                <input type="text" id="referralLink" readonly value="https://ai-image-detector-9lg1.onrender.com/?ref=pro2026" class="bg-transparent text-xs text-indigo-300 flex-1 px-2 focus:outline-none truncate">
                 <button onclick="copyReferralLink()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition" data-i18n="copyBtn">Copy</button>
             </div>
             <button onclick="closeInviteModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl transition text-sm" data-i18n="closeBtn">Close</button>
@@ -426,7 +455,7 @@
         </div>
     </div>
     <script>
-const BACKEND_URL = window.location.origin;
+        const BACKEND_URL = window.location.origin;
         const GOOGLE_CLIENT_ID = "231913863443-m12rj0heko81fuhfneqa4finlh2dtvcb.apps.googleusercontent.com";
 
         const translations = {
@@ -491,7 +520,12 @@ const BACKEND_URL = window.location.origin;
                 heatmapAnalyzed: "Analysis", heatmapRed: "Red areas:",
                 heatmapRedDesc: "Likely AI-generated", heatmapBlue: "Blue areas:",
                 heatmapBlueDesc: "Likely authentic",
-                heatmapDisclaimer: "Visual aid based on model confidence."
+                heatmapDisclaimer: "Visual aid based on model confidence.",
+                signedInAs: "Signed in as",
+                upgradeMenuBtn: "Upgrade to Pro",
+                inviteMenuBtn: "Invite Friends",
+                historyMenuBtn: "My Scan History",
+                logoutMenuBtn: "Sign Out"
             },
             tr: {
                 title: "Yapay Zeka Görsel Dedektörü", subtitle: "Görsel desenlerini analiz edin.",
@@ -554,7 +588,12 @@ const BACKEND_URL = window.location.origin;
                 heatmapAnalyzed: "Analiz", heatmapRed: "Kırmızı bölgeler:",
                 heatmapRedDesc: "Muhtemelen AI", heatmapBlue: "Mavi bölgeler:",
                 heatmapBlueDesc: "Muhtemelen gerçek",
-                heatmapDisclaimer: "Model güvenine dayalı görsel yardımcıdır."
+                heatmapDisclaimer: "Model güvenine dayalı görsel yardımcıdır.",
+                signedInAs: "Giriş yapıldı",
+                upgradeMenuBtn: "Pro'ya Yükselt",
+                inviteMenuBtn: "Arkadaş Davet Et",
+                historyMenuBtn: "Tarama Geçmişim",
+                logoutMenuBtn: "Çıkış Yap"
             }
         };
 
@@ -623,14 +662,84 @@ const BACKEND_URL = window.location.origin;
 
         function openAuthModal() {
             if (currentUser) {
-                if (confirm(currentLang === 'tr' ? "Çıkış yapmak istiyor musunuz?" : "Sign out?")) {
-                    currentUser = null; localStorage.removeItem('authToken'); updateAuthUI();
-                }
+                toggleUserMenu();
                 return;
             }
             document.getElementById('authModal').classList.remove('hidden');
             resetAuthForm();
         }
+
+        function toggleUserMenu() {
+            if (!currentUser) {
+                openAuthModal();
+                return;
+            }
+            const menu = document.getElementById('userDropdown');
+            menu.classList.toggle('hidden');
+        }
+
+        function confirmLogout() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-[70]';
+            modal.id = 'logoutConfirmModal';
+            modal.innerHTML = `
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+                    <div class="w-14 h-14 bg-red-600/20 text-red-400 rounded-2xl mx-auto flex items-center justify-center text-2xl border border-red-500/30">
+                        <i class="fas fa-right-from-bracket"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">${currentLang === 'tr' ? 'Çıkış yapmak istiyor musunuz?' : 'Sign out?'}</h3>
+                    <p class="text-xs text-slate-400">${currentLang === 'tr' ? 'Hesabınızdan güvenli bir şekilde çıkış yapacaksınız.' : 'You will be securely signed out.'}</p>
+                    <div class="flex gap-2 pt-2">
+                        <button onclick="closeLogoutConfirm()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl transition text-sm">${currentLang === 'tr' ? 'İptal' : 'Cancel'}</button>
+                        <button onclick="doLogout()" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 rounded-xl transition text-sm">${currentLang === 'tr' ? 'Çıkış Yap' : 'Sign Out'}</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function closeLogoutConfirm() {
+            const m = document.getElementById('logoutConfirmModal');
+            if (m) m.remove();
+        }
+
+        function doLogout() {
+            currentUser = null;
+            localStorage.removeItem('authToken');
+            updateAuthUI();
+            closeLogoutConfirm();
+            document.getElementById('userDropdown').classList.add('hidden');
+            showToast(currentLang === 'tr' ? "Çıkış yapıldı." : "Signed out.", 'info');
+        }
+
+        function openUpgradeFromMenu() {
+            document.getElementById('userDropdown').classList.add('hidden');
+            document.getElementById('upgradeModal').classList.remove('hidden');
+        }
+
+        function openInviteFromMenu() {
+            document.getElementById('userDropdown').classList.add('hidden');
+            document.getElementById('inviteModal').classList.remove('hidden');
+        }
+
+        function showMyHistory() {
+            document.getElementById('userDropdown').classList.add('hidden');
+            const historySection = document.getElementById('historySection');
+            if (historySection) {
+                historySection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                historySection.style.transition = 'box-shadow 0.5s ease';
+                historySection.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.5)';
+                setTimeout(() => { historySection.style.boxShadow = ''; }, 1500);
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            const wrapper = document.getElementById('userMenuWrapper');
+            const dropdown = document.getElementById('userDropdown');
+            if (wrapper && dropdown && !wrapper.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
 
         function closeAuthModal() { document.getElementById('authModal').classList.add('hidden'); }
 
@@ -816,9 +925,19 @@ const BACKEND_URL = window.location.origin;
 
         function updateAuthUI() {
             const btnText = document.getElementById('authNavText');
-            btnText.innerText = currentUser ? currentUser.email.split('@')[0] : translations[currentLang].loginBtn;
+            const chevron = document.getElementById('userMenuChevron');
+            const dropdownEmail = document.getElementById('dropdownEmail');
+            if (currentUser) {
+                btnText.innerText = currentUser.email.split('@')[0];
+                if (chevron) chevron.classList.remove('hidden');
+                if (dropdownEmail) dropdownEmail.innerText = currentUser.email;
+            } else {
+                btnText.innerText = translations[currentLang].loginBtn;
+                if (chevron) chevron.classList.add('hidden');
+                const dropdown = document.getElementById('userDropdown');
+                if (dropdown) dropdown.classList.add('hidden');
+            }
         }
-
         function checkReferralParam() {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('ref')) {
@@ -1076,8 +1195,8 @@ const BACKEND_URL = window.location.origin;
 
         function shareResult(platform) {
             if (!lastAnalysisStatus) return;
-            const liveSiteUrl = "https://ai-image-detector.netlify.app";
-                       const text = currentLang === 'tr'
+            const liveSiteUrl = window.location.origin;
+            const text = currentLang === 'tr'
                 ? `🔍 Bu görselin analiz sonucu: YZ %${lastAnalysisStatus.aiScore}\n\nSen de test et:`
                 : `🔍 Analysis result: AI %${lastAnalysisStatus.aiScore}\n\nTest it yourself:`;
 
