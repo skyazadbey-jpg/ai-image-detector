@@ -54,16 +54,25 @@ def init_db():
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT UNIQUE NOT NULL,
-                        credits INTEGER DEFAULT 3,
             password_hash TEXT,
             google_id TEXT,
             is_verified INTEGER DEFAULT 0,
+            is_pro INTEGER DEFAULT 0,
+            credits INTEGER DEFAULT 3,
             otp_code TEXT,
             otp_expires REAL,
             created_at REAL
         )
         """
     )
+    try:
+        conn.execute("ALTER TABLE users ADD COLUMN is_pro INTEGER DEFAULT 0")
+    except Exception:
+        pass
+    try:
+        conn.execute("ALTER TABLE users ADD COLUMN credits INTEGER DEFAULT 3")
+    except Exception:
+        pass
     conn.commit()
     conn.close()
 
