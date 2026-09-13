@@ -787,9 +787,24 @@
             if (m) m.remove();
         }
 
-        function doLogout() {
+              function doLogout() {
             currentUser = null;
             localStorage.removeItem('authToken');
+            localStorage.removeItem('isPro');
+            document.body.classList.remove('pro-user');
+            const proBadge = document.getElementById('proBadgePill');
+            if (proBadge) proBadge.classList.add('hidden');
+            const creditBadge = document.getElementById('creditBadge');
+            if (creditBadge) {
+                creditBadge.innerHTML = '<i class="fas fa-bolt text-yellow-400"></i> <span id="creditsLeft">3</span> <span class="hidden xs:inline" data-i18n="creditsText">' + (currentLang === 'tr' ? 'Ücretsiz Hak' : 'Free Scans') + '</span>';
+            }
+            const btnText = document.getElementById('buttonText');
+            if (btnText) btnText.innerText = translations[currentLang].scanBtn;
+            const authNavText = document.getElementById('authNavText');
+            if (authNavText) {
+                const crown = authNavText.querySelector('.pro-crown');
+                if (crown) crown.remove();
+            }
             updateAuthUI();
             closeLogoutConfirm();
             document.getElementById('userDropdown').classList.add('hidden');
