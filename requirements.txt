@@ -2,7 +2,8 @@ fastapi
 uvicorn
 requests
 python-multipart
-passlib[bcrypt]
+passlib
+bcrypt==4.0.1
 pyjwt
 google-auth
 email-validator
