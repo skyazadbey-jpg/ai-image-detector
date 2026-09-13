@@ -251,7 +251,7 @@
                     <p class="text-[10px] text-slate-400" data-i18n="batchDesc">Scan multiple images at once (Pro)</p>
                 </div>
             </div>
-            <button onclick="checkBatchAccess()" class="bg-indigo-950 hover:bg-indigo-900 text-indigo-300 text-xs font-bold px-3 py-1.5 rounded-lg border border-indigo-800 transition" data-i18n="batchBtn">Enable</button>
+            <button onclick="showBatchComingSoon()" class="bg-slate-800 hover:bg-slate-700 text-slate-500 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-600 transition cursor-not-allowed" data-i18n="batchBtnSoon">Yakında</button>
         </div>
 
         <button onclick="analyzeImage()" id="scanButton" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl transition duration-200 shadow-lg flex items-center justify-center gap-3 text-lg active:scale-[0.98]">
@@ -538,6 +538,7 @@
                 changeText: "Click or drop to change", urlLabel: "Enter Image Direct URL",
                 loadBtn: "Load", batchTitle: "Batch Processing Mode",
                 batchDesc: "Scan multiple images (Pro)", batchBtn: "Enable",
+                                batchBtnSoon: "Coming Soon",
                 scanBtn: "Scan Image", resultTitle: "Analysis Result",
                 loadingText: "Analyzing...", aiProb: "AI Generated Probability",
                 humanProb: "Real Photo Probability", historyTitle: "Recent Scans",
@@ -606,6 +607,7 @@
                 changeText: "Değiştirmek için tıklayın", urlLabel: "Doğrudan Görsel URL'si",
                 loadBtn: "Yükle", batchTitle: "Toplu Tarama Modu",
                 batchDesc: "Birden fazla görsel tara (Pro)", batchBtn: "Etkinleştir",
+                                batchBtnSoon: "Yakında",
                 scanBtn: "Görseli Tara", resultTitle: "Analiz Sonucu",
                 loadingText: "Analiz ediliyor...", aiProb: "Yapay Zeka Olasılığı",
                 humanProb: "Gerçek Fotoğraf Olasılığı", historyTitle: "Son Taramalar",
@@ -1319,13 +1321,10 @@
             }
         }
 
-        function checkBatchAccess() {
-            if (isProUser()) {
-                showToast(currentLang === 'tr' ? '👑 Pro üyeler için toplu tarama açık!' : '👑 Batch mode enabled for Pro!', 'success');
-            } else {
-                document.getElementById('upgradeModal').classList.remove('hidden');
-            }
-        }
+        function showBatchComingSoon() {
+    showToast(currentLang === 'tr' ? '🚀 Toplu tarama özelliği çok yakında!' : '🚀 Batch processing coming soon!', 'info');
+}
+       
 
         function toggleCheckoutButton() {
             const checked = document.getElementById('withdrawalConsentCheckbox').checked;
