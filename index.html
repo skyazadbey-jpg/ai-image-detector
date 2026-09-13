@@ -1322,18 +1322,11 @@
             const aiProgressBar = document.getElementById('aiProgressBar');
             const humanProgressBar = document.getElementById('humanProgressBar');
 
-            if (!isProUser()) {
-                freeCredits--;
-                     if (!isProUser()) {
+                if (!isProUser()) {
                 if (freeCredits <= 0) {
                     document.getElementById('upgradeModal').classList.remove('hidden');
                     return;
                 }
-                freeCredits--;
-                localStorage.setItem('freeCredits', freeCredits);
-                updateCreditDisplay();
-            }
-                eCreditDisplay();
             }
             scanButton.disabled = true;
             scanButton.classList.add('opacity-70', 'cursor-not-allowed');
@@ -1372,6 +1365,11 @@
                     let statusKey = aiScore > 75 ? "AI" : (aiScore > 45 ? "Suspicious" : "Real");
                     lastAnalysisStatus = { aiScore, statusKey };
                     updateSummaryMessage(aiScore, statusKey);
+                                        if (!isProUser()) {
+                        freeCredits--;
+                        localStorage.setItem('freeCredits', freeCredits);
+                        updateCreditDisplay();
+                    }
                     addToHistory(currentLoadedFile.name, aiScore, statusKey);
                     generateHeatmap(currentLoadedFile);
                 } else {
