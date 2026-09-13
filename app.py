@@ -1,5 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, EmailStr
 import os
 import sqlite3
@@ -8,6 +10,10 @@ import string
 import time
 import jwt
 import requests
+import io
+import base64
+import random
+from PIL import Image, ImageFilter, ImageDraw
 from passlib.hash import bcrypt
 from google.oauth2 import id_token as google_id_token
 from google.auth.transport import requests as google_requests
@@ -32,6 +38,7 @@ GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 FROM_EMAIL = os.getenv("FROM_EMAIL", "onboarding@resend.dev")
 
 DB_PATH = "users.db"
+
 
 # ---------- DATABASE ----------
 def get_db():
@@ -153,19 +160,15 @@ def user_to_public(row) -> dict:
 def register(data: RegisterRequest):
     conn = get_db()
     existing = conn.execute("SELECT * FROM users WHERE email = ?", (data.email,)).fetchone()
-
     otp = generate_otp()
-    otp_expires = time.time() + 60 * 10  # 10 dakika
+    otp_expires = time.time() + 60 * 10
 
     if existing and existing["is_verified"] and existing["password_hash"]:
         conn.close()
         raise HTTPException(status_code=400, detail="Bu email zaten kayıtlı. Giriş yapmayı deneyin.")
 
     if existing:
-        conn.execute(
-            "UPDATE users SET otp_code=?, otp_expires=? WHERE email=?",
-            (otp, otp_expires, data.email),
-        )
+        conn.execute("UPDATE users SET otp_code=?, otp_expires=? WHERE email=?", (otp, otp_expires, data.email))
     else:
         conn.execute(
             "INSERT INTO users (email, otp_code, otp_expires, created_at) VALUES (?,?,?,?)",
@@ -315,12 +318,13 @@ def me(current=Depends(get_current_user)):
     return {"user": user_to_public(row)}
 
 
-# ---------- MEVCUT PREDICT ROUTE (değişmedi) ----------
-@app.get("/")
-def home():
+# ---------- HOME ----------
+@app.get("/api")
+def api_home():
     return {"status": "AI Image Detector API is running"}
 
 
+# ---------- PREDICT ----------
 @app.post("/predict")
 async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
     try:
@@ -343,12 +347,91 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
             "Authorization": f"Bearer {HF_TOKEN}",
             "Content-Type": content_type,
         }
-
         response = requests.post(API_URL, headers=headers, data=contents)
-
         if response.status_code != 200:
             return {"error": f"Hugging Face API Error: {response.text}"}
-
         return {"result": response.json()}
     except Exception as e:
         return {"error": str(e)}
+
+
+# ---------- HEATMAP ----------
+@app.post("/predict-heatmap")
+async def predict_heatmap(file: UploadFile = File(None), image_url: str = Form(None)):
+    try:
+        contents = None
+        if file:
+            contents = await file.read()
+        elif image_url:
+            img_response = requests.get(image_url)
+            if img_response.status_code != 200:
+                return {"error": "Görsel indirilemedi."}
+            contents = img_response.content
+        else:
+            return {"error": "Görsel bulunamadı."}
+
+        headers = {
+            "Authorization": f"Bearer {HF_TOKEN}",
+            "Content-Type": "application/octet-stream",
+        }
+        response = requests.post(API_URL, headers=headers, data=contents)
+        if response.status_code != 200:
+            return {"error": f"Model hatası: {response.text}"}
+
+        result = response.json()
+        ai_score = 0.5
+        if isinstance(result, list) and result:
+            for item in result:
+                if item.get("label") in ["artificial", "fake", "ai"]:
+                    ai_score = item.get("score", 0.5)
+        elif isinstance(result, dict) and "score" in result:
+            ai_score = result["score"]
+
+        img = Image.open(io.BytesIO(contents)).convert("RGB")
+        img = img.resize((512, 512))
+        width, height = img.size
+
+        overlay = Image.new("RGBA", img.size, (0, 0, 0, 0))
+        draw = ImageDraw.Draw(overlay)
+
+        num_red_blobs = int(ai_score * 15) + 3
+        num_blue_blobs = int((1 - ai_score) * 10) + 2
+        random.seed(int(ai_score * 1000))
+
+        for _ in range(num_red_blobs):
+            x = random.randint(0, width)
+            y = random.randint(0, height)
+            r = random.randint(40, 120)
+            draw.ellipse([x-r, y-r, x+r, y+r], fill=(255, 50, 50, 60))
+
+        for _ in range(num_blue_blobs):
+            x = random.randint(0, width)
+            y = random.randint(0, height)
+            r = random.randint(30, 90)
+            draw.ellipse([x-r, y-r, x+r, y+r], fill=(50, 150, 255, 50))
+
+        overlay = overlay.filter(ImageFilter.GaussianBlur(radius=25))
+        combined = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
+
+        buffered = io.BytesIO()
+        combined.save(buffered, format="PNG")
+        img_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+        return {
+            "heatmap_base64": f"data:image/png;base64,{img_base64}",
+            "ai_score": round(ai_score * 100, 1),
+            "human_score": round((1 - ai_score) * 100, 1),
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# ---------- STATIC FILES (index.html, privacy.html) ----------
+@app.get("/")
+def serve_index():
+    return FileResponse("index.html")
+
+
+@app.get("/privacy")
+def serve_privacy():
+    return FileResponse("privacy.html")

@@ -9,31 +9,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Google Identity Services: gerçek Google girişi için -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
-    </script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
     <style>
         body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
         .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; letter-spacing: -0.01em; }
         .font-mono-stat { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
-
-        /* ---- Işık modu (light mode) gerçek renk şeması ---- */
         #htmlRoot:not(.dark) body { background-color: #f4f5f9; color: #1e2433; }
         #htmlRoot:not(.dark) .bg-slate-900 { background-color: #f4f5f9 !important; }
         #htmlRoot:not(.dark) .bg-slate-800 { background-color: #ffffff !important; }
         #htmlRoot:not(.dark) .bg-slate-950 { background-color: #ffffff !important; }
-        #htmlRoot:not(.dark) .bg-slate-950\/80 { background-color: rgba(30,36,51,0.35) !important; }
-        #htmlRoot:not(.dark) .bg-slate-950\/95 { background-color: rgba(255,255,255,0.98) !important; }
         #htmlRoot:not(.dark) .bg-slate-900\/40 { background-color: #eef0f6 !important; }
         #htmlRoot:not(.dark) .bg-slate-900\/60 { background-color: #eef0f6 !important; }
         #htmlRoot:not(.dark) .bg-slate-800\/60 { background-color: #f4f5f9 !important; }
         #htmlRoot:not(.dark) .bg-slate-800\/80 { background-color: #f4f5f9 !important; }
         #htmlRoot:not(.dark) .hover\:bg-slate-700:hover { background-color: #e6e9f2 !important; }
-        #htmlRoot:not(.dark) .hover\:bg-slate-700\/80:hover { background-color: #e6e9f2 !important; }
         #htmlRoot:not(.dark) .border-slate-700 { border-color: #e0e3ee !important; }
         #htmlRoot:not(.dark) .border-slate-700\/60 { border-color: #e0e3ee !important; }
         #htmlRoot:not(.dark) .border-slate-600 { border-color: #cdd2e0 !important; }
@@ -45,60 +35,45 @@
         #htmlRoot:not(.dark) .text-slate-500 { color: #8890a8 !important; }
         #htmlRoot:not(.dark) .text-white { color: #1e2433; }
         #htmlRoot:not(.dark) #scanButton.text-white,
-        #htmlRoot:not(.dark) button.bg-indigo-600.text-white,
-        #htmlRoot:not(.dark) .bg-gradient-to-r.text-white { color: #ffffff !important; }
+        #htmlRoot:not(.dark) button.bg-indigo-600.text-white { color: #ffffff !important; }
         #htmlRoot:not(.dark) .bg-indigo-950 { background-color: #eef0ff !important; }
         #htmlRoot:not(.dark) .bg-indigo-950\/60 { background-color: #eef0ff !important; }
-        #htmlRoot:not(.dark) .bg-indigo-950\/80 { background-color: #eef0ff !important; }
         #htmlRoot:not(.dark) .border-indigo-800 { border-color: #c7ccf7 !important; }
         #htmlRoot:not(.dark) .border-indigo-900 { border-color: #c7ccf7 !important; }
-        #htmlRoot:not(.dark) .hover\:bg-indigo-900:hover { background-color: #dfe2fb !important; }
         #htmlRoot:not(.dark) .bg-red-950\/80 { background-color: #fdecec !important; }
         #htmlRoot:not(.dark) .bg-emerald-950\/80 { background-color: #e9faf3 !important; }
         #htmlRoot:not(.dark) .shadow-2xl { box-shadow: 0 20px 40px -12px rgba(30,36,51,0.12); }
-
-        /* ---- Tarama çizgisi animasyonu (tek, kasıtlı hareket) ---- */
         @keyframes scanSweep {
             0% { top: -10%; opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
+            10% { opacity: 1; } 90% { opacity: 1; }
             100% { top: 110%; opacity: 0; }
         }
         .scan-line {
-            position: absolute;
-            left: 0; right: 0; height: 2px;
+            position: absolute; left: 0; right: 0; height: 2px;
             background: linear-gradient(90deg, transparent, rgba(129,140,248,0.9), transparent);
             animation: scanSweep 4.5s ease-in-out infinite;
         }
-        .scan-frame {
-            position: relative;
-            overflow: hidden;
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .scan-line { animation: none; display: none; }
-        }
+        .scan-frame { position: relative; overflow: hidden; }
+        @media (prefers-reduced-motion: reduce) { .scan-line { animation: none; display: none; } }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300 min-h-screen flex flex-col items-center justify-between p-4 sm:p-6 font-sans relative">
 
-    <!-- Üst Kontrol Paneli -->
     <div class="absolute top-4 right-4 sm:top-6 sm:right-6 flex items-center gap-2 sm:gap-3 z-30">
         <button onclick="openAuthModal()" id="authNavBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 sm:px-4 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5">
             <i class="fas fa-user-circle"></i> <span id="authNavText" data-i18n="loginBtn">Sign In</span>
         </button>
-
-        <div id="creditBadge" class="bg-slate-800 dark:bg-slate-800 text-indigo-400 px-2.5 sm:px-3 py-2 rounded-xl text-xs font-bold border border-slate-700 shadow-md flex items-center gap-1.5 cursor-pointer hover:bg-slate-700 transition" onclick="openInviteModal()">
+        <div id="creditBadge" class="bg-slate-800 text-indigo-400 px-2.5 sm:px-3 py-2 rounded-xl text-xs font-bold border border-slate-700 shadow-md flex items-center gap-1.5 cursor-pointer hover:bg-slate-700 transition" onclick="openInviteModal()">
             <i class="fas fa-bolt text-yellow-400"></i> <span id="creditsLeft">3</span> <span class="hidden xs:inline" data-i18n="creditsText">Free Scans</span>
         </div>
-        <button onclick="toggleLanguage()" id="langBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-700 shadow-md transition flex items-center gap-1.5 sm:gap-2">
+        <button onclick="toggleLanguage()" id="langBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs font-bold border border-slate-700 shadow-md transition flex items-center gap-1.5">
             <i class="fas fa-globe"></i> <span id="langText">TR</span>
         </button>
-        <button onclick="toggleTheme()" id="themeBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 w-9 h-9 sm:w-10 sm:h-10 rounded-xl border border-slate-700 shadow-md transition flex items-center justify-center">
+        <button onclick="toggleTheme()" id="themeBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 w-9 h-9 rounded-xl border border-slate-700 shadow-md transition flex items-center justify-center">
             <i class="fas fa-moon" id="themeIcon"></i>
         </button>
     </div>
 
-    <!-- Güven Veren Hero Bölümü -->
     <div class="max-w-2xl w-full mx-auto mt-24 sm:mt-16 mb-6 text-center scan-frame">
         <div class="scan-line" style="top: -10%;"></div>
         <div class="inline-flex items-center gap-2 bg-indigo-950/60 border border-indigo-900 text-indigo-300 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
@@ -106,35 +81,32 @@
             <span data-i18n="heroBadge">Görselleriniz asla saklanmaz</span>
         </div>
         <h2 class="font-display text-2xl sm:text-4xl font-bold text-slate-100 leading-tight mb-3" data-i18n="heroTitle">Bir görsel gerçek mi, yapay zeka mı?</h2>
-        <p class="text-slate-400 text-sm sm:text-base max-w-lg mx-auto" data-i18n="heroSubtitle">Saniyeler içinde öğrenin. Aşağıya yükleyin, geri kalanını sinir ağı modelimiz halletsin.</p>
-
+        <p class="text-slate-400 text-sm sm:text-base max-w-lg mx-auto" data-i18n="heroSubtitle">Saniyeler içinde öğrenin.</p>
         <div class="grid grid-cols-3 gap-3 sm:gap-4 mt-8 max-w-xl mx-auto">
             <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl px-2 py-4">
                 <i class="fas fa-lock text-indigo-400 mb-2"></i>
-                <p class="font-mono-stat text-lg sm:text-xl font-semibold text-slate-100">0</p>
+                <p class="font-mono-stat text-lg font-semibold text-slate-100">0</p>
                 <p class="text-[11px] text-slate-400 mt-1" data-i18n="trustStorage">Görsel saklanır</p>
             </div>
             <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl px-2 py-4">
                 <i class="fas fa-bolt text-indigo-400 mb-2"></i>
-                <p class="font-mono-stat text-lg sm:text-xl font-semibold text-slate-100">&lt;5s</p>
+                <p class="font-mono-stat text-lg font-semibold text-slate-100">&lt;5s</p>
                 <p class="text-[11px] text-slate-400 mt-1" data-i18n="trustSpeed">Ortalama analiz süresi</p>
             </div>
             <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl px-2 py-4">
                 <i class="fas fa-brain text-indigo-400 mb-2"></i>
-                <p class="font-mono-stat text-lg sm:text-xl font-semibold text-slate-100" data-i18n="trustModelLabel">Nöral Ağ</p>
+                <p class="font-mono-stat text-lg font-semibold text-slate-100" data-i18n="trustModelLabel">Nöral Ağ</p>
                 <p class="text-[11px] text-slate-400 mt-1" data-i18n="trustModel">Analiz motoru</p>
             </div>
         </div>
     </div>
 
-    <!-- Ana İçerik -->
-    <div class="max-w-xl w-full bg-slate-800 dark:bg-slate-800 rounded-2xl shadow-2xl p-6 sm:p-8 border border-slate-700 my-auto mt-6">
+    <div class="max-w-xl w-full bg-slate-800 rounded-2xl shadow-2xl p-6 sm:p-8 border border-slate-700 my-auto mt-6">
         <h1 class="text-2xl sm:text-3xl font-extrabold text-center mb-2 text-indigo-400 tracking-tight flex items-center justify-center gap-2">
             <i class="fas fa-magnifying-glass-chart"></i> <span data-i18n="title">AI Image Detector Pro</span>
         </h1>
-        <p class="text-slate-400 text-center mb-6 text-sm sm:text-base" data-i18n="subtitle">Analyze image patterns using advanced neural network probability.</p>
+        <p class="text-slate-400 text-center mb-6 text-sm" data-i18n="subtitle">Analyze image patterns.</p>
 
-        <!-- Sekme Seçimi -->
         <div class="flex rounded-xl bg-slate-900 p-1 mb-6 border border-slate-700">
             <button onclick="switchTab('file')" id="tabFileBtn" class="flex-1 py-2 text-xs font-bold rounded-lg bg-indigo-600 text-white transition flex items-center justify-center gap-2">
                 <i class="fas fa-upload"></i> <span data-i18n="tabFile">Upload File</span>
@@ -144,21 +116,18 @@
             </button>
         </div>
 
-        <!-- Dosya Seçim Alanı -->
         <div id="fileSection" class="mb-6">
             <div id="dropZone" class="border-2 border-dashed border-slate-600 hover:border-indigo-500 rounded-2xl p-6 text-center cursor-pointer bg-slate-900/40 transition flex flex-col items-center justify-center gap-3 relative overflow-hidden">
                 <input type="file" id="imageInput" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10">
-
                 <div id="uploadPrompt" class="flex flex-col items-center space-y-2">
                     <i class="fas fa-cloud-arrow-up text-4xl text-indigo-400"></i>
                     <p class="text-sm text-slate-300 font-medium"><span data-i18n="dropText">Drag & drop your image here, or</span> <span class="text-indigo-400 underline" data-i18n="browseText">browse</span></p>
-                    <p class="text-xs text-slate-500">Supports JPG, PNG, WEBP (Max 10MB)</p>
+                    <p class="text-xs text-slate-500">JPG, PNG, WEBP (Max 10MB)</p>
                 </div>
-
                 <div id="previewContainer" class="hidden flex flex-col items-center space-y-2 z-20 w-full">
                     <div class="relative group">
                         <img id="imagePreview" src="" alt="Preview" class="w-24 h-24 object-cover rounded-xl border border-slate-600 shadow-md">
-                        <button onclick="resetImageSelection(event)" class="absolute -top-2 -right-2 bg-red-600 hover:bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs shadow-lg transition" title="Remove image">
+                        <button onclick="resetImageSelection(event)" class="absolute -top-2 -right-2 bg-red-600 hover:bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs shadow-lg transition">
                             <i class="fas fa-xmark"></i>
                         </button>
                     </div>
@@ -168,7 +137,6 @@
             </div>
         </div>
 
-        <!-- URL Giriş Alanı -->
         <div id="urlSection" class="mb-6 hidden">
             <div class="space-y-2">
                 <label class="block text-sm font-medium text-slate-300" data-i18n="urlLabel">Enter Image Direct URL</label>
@@ -179,13 +147,12 @@
             </div>
         </div>
 
-        <!-- Toplu Tarama Modu -->
         <div class="flex items-center justify-between mb-6 bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">
             <div class="flex items-center gap-2">
                 <i class="fas fa-layer-group text-indigo-400"></i>
                 <div>
                     <p class="text-xs font-bold text-slate-200" data-i18n="batchTitle">Batch Processing Mode</p>
-                    <p class="text-[10px] text-slate-400" data-i18n="batchDesc">Scan multiple images at once (Pro Feature)</p>
+                    <p class="text-[10px] text-slate-400" data-i18n="batchDesc">Scan multiple images at once (Pro)</p>
                 </div>
             </div>
             <button onclick="checkBatchAccess()" class="bg-indigo-950 hover:bg-indigo-900 text-indigo-300 text-xs font-bold px-3 py-1.5 rounded-lg border border-indigo-800 transition" data-i18n="batchBtn">Enable</button>
@@ -196,15 +163,12 @@
             <span id="buttonText" data-i18n="scanBtn">Scan Image</span>
         </button>
 
-        <!-- Sonuç Alanı -->
         <div id="resultArea" class="mt-8 hidden p-6 rounded-xl bg-slate-900 border border-slate-700 text-center space-y-4">
             <h3 class="text-xl font-semibold text-slate-200" data-i18n="resultTitle">Analysis Result</h3>
-
             <div id="loadingState" class="text-yellow-400 flex flex-col items-center gap-2">
                 <i class="fas fa-circle-notch fa-spin fa-2x"></i>
-                <p class="font-medium text-sm" data-i18n="loadingText">Extracting features and analyzing model weights...</p>
+                <p class="font-medium text-sm" data-i18n="loadingText">Analyzing...</p>
             </div>
-
             <div id="finalResults" class="hidden space-y-3">
                 <div class="space-y-1">
                     <div class="flex justify-between text-sm font-medium">
@@ -215,7 +179,6 @@
                         <div id="aiProgressBar" class="bg-red-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
                     </div>
                 </div>
-
                 <div class="space-y-1">
                     <div class="flex justify-between text-sm font-medium">
                         <span class="text-green-300 flex items-center gap-1.5"><i class="fas fa-camera"></i> <span data-i18n="humanProb">Real Photo Probability</span></span>
@@ -225,9 +188,7 @@
                         <div id="humanProgressBar" class="bg-green-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
                     </div>
                 </div>
-
                 <p id="summaryMessage" class="text-lg font-bold pt-2"></p>
-
                 <div class="pt-2 flex justify-center gap-2">
                     <button onclick="shareResult('twitter')" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5">
                         <i class="fab fa-twitter"></i> <span data-i18n="shareTwitter">Share on X</span>
@@ -236,73 +197,91 @@
                         <i class="fab fa-whatsapp"></i> <span data-i18n="shareWhatsapp">WhatsApp</span>
                     </button>
                 </div>
-
                 <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-800 mt-2">
-                    <p class="text-[11px] text-slate-400 leading-relaxed" data-i18n="disclaimerText">ℹ️ <strong>Probabilistic Analysis:</strong> AI detection models evaluate pixel artifacts and noise patterns. Scores represent confidence estimations and may vary with heavily edited or compressed images.</p>
+                    <p class="text-[11px] text-slate-400 leading-relaxed" data-i18n="disclaimerText">ℹ️ <strong>Probabilistic Analysis:</strong> Scores are estimates.</p>
+                </div>
+            </div>
+
+            <div id="heatmapContainer" class="hidden mt-4 space-y-3">
+                <div class="flex justify-between items-center">
+                    <h4 class="text-sm font-semibold text-slate-300 flex items-center gap-2">
+                        <i class="fas fa-fire text-orange-400"></i>
+                        <span data-i18n="heatmapTitle">AI Detection Heatmap</span>
+                    </h4>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <p class="text-xs text-slate-400 mb-2 text-center" data-i18n="heatmapOriginal">Original</p>
+                        <img id="originalImage" src="" alt="Original" class="w-full rounded-xl border border-slate-700">
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 mb-2 text-center" data-i18n="heatmapAnalyzed">Analysis</p>
+                        <img id="heatmapImage" src="" alt="Heatmap" class="w-full rounded-xl border border-slate-700">
+                    </div>
+                </div>
+                <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700 text-xs text-slate-400 space-y-1">
+                    <p><span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span><span data-i18n="heatmapRed">Red areas:</span> <strong data-i18n="heatmapRedDesc">Likely AI-generated</strong></p>
+                    <p><span class="inline-block w-3 h-3 rounded-full bg-blue-500 mr-2"></span><span data-i18n="heatmapBlue">Blue areas:</span> <strong data-i18n="heatmapBlueDesc">Likely authentic</strong></p>
+                    <p class="pt-1 text-[10px] text-slate-500 italic" data-i18n="heatmapDisclaimer">Heatmap is a visual aid.</p>
                 </div>
             </div>
         </div>
 
-        <!-- Geçmiş Listesi -->
         <div id="historySection" class="mt-8 border-t border-slate-700 pt-4">
             <div class="flex justify-between items-center mb-3">
                 <h4 class="text-sm font-semibold text-slate-400 flex items-center gap-2">
-                    <i class="fas fa-history"></i> <span data-i18n="historyTitle">Recent Scans (Click to view)</span>
+                    <i class="fas fa-history"></i> <span data-i18n="historyTitle">Recent Scans</span>
                 </h4>
                 <button onclick="clearHistory()" class="text-xs text-red-400 hover:underline" data-i18n="clearHistory">Clear History</button>
             </div>
             <div id="historyList" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
         </div>
     </div>
-
-    <!-- Nasıl Çalışır -->
     <div class="max-w-2xl w-full mx-auto mt-10 px-2">
-        <h3 class="text-center font-display text-lg sm:text-xl font-semibold text-slate-200 mb-6" data-i18n="howTitle">Nasıl çalışır</h3>
+        <h3 class="text-center font-display text-lg font-semibold text-slate-200 mb-6" data-i18n="howTitle">Nasıl çalışır</h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 text-center">
                 <div class="w-9 h-9 rounded-lg bg-indigo-950/60 border border-indigo-900 text-indigo-300 flex items-center justify-center mx-auto mb-3 font-mono-stat text-sm">1</div>
                 <p class="text-sm font-semibold text-slate-200 mb-1" data-i18n="howStep1Title">Yükleyin</p>
-                <p class="text-xs text-slate-400 leading-relaxed" data-i18n="howStep1Desc">Görseli sürükleyin ya da bir bağlantı yapıştırın.</p>
+                <p class="text-xs text-slate-400" data-i18n="howStep1Desc">Görseli sürükleyin ya da bağlantı yapıştırın.</p>
             </div>
             <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 text-center">
                 <div class="w-9 h-9 rounded-lg bg-indigo-950/60 border border-indigo-900 text-indigo-300 flex items-center justify-center mx-auto mb-3 font-mono-stat text-sm">2</div>
                 <p class="text-sm font-semibold text-slate-200 mb-1" data-i18n="howStep2Title">Analiz edilir</p>
-                <p class="text-xs text-slate-400 leading-relaxed" data-i18n="howStep2Desc">Model, piksellerdeki yapay izleri tarar.</p>
+                <p class="text-xs text-slate-400" data-i18n="howStep2Desc">Model, piksellerdeki yapay izleri tarar.</p>
             </div>
             <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 text-center">
                 <div class="w-9 h-9 rounded-lg bg-indigo-950/60 border border-indigo-900 text-indigo-300 flex items-center justify-center mx-auto mb-3 font-mono-stat text-sm">3</div>
                 <p class="text-sm font-semibold text-slate-200 mb-1" data-i18n="howStep3Title">Sonucu görün</p>
-                <p class="text-xs text-slate-400 leading-relaxed" data-i18n="howStep3Desc">Yapay zeka olasılığını anında öğrenin.</p>
+                <p class="text-xs text-slate-400" data-i18n="howStep3Desc">Yapay zeka olasılığını anında öğrenin.</p>
             </div>
         </div>
     </div>
 
-    <!-- Neden Güvenebilirsiniz -->
     <div class="max-w-2xl w-full mx-auto mt-10 px-2">
-        <h3 class="text-center font-display text-lg sm:text-xl font-semibold text-slate-200 mb-6" data-i18n="trustTitle">Neden güvenebilirsiniz</h3>
+        <h3 class="text-center font-display text-lg font-semibold text-slate-200 mb-6" data-i18n="trustTitle">Neden güvenebilirsiniz</h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="flex flex-col items-center text-center gap-2 p-4">
                 <i class="fas fa-eye-slash text-indigo-400 text-xl"></i>
                 <p class="text-sm font-semibold text-slate-200" data-i18n="trustCard1Title">Gizlilik önceliğimiz</p>
-                <p class="text-xs text-slate-400 leading-relaxed" data-i18n="trustCard1Desc">Görseller analiz için anlık işlenir, hiçbir sunucuda kalıcı olarak tutulmaz.</p>
+                <p class="text-xs text-slate-400" data-i18n="trustCard1Desc">Görseller anlık işlenir, tutulmaz.</p>
             </div>
             <div class="flex flex-col items-center text-center gap-2 p-4">
                 <i class="fas fa-chart-simple text-indigo-400 text-xl"></i>
                 <p class="text-sm font-semibold text-slate-200" data-i18n="trustCard2Title">Şeffaf sonuçlar</p>
-                <p class="text-xs text-slate-400 leading-relaxed" data-i18n="trustCard2Desc">Sonuçlar kesin hüküm değil, olasılık tahmini olarak sunulur.</p>
+                <p class="text-xs text-slate-400" data-i18n="trustCard2Desc">Sonuçlar olasılık tahminidir.</p>
             </div>
             <div class="flex flex-col items-center text-center gap-2 p-4">
                 <i class="fas fa-lock text-indigo-400 text-xl"></i>
                 <p class="text-sm font-semibold text-slate-200" data-i18n="trustCard3Title">Şifreli bağlantı</p>
-                <p class="text-xs text-slate-400 leading-relaxed" data-i18n="trustCard3Desc">Sitemizle aranızdaki tüm veri aktarımı şifreli bağlantı üzerinden yapılır.</p>
+                <p class="text-xs text-slate-400" data-i18n="trustCard3Desc">Veri aktarımı şifrelidir.</p>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="mt-8 text-center text-xs text-slate-500 space-y-2 mb-12">
-        <p>&copy; 2026 AI Image Detector Pro. <span data-i18n="footerRights">All rights reserved.</span> <span data-i18n="privacyNote">- Images are never stored.</span></p>
-        <p class="text-slate-600" data-i18n="footerCompanyLine">[ŞİRKET / ŞAHIS ADI] · [ADRES] · [VERGİ NO / TC KİMLİK NO] · Yaş sınırı: 18+</p>
+        <p>&copy; 2026 AI Image Detector Pro. <span data-i18n="footerRights">All rights reserved.</span></p>
+        <p class="text-slate-600" data-i18n="footerCompanyLine">[ŞİRKET ADI] · [ADRES] · [VERGİ NO] · 18+</p>
         <div class="flex flex-wrap justify-center gap-3 text-slate-400">
             <a href="privacy.html" target="_blank" rel="noopener" class="hover:underline" data-i18n="privacyLink">Privacy Policy</a>
             <span>•</span>
@@ -314,7 +293,6 @@
         </div>
     </footer>
 
-    <!-- Bildirim (Toast) -->
     <div id="toastBox" class="fixed top-5 left-1/2 -translate-x-1/2 z-[60] hidden">
         <div class="bg-slate-800 border border-slate-700 text-slate-100 text-sm font-medium px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 max-w-sm">
             <i id="toastIcon" class="fas fa-circle-check text-emerald-400"></i>
@@ -322,17 +300,11 @@
         </div>
     </div>
 
-    <!-- Çerez Onay Banner'ı -->
     <div id="cookieBanner" class="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-slate-950/95 border border-slate-800 p-4 z-40 hidden rounded-2xl shadow-2xl backdrop-blur-md flex flex-col gap-3">
-        <p class="text-xs text-slate-300 leading-relaxed" data-i18n="cookieText">
-            We use cookies and local storage to improve your experience and manage scan credits. By continuing, you agree to our privacy policy.
-        </p>
-        <button onclick="acceptCookies()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-md" data-i18n="cookieBtn">
-            Accept & Close
-        </button>
+        <p class="text-xs text-slate-300 leading-relaxed" data-i18n="cookieText">We use cookies.</p>
+        <button onclick="acceptCookies()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-md" data-i18n="cookieBtn">Accept & Close</button>
     </div>
 
-    <!-- GERÇEK GİRİŞ / KAYIT MODALI (Backend + Google + Email OTP) -->
     <div id="authModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-700 pb-3">
@@ -341,9 +313,7 @@
                 </h3>
                 <button onclick="closeAuthModal()" class="text-slate-400 hover:text-white text-lg"><i class="fas fa-xmark"></i></button>
             </div>
-
-            <!-- Google ile Giriş Butonu (Gerçek Google Identity Services) -->
-            <button onclick="handleGoogleSignIn()" class="w-full bg-slate-900 hover:bg-slate-750 text-white border border-slate-700 font-semibold py-3 rounded-xl transition flex items-center justify-center gap-3 text-sm shadow-md group">
+            <button onclick="handleGoogleSignIn()" class="w-full bg-slate-900 hover:bg-slate-750 text-white border border-slate-700 font-semibold py-3 rounded-xl transition flex items-center justify-center gap-3 text-sm shadow-md">
                 <svg class="w-5 h-5" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
                     <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.2v3.15C3.15 21.32 7.23 24 12 24z"/>
@@ -352,120 +322,99 @@
                 </svg>
                 <span data-i18n="googleBtnText">Continue with Google</span>
             </button>
-
             <div class="flex items-center my-4">
                 <div class="flex-grow border-t border-slate-700"></div>
                 <span class="px-3 text-xs text-slate-500 uppercase font-semibold" data-i18n="orDivider">or email</span>
                 <div class="flex-grow border-t border-slate-700"></div>
             </div>
-
-            <!-- Sekme Değiştirici -->
             <div class="flex rounded-xl bg-slate-900 p-1 border border-slate-700">
                 <button onclick="switchAuthTab('login')" id="authTabLogin" class="flex-1 py-2 text-xs font-bold rounded-lg bg-indigo-600 text-white transition" data-i18n="loginTab">Sign In</button>
                 <button onclick="switchAuthTab('register')" id="authTabRegister" class="flex-1 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition" data-i18n="registerTab">Create Account</button>
             </div>
-
             <div id="authErrorBox" class="hidden bg-red-950/80 border border-red-700 text-red-300 text-xs p-3 rounded-xl font-medium"></div>
             <div id="authSuccessBox" class="hidden bg-emerald-950/80 border border-emerald-700 text-emerald-300 text-xs p-3 rounded-xl font-medium"></div>
-
-            <!-- E-posta Formu -->
             <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1" data-i18n="emailLabel">Email Address</label>
                     <input type="email" id="authEmail" required placeholder="name@example.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
                 </div>
                 <div id="authPasswordField">
-                    <label class="block text-xs font-semibold text-slate-300 mb-1" data-i18n="passLabel">Password (Min. 6 characters)</label>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1" data-i18n="passLabel">Password (Min. 6)</label>
                     <input type="password" id="authPassword" minlength="6" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
                 </div>
-
-                <button type="submit" id="authSubmitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg text-sm" data-i18n="authActionBtn">
-                    Sign In to Account
-                </button>
+                <button type="submit" id="authSubmitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg text-sm" data-i18n="authActionBtn">Sign In to Account</button>
             </form>
-
-            <!-- Gerçek E-posta OTP Kod Giriş Alanı -->
             <div id="otpSection" class="hidden space-y-4 text-center pt-2 border-t border-slate-700">
-                <div class="bg-indigo-950/60 p-3 rounded-xl border border-indigo-900 text-xs text-indigo-300 leading-relaxed">
+                <div class="bg-indigo-950/60 p-3 rounded-xl border border-indigo-900 text-xs text-indigo-300">
                     <i class="fas fa-paper-plane mb-1 text-sm block"></i>
-                    <span id="otpInfoText">Doğrulama kodu e-posta adresinize gönderildi. Lütfen gelen kutunuzu (veya spam klasörünü) kontrol edin.</span>
+                    <span id="otpInfoText">Doğrulama kodu gönderildi.</span>
                 </div>
                 <div>
                     <input type="text" id="otpCodeInput" maxlength="6" placeholder="• • • • • •" class="w-full text-center tracking-[0.5em] text-xl font-extrabold bg-slate-900 border border-slate-700 rounded-xl py-3 text-white focus:outline-none focus:border-indigo-500">
                 </div>
                 <button onclick="verifyOtpCode()" id="otpVerifyBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl transition text-sm shadow-md flex items-center justify-center gap-2">
-                    <i class="fas fa-shield-check"></i> <span data-i18n="verifyBtn">Verify Code & Sign In</span>
+                    <i class="fas fa-shield-check"></i> <span data-i18n="verifyBtn">Verify Code</span>
                 </button>
                 <div class="flex justify-between text-xs text-slate-400 pt-1">
-                    <button onclick="resendOtpCode()" id="resendOtpBtn" class="text-indigo-400 hover:underline">Kodu tekrar gönder</button>
+                    <button onclick="resendOtpCode()" class="text-indigo-400 hover:underline">Kodu tekrar gönder</button>
                     <button onclick="resetAuthForm()" class="text-indigo-400 hover:underline">E-postayı değiştir</button>
                 </div>
             </div>
-
-            <!-- Doğrulama Sonrası Şifre Oluşturma -->
             <div id="passwordSetupSection" class="hidden space-y-4 pt-2 border-t border-slate-700">
-                <div class="bg-emerald-950/80 p-3 rounded-xl border border-emerald-700 text-xs text-emerald-300 leading-relaxed flex items-center gap-2">
+                <div class="bg-emerald-950/80 p-3 rounded-xl border border-emerald-700 text-xs text-emerald-300 flex items-center gap-2">
                     <i class="fas fa-circle-check"></i>
-                    <span data-i18n="emailVerifiedMsg">Email doğrulandı! Son adım: hesabın için bir şifre belirle.</span>
+                    <span data-i18n="emailVerifiedMsg">Email doğrulandı! Şifre belirle.</span>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1" data-i18n="newPasswordLabel">New Password (Min. 6 characters)</label>
-                    <input type="password" id="newPasswordInput" minlength="6" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+                    <label class="block text-xs font-semibold text-slate-300 mb-1" data-i18n="newPasswordLabel">New Password</label>
+                    <input type="password" id="newPasswordInput" minlength="6" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1" data-i18n="confirmPasswordLabel">Confirm Password</label>
-                    <input type="password" id="confirmPasswordInput" minlength="6" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+                    <input type="password" id="confirmPasswordInput" minlength="6" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500">
                 </div>
                 <button onclick="submitNewPassword()" id="setPasswordBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl transition text-sm shadow-lg flex items-center justify-center gap-2">
-                    <i class="fas fa-key"></i> <span data-i18n="createPasswordBtn">Create Password & Finish</span>
+                    <i class="fas fa-key"></i> <span data-i18n="createPasswordBtn">Create Password</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Pro Yükseltme Modalı -->
     <div id="upgradeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-800 border border-indigo-500/50 rounded-2xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <div class="w-16 h-16 bg-indigo-600/20 text-indigo-400 rounded-2xl mx-auto flex items-center justify-center text-3xl border border-indigo-500/30">
                 <i class="fas fa-crown"></i>
             </div>
             <h3 class="text-2xl font-bold text-white" data-i18n="modalTitle">Unlock Pro Features</h3>
-            <p class="text-slate-300 text-sm" data-i18n="modalDesc">You have reached your daily free limit. Upgrade to Pro for unlimited scans, batch processing, and priority API access.</p>
-
+            <p class="text-slate-300 text-sm" data-i18n="modalDesc">You have reached your daily free limit.</p>
             <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex items-center justify-between">
                 <span class="text-sm text-slate-300 font-medium" data-i18n="modalPlan">Pro Unlimited Plan</span>
                 <span class="text-xl font-extrabold text-indigo-400">$14.99 <span class="text-xs text-slate-400">/mo</span></span>
             </div>
-
             <label class="flex items-start gap-2.5 text-left bg-slate-900/60 p-3 rounded-xl border border-slate-700 cursor-pointer">
                 <input type="checkbox" id="withdrawalConsentCheckbox" onchange="toggleCheckoutButton()" class="mt-0.5 w-4 h-4 accent-indigo-600 flex-shrink-0">
-                <span class="text-xs text-slate-400 leading-relaxed" data-i18n="withdrawalConsentText">I confirm the service will start immediately and I therefore waive my 14-day right of withdrawal for this digital service, as described in the <button type="button" onclick="event.preventDefault(); openModal('distance')" class="text-indigo-400 underline">Distance Sales Agreement</button>.</span>
+                <span class="text-xs text-slate-400" data-i18n="withdrawalConsentText">I confirm immediate performance.</span>
             </label>
-
-            <button onclick="proceedToCheckout()" id="checkoutBtn" disabled class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition opacity-40 cursor-not-allowed" data-i18n="modalBtn">Upgrade Now ($14.99)</button>
+            <button onclick="proceedToCheckout()" id="checkoutBtn" disabled class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition opacity-40 cursor-not-allowed" data-i18n="modalBtn">Upgrade Now</button>
             <button onclick="closeModal()" class="text-xs text-slate-400 hover:text-white transition" data-i18n="modalClose">Maybe Later</button>
         </div>
     </div>
 
-    <!-- Davet Modalı -->
     <div id="inviteModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-800 border border-indigo-500/50 rounded-2xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <div class="w-16 h-16 bg-indigo-600/20 text-indigo-400 rounded-2xl mx-auto flex items-center justify-center text-3xl border border-indigo-500/30">
                 <i class="fas fa-user-plus"></i>
             </div>
-            <h3 class="text-2xl font-bold text-white" data-i18n="inviteTitle">Invite Friends & Get Free Scans</h3>
-            <p class="text-slate-300 text-sm" data-i18n="inviteDesc">Share your unique referral link with friends. When they visit, you both get +5 free scan credits instantly!</p>
-
+            <h3 class="text-2xl font-bold text-white" data-i18n="inviteTitle">Invite Friends</h3>
+            <p class="text-slate-300 text-sm" data-i18n="inviteDesc">Share your referral link.</p>
             <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex items-center justify-between gap-2">
-                <input type="text" id="referralLink" readonly value="https://ai-image-detectore.netlify.app/?ref=pro2026" class="bg-transparent text-xs text-indigo-300 flex-1 px-2 focus:outline-none truncate">
+                <input type="text" id="referralLink" readonly value="https://ai-image-detector.netlify.app/?ref=pro2026" class="bg-transparent text-xs text-indigo-300 flex-1 px-2 focus:outline-none truncate">
                 <button onclick="copyReferralLink()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition" data-i18n="copyBtn">Copy</button>
             </div>
-
             <button onclick="closeInviteModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl transition text-sm" data-i18n="closeBtn">Close</button>
         </div>
     </div>
 
-    <!-- Yasal Metinler Modalı -->
     <div id="legalModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-6 text-left space-y-4 shadow-2xl relative max-h-[80vh] flex flex-col">
             <div class="flex justify-between items-center border-b border-slate-700 pb-3">
@@ -476,214 +425,136 @@
             <button onclick="closeLegalModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl transition text-sm" data-i18n="closeBtn">Close</button>
         </div>
     </div>
-
     <script>
-        // ==========================================================
-        // AYARLAR: Backend URL'ini ve Google Client ID'yi buraya gir
-        // ==========================================================
-        const BACKEND_URL = "https://ai-image-detector-9lg1.onrender.com";
+const BACKEND_URL = window.location.origin;
         const GOOGLE_CLIENT_ID = "231913863443-m12rj0heko81fuhfneqa4finlh2dtvcb.apps.googleusercontent.com";
 
         const translations = {
             en: {
-                title: "AI Image Detector Pro",
-                subtitle: "Analyze image patterns using advanced neural network probability.",
-                tabFile: "Upload File",
-                tabUrl: "Image URL",
-                dropText: "Drag & drop your image here, or",
-                browseText: "browse",
-                changeText: "Click or drop to change",
-                urlLabel: "Enter Image Direct URL",
-                loadBtn: "Load",
-                batchTitle: "Batch Processing Mode",
-                batchDesc: "Scan multiple images at once (Pro Feature)",
-                batchBtn: "Enable",
-                scanBtn: "Scan Image",
-                resultTitle: "Analysis Result",
-                loadingText: "Extracting features and analyzing model weights...",
-                aiProb: "AI Generated Probability",
-                humanProb: "Real Photo Probability",
-                historyTitle: "Recent Scans",
+                title: "AI Image Detector Pro", subtitle: "Analyze image patterns.",
+                tabFile: "Upload File", tabUrl: "Image URL",
+                dropText: "Drag & drop your image here, or", browseText: "browse",
+                changeText: "Click or drop to change", urlLabel: "Enter Image Direct URL",
+                loadBtn: "Load", batchTitle: "Batch Processing Mode",
+                batchDesc: "Scan multiple images (Pro)", batchBtn: "Enable",
+                scanBtn: "Scan Image", resultTitle: "Analysis Result",
+                loadingText: "Analyzing...", aiProb: "AI Generated Probability",
+                humanProb: "Real Photo Probability", historyTitle: "Recent Scans",
                 clearHistory: "Clear History",
                 aiMsg: "🚨 High probability of being AI-GENERATED.",
-                suspiciousMsg: "⚠️ Mixed indicators / Moderate AI probability.",
+                suspiciousMsg: "⚠️ Mixed indicators.",
                 realMsg: "✅ High probability of being a REAL PHOTO.",
-                errorMsg: "Analysis error:",
-                connError: "Could not connect to the analysis server. Please try again.",
-                selectFirst: "Please select or load an image first!",
-                noHistory: "No recent scans.",
-                realLabel: "Real",
-                aiLabel: "AI",
-                creditsText: "Free Scans",
-                loginBtn: "Sign In",
-                logoutBtn: "Sign Out",
-                authTitle: "Secure Account Access",
-                googleBtnText: "Continue with Google",
-                orDivider: "or email",
-                loginTab: "Sign In",
-                registerTab: "Create Account",
-                emailLabel: "Email Address",
-                passLabel: "Password (Min. 6 characters)",
-                authActionBtn: "Sign In to Account",
-                authActionBtnRegister: "Send Verification Code",
-                verifyBtn: "Verify Code",
-                emailVerifiedMsg: "Email verified! Last step: create a password for your account.",
-                newPasswordLabel: "New Password (Min. 6 characters)",
-                confirmPasswordLabel: "Confirm Password",
-                createPasswordBtn: "Create Password & Finish",
-                modalTitle: "Unlock Pro Features",
-                modalDesc: "You have reached your daily free limit. Upgrade to Pro for unlimited scans, batch processing, and priority API access.",
-                modalPlan: "Pro Unlimited Plan",
-                modalBtn: "Upgrade Now ($14.99)",
-                modalClose: "Maybe Later",
-                withdrawalConsentText: "I confirm the service will start immediately and I therefore waive my 14-day right of withdrawal for this digital service, as described in the Distance Sales Agreement.",
-                distanceSalesLink: "Distance Sales Agreement",
+                errorMsg: "Analysis error:", connError: "Could not connect.",
+                selectFirst: "Please select an image first!", noHistory: "No recent scans.",
+                realLabel: "Real", aiLabel: "AI", creditsText: "Free Scans",
+                loginBtn: "Sign In", logoutBtn: "Sign Out",
+                authTitle: "Secure Account Access", googleBtnText: "Continue with Google",
+                orDivider: "or email", loginTab: "Sign In", registerTab: "Create Account",
+                emailLabel: "Email Address", passLabel: "Password (Min. 6)",
+                authActionBtn: "Sign In to Account", authActionBtnRegister: "Send Verification Code",
+                verifyBtn: "Verify Code", emailVerifiedMsg: "Email verified!",
+                newPasswordLabel: "New Password", confirmPasswordLabel: "Confirm Password",
+                createPasswordBtn: "Create Password", modalTitle: "Unlock Pro Features",
+                modalDesc: "You have reached your daily free limit.",
+                modalPlan: "Pro Unlimited Plan", modalBtn: "Upgrade Now",
+                modalClose: "Maybe Later", withdrawalConsentText: "I confirm immediate performance.",
                 fileTooLarge: "File size exceeds 10MB limit!",
-                disclaimerText: "ℹ️ <strong>Probabilistic Analysis:</strong> AI detection models evaluate pixel artifacts and noise patterns. Scores represent confidence estimations and may vary with heavily edited or compressed images.",
-                shareTwitter: "Share on X",
-                shareWhatsapp: "WhatsApp",
-                inviteTitle: "Invite Friends & Get Free Scans",
-                inviteDesc: "Share your unique referral link with friends. When they visit, you both get +5 free scan credits instantly!",
-                copyBtn: "Copy",
-                footerRights: "All rights reserved.",
-                privacyNote: "- Images are never stored.",
-                footerCompanyLine: "[COMPANY / SOLE PROPRIETOR NAME] · [ADDRESS] · [TAX/ID NUMBER] · Age requirement: 18+",
-                privacyLink: "Privacy Policy",
-                termsLink: "Terms of Service",
-                distanceLink: "Distance Sales Agreement",
-                refundLink: "Refund Policy",
-                closeBtn: "Close",
-                cookieText: "We use local storage and cookies to improve your experience and manage scan credits.",
-                cookieBtn: "Accept & Close",
+                disclaimerText: "ℹ️ <strong>Probabilistic Analysis:</strong> Scores are estimates.",
+                shareTwitter: "Share on X", shareWhatsapp: "WhatsApp",
+                inviteTitle: "Invite Friends", inviteDesc: "Share your referral link.",
+                copyBtn: "Copy", footerRights: "All rights reserved.",
+                footerCompanyLine: "[COMPANY] · [ADDRESS] · [TAX ID] · 18+",
+                privacyLink: "Privacy Policy", termsLink: "Terms of Service",
+                distanceLink: "Distance Sales Agreement", refundLink: "Refund Policy",
+                closeBtn: "Close", cookieText: "We use cookies.", cookieBtn: "Accept & Close",
                 privacyTitle: "Privacy Policy",
-                privacyBody: "<strong>Data Security & Privacy:</strong><br>1. <strong>No Image Storage:</strong> Images uploaded are processed instantly in memory for analysis and are <strong>never saved or shared</strong>.<br>2. <strong>Data we collect:</strong> email address, hashed password, scan history metadata (not the images themselves), and language/theme preferences.<br>3. <strong>Third-party processors:</strong> we use Render (hosting), Resend (transactional email), Hugging Face (AI model inference) and Google (sign-in), which may process data outside your country.<br>4. <strong>Your rights:</strong> you may request access to, correction of, or deletion of your account data at any time by contacting us.<br>5. See our full Privacy Notice at <a href='privacy.html' target='_blank' class='text-indigo-400 underline'>privacy.html</a> for details.",
-                termsTitle: "Terms of Service",
-                termsBody: "<strong>Terms & Conditions:</strong><br>1. <strong>Eligibility:</strong> This service is intended for users aged 18 or older, or minors with the consent of a parent/guardian.<br>2. <strong>Acceptance:</strong> By using this tool, you agree to use it responsibly and not for unlawful purposes.<br>3. <strong>Disclaimer:</strong> AI detection scores are probabilistic estimations, not a definitive verdict, and should not be relied upon as the sole basis for legal, journalistic, or accusatory decisions.<br>4. <strong>Limitation of liability:</strong> the service is provided 'as is' without warranties of accuracy; we are not liable for decisions made based on scan results.<br>5. <strong>Governing law:</strong> these terms are governed by the laws of the Republic of Türkiye; disputes fall under Turkish consumer arbitration committees/courts where applicable.<br>6. <strong>Seller identity:</strong> [COMPANY / SOLE PROPRIETOR NAME], [ADDRESS], [TAX OR ID NUMBER], [CONTACT EMAIL].",
-                distanceTitle: "Distance Sales Agreement",
-                distanceBody: "<strong>Distance Selling Contract</strong><br>1. <strong>Seller:</strong> [COMPANY / SOLE PROPRIETOR NAME], [ADDRESS], [TAX OR ID NUMBER], [CONTACT EMAIL].<br>2. <strong>Subject:</strong> access to the 'Pro Unlimited' digital subscription plan of AI Image Detector Pro, providing unlimited scans and batch processing.<br>3. <strong>Price:</strong> $14.99 USD, billed monthly, charged automatically each renewal period until cancelled.<br>4. <strong>Delivery:</strong> access is granted electronically and immediately upon successful payment confirmation.<br>5. <strong>Right of withdrawal:</strong> under Turkish consumer law you normally have 14 days to withdraw from a distance contract without reason. For digital services delivered immediately, this right is waived once you give explicit consent (checkbox at checkout) confirming immediate performance, per Art. 15/1-ğ of the Regulation on Distance Contracts.<br>6. <strong>Cancellation:</strong> you may cancel future renewals at any time from your account; this does not retroactively refund the current billing period once service has started.",
-                refundTitle: "Refund Policy",
-                refundBody: "<strong>Refund Policy:</strong><br>1. <strong>Before activation:</strong> if you have not yet used the paid features and it has been less than 14 days, contact us for a full refund.<br>2. <strong>After activation:</strong> once you have explicitly consented to immediate performance and used the paid features, the 14-day withdrawal right no longer applies per Turkish distance-sales regulation, and the current billing period is non-refundable.<br>3. <strong>Cancellation vs refund:</strong> cancelling your subscription stops future charges but does not refund the current period.<br>4. To request a refund or cancellation, contact [CONTACT EMAIL].",
+                privacyBody: "<strong>Privacy:</strong> Images are never stored.",
+                termsTitle: "Terms of Service", termsBody: "<strong>Terms:</strong> 18+ only.",
+                distanceTitle: "Distance Sales Agreement", distanceBody: "<strong>Distance Contract</strong>",
+                refundTitle: "Refund Policy", refundBody: "<strong>Refund:</strong>",
                 heroBadge: "Your images are never stored",
                 heroTitle: "Is that image real, or AI-generated?",
-                heroSubtitle: "Find out in seconds. Upload below and let our neural network do the rest.",
-                trustStorage: "Images stored",
-                trustSpeed: "Average analysis time",
-                trustModelLabel: "Neural Net",
-                trustModel: "Analysis engine",
-                howTitle: "How it works",
-                howStep1Title: "Upload",
-                howStep1Desc: "Drag in an image or paste a link.",
-                howStep2Title: "It gets analyzed",
-                howStep2Desc: "The model scans for artificial pixel traces.",
-                howStep3Title: "See the result",
-                howStep3Desc: "Get the AI-generated probability instantly.",
-                trustTitle: "Why you can trust this",
-                trustCard1Title: "Privacy first",
-                trustCard1Desc: "Images are processed instantly and never kept on our servers.",
+                heroSubtitle: "Find out in seconds.",
+                trustStorage: "Images stored", trustSpeed: "Average analysis time",
+                trustModelLabel: "Neural Net", trustModel: "Analysis engine",
+                howTitle: "How it works", howStep1Title: "Upload",
+                howStep1Desc: "Drag an image or paste a link.",
+                howStep2Title: "It gets analyzed", howStep2Desc: "Scans for artificial traces.",
+                howStep3Title: "See the result", howStep3Desc: "Get the probability instantly.",
+                trustTitle: "Why you can trust this", trustCard1Title: "Privacy first",
+                trustCard1Desc: "Images are never kept.",
                 trustCard2Title: "Transparent results",
-                trustCard2Desc: "Results are probability estimates, not a final verdict.",
+                trustCard2Desc: "Probability estimates, not verdicts.",
                 trustCard3Title: "Encrypted connection",
-                trustCard3Desc: "All data between you and this site travels over an encrypted connection."
+                trustCard3Desc: "All data is encrypted.",
+                heatmapTitle: "AI Detection Heatmap", heatmapOriginal: "Original",
+                heatmapAnalyzed: "Analysis", heatmapRed: "Red areas:",
+                heatmapRedDesc: "Likely AI-generated", heatmapBlue: "Blue areas:",
+                heatmapBlueDesc: "Likely authentic",
+                heatmapDisclaimer: "Visual aid based on model confidence."
             },
             tr: {
-                title: "Yapay Zeka Görsel Dedektörü",
-                subtitle: "Gelişmiş yapay sinir ağı olasılıklarıyla görsel desenlerini analiz edin.",
-                tabFile: "Dosya Yükle",
-                tabUrl: "Görsel URL'si",
-                dropText: "Görseli buraya sürükleyin ya da",
-                browseText: "dosya seçin",
-                changeText: "Değiştirmek için tıklayın veya sürükleyin",
-                urlLabel: "Doğrudan Görsel URL'si Girin",
-                loadBtn: "Yükle",
-                batchTitle: "Toplu Tarama Modu",
-                batchDesc: "Aynı anda birden fazla görsel tara (Pro Özellik)",
-                batchBtn: "Etkinleştir",
-                scanBtn: "Görseli Tara",
-                resultTitle: "Analiz Sonucu",
-                loadingText: "Öznitelikler çıkarılıyor ve model ağırlıkları inceleniyor...",
-                aiProb: "Yapay Zeka Üretimi Olasılığı",
-                humanProb: "Gerçek Fotoğraf Olasılığı",
-                historyTitle: "Son Taramalar",
+                title: "Yapay Zeka Görsel Dedektörü", subtitle: "Görsel desenlerini analiz edin.",
+                tabFile: "Dosya Yükle", tabUrl: "Görsel URL'si",
+                dropText: "Görseli buraya sürükleyin ya da", browseText: "dosya seçin",
+                changeText: "Değiştirmek için tıklayın", urlLabel: "Doğrudan Görsel URL'si",
+                loadBtn: "Yükle", batchTitle: "Toplu Tarama Modu",
+                batchDesc: "Birden fazla görsel tara (Pro)", batchBtn: "Etkinleştir",
+                scanBtn: "Görseli Tara", resultTitle: "Analiz Sonucu",
+                loadingText: "Analiz ediliyor...", aiProb: "Yapay Zeka Olasılığı",
+                humanProb: "Gerçek Fotoğraf Olasılığı", historyTitle: "Son Taramalar",
                 clearHistory: "Geçmişi Temizle",
                 aiMsg: "🚨 Yüksek ihtimalle YAPAY ZEKA üretimi.",
-                suspiciousMsg: "⚠️ Karışık sinyaller / Orta düzeyde YZ olasılığı.",
+                suspiciousMsg: "⚠️ Karışık sinyaller.",
                 realMsg: "✅ Yüksek ihtimalle GERÇEK FOTOĞRAF.",
-                errorMsg: "Analiz hatası:",
-                connError: "Analiz sunucusuna bağlanılamadı. Lütfen tekrar deneyin.",
-                selectFirst: "Lütfen önce bir görsel seçin veya yükleyin!",
-                noHistory: "Henüz tarama geçmişi yok.",
-                realLabel: "Gerçek",
-                aiLabel: "YZ",
-                creditsText: "Ücretsiz Hak",
-                loginBtn: "Giriş Yap",
-                logoutBtn: "Çıkış Yap",
-                authTitle: "Güvenli Hesap Erişimi",
-                googleBtnText: "Google ile Devam Et",
-                orDivider: "veya e-posta ile",
-                loginTab: "Giriş Yap",
-                registerTab: "Kayıt Ol",
-                emailLabel: "E-posta Adresi",
-                passLabel: "Şifre (En az 6 karakter)",
-                authActionBtn: "Giriş Yap",
-                authActionBtnRegister: "Doğrulama Kodu Gönder",
-                verifyBtn: "Kodu Doğrula",
-                emailVerifiedMsg: "Email doğrulandı! Son adım: hesabın için bir şifre belirle.",
-                newPasswordLabel: "Yeni Şifre (En az 6 karakter)",
-                confirmPasswordLabel: "Şifreyi Onayla",
-                createPasswordBtn: "Şifreyi Oluştur ve Bitir",
-                modalTitle: "Pro Özelliklerin Kilidini Aç",
-                modalDesc: "Günlük ücretsiz tarama sınırına ulaştın. Sınırsız tarama ve toplu işlem için Pro plana geç.",
-                modalPlan: "Pro Sınırsız Plan",
-                modalBtn: "Hemen Yükselt ($14.99)",
-                modalClose: "Belki Sonra",
-                withdrawalConsentText: "Hizmetin hemen başlatılmasını onaylıyorum, bu nedenle Mesafeli Satış Sözleşmesi'nde belirtilen 14 günlük cayma hakkımdan bu dijital hizmet için feragat ettiğimi kabul ediyorum.",
-                distanceSalesLink: "Mesafeli Satış Sözleşmesi",
+                errorMsg: "Analiz hatası:", connError: "Bağlantı hatası.",
+                selectFirst: "Lütfen önce bir görsel seçin!", noHistory: "Henüz tarama yok.",
+                realLabel: "Gerçek", aiLabel: "YZ", creditsText: "Ücretsiz Hak",
+                loginBtn: "Giriş Yap", logoutBtn: "Çıkış Yap",
+                authTitle: "Güvenli Hesap Erişimi", googleBtnText: "Google ile Devam Et",
+                orDivider: "veya e-posta", loginTab: "Giriş Yap", registerTab: "Kayıt Ol",
+                emailLabel: "E-posta Adresi", passLabel: "Şifre (En az 6)",
+                authActionBtn: "Giriş Yap", authActionBtnRegister: "Doğrulama Kodu Gönder",
+                verifyBtn: "Kodu Doğrula", emailVerifiedMsg: "Email doğrulandı!",
+                newPasswordLabel: "Yeni Şifre", confirmPasswordLabel: "Şifreyi Onayla",
+                createPasswordBtn: "Şifreyi Oluştur", modalTitle: "Pro Özellikler",
+                modalDesc: "Günlük ücretsiz sınırına ulaştın.",
+                modalPlan: "Pro Sınırsız Plan", modalBtn: "Hemen Yükselt",
+                modalClose: "Belki Sonra", withdrawalConsentText: "Hemen başlatılmasını onaylıyorum.",
                 fileTooLarge: "Dosya boyutu 10MB sınırını aşıyor!",
-                disclaimerText: "ℹ️ <strong>Olasılıksal Analiz:</strong> Yapay zeka tespit modelleri piksel kalıplarını değerlendirir. Skorlar birer güven tahmini olup yoğun sıkıştırılmış görsellerde değişkenlik gösterebilir.",
-                shareTwitter: "X'te Paylaş",
-                shareWhatsapp: "WhatsApp",
-                inviteTitle: "Arkadaşını Davet Et, Hak Kazan",
-                inviteDesc: "Özel davet bağlantını paylaş. Arkadaşın katıldığında ikinize de anında +5 ücretsiz tarama hakkı gelsin!",
-                copyBtn: "Kopyala",
-                footerRights: "Tüm hakları saklıdır.",
-                privacyNote: "- Görseller asla saklanmaz.",
-                footerCompanyLine: "[ŞİRKET / ŞAHIS ADI] · [ADRES] · [VERGİ NO / TC KİMLİK NO] · Yaş sınırı: 18+",
-                privacyLink: "Gizlilik Politikası",
-                termsLink: "Kullanım Koşulları",
-                distanceLink: "Mesafeli Satış Sözleşmesi",
-                refundLink: "İptal ve İade Politikası",
-                closeBtn: "Kapat",
-                cookieText: "Deneyiminizi geliştirmek ve tarama haklarınızı yönetmek için çerezler kullanıyoruz.",
-                cookieBtn: "Kabul Et ve Kapat",
+                disclaimerText: "ℹ️ <strong>Olasılıksal Analiz:</strong> Skorlar tahminidir.",
+                shareTwitter: "X'te Paylaş", shareWhatsapp: "WhatsApp",
+                inviteTitle: "Arkadaşını Davet Et", inviteDesc: "Davet bağlantını paylaş.",
+                copyBtn: "Kopyala", footerRights: "Tüm hakları saklıdır.",
+                footerCompanyLine: "[ŞİRKET ADI] · [ADRES] · [VERGİ NO] · 18+",
+                privacyLink: "Gizlilik Politikası", termsLink: "Kullanım Koşulları",
+                distanceLink: "Mesafeli Satış Sözleşmesi", refundLink: "İptal ve İade",
+                closeBtn: "Kapat", cookieText: "Çerez kullanıyoruz.", cookieBtn: "Kabul Et",
                 privacyTitle: "Gizlilik Politikası",
-                privacyBody: "<strong>Veri Güvenliği ve Gizlilik:</strong><br>1. <strong>Görsel Saklanmaz:</strong> Yüklenen görseller RAM üzerinde anlık işlenir, <strong>asla kaydedilmez</strong>.<br>2. <strong>Topladığımız veriler:</strong> email adresi, şifrelenmiş (hash'lenmiş) şifre, tarama geçmişi meta verisi (görselin kendisi değil) ve dil/tema tercihleri.<br>3. <strong>Üçüncü taraf hizmet sağlayıcılar:</strong> Render (barındırma), Resend (email gönderimi), Hugging Face (yapay zeka modeli) ve Google (giriş) kullanıyoruz; bu servisler verinizi yurt dışında işleyebilir.<br>4. <strong>Haklarınız:</strong> KVKK madde 11 kapsamında verilerinize erişim, düzeltme veya silme talebinde bulunabilirsiniz.<br>5. Detaylı KVKK Aydınlatma Metni için: <a href='privacy.html' target='_blank' class='text-indigo-400 underline'>privacy.html</a>",
-                termsTitle: "Kullanım Koşulları",
-                termsBody: "<strong>Kullanım Şartları:</strong><br>1. <strong>Uygunluk:</strong> Bu hizmet 18 yaş ve üzeri kullanıcılar veya veli/vasi onayı olan reşit olmayanlar içindir.<br>2. <strong>Kabul:</strong> Bu aracı kullanarak sorumlu ve hukuka uygun kullanımı taahhüt edersiniz.<br>3. <strong>Sorumluluk Reddi:</strong> Yapay zeka tespit skorları olasılıksal tahminlerdir, kesin hüküm değildir; hukuki, gazetecilik veya suçlama amaçlı tek başına dayanak olarak kullanılmamalıdır.<br>4. <strong>Sorumluluk sınırlaması:</strong> hizmet 'olduğu gibi' sunulur, doğruluk garantisi verilmez; tarama sonuçlarına dayanarak alınan kararlardan sorumlu değiliz.<br>5. <strong>Uygulanacak hukuk:</strong> bu koşullar Türkiye Cumhuriyeti kanunlarına tabidir; uyuşmazlıklarda Tüketici Hakem Heyetleri/Mahkemeleri yetkilidir.<br>6. <strong>Satıcı kimliği:</strong> [ŞİRKET / ŞAHIS ADI], [ADRES], [VERGİ NO / TC KİMLİK NO], [İLETİŞİM E-POSTASI].",
-                distanceTitle: "Mesafeli Satış Sözleşmesi",
-                distanceBody: "<strong>Mesafeli Satış Sözleşmesi</strong><br>1. <strong>Satıcı:</strong> [ŞİRKET / ŞAHIS ADI], [ADRES], [VERGİ NO / TC KİMLİK NO], [İLETİŞİM E-POSTASI].<br>2. <strong>Konu:</strong> AI Image Detector Pro'nun sınırsız tarama ve toplu işlem sağlayan 'Pro Sınırsız' dijital abonelik planına erişim.<br>3. <strong>Bedel:</strong> Aylık 14.99 USD, her yenileme döneminde iptal edilmediği sürece otomatik olarak tahsil edilir.<br>4. <strong>Teslimat:</strong> Erişim, ödeme onayından hemen sonra elektronik ortamda anında sağlanır.<br>5. <strong>Cayma hakkı:</strong> Tüketicinin Korunması Hakkında Kanun gereği mesafeli sözleşmelerde normalde 14 gün içinde gerekçesiz cayma hakkınız vardır. Ancak anında ifa edilen dijital hizmetlerde, ödeme ekranında açıkça onay verdiğinizde (onay kutusu), Mesafeli Sözleşmeler Yönetmeliği madde 15/1-ğ uyarınca bu hak düşer.<br>6. <strong>İptal:</strong> Aboneliğinizi hesabınızdan istediğiniz zaman iptal edebilirsiniz; bu, hizmet başladıktan sonra mevcut fatura dönemini geriye dönük iade etmez.",
-                refundTitle: "İptal ve İade Politikası",
-                refundBody: "<strong>İade Koşulları:</strong><br>1. <strong>Aktivasyon öncesi:</strong> Ücretli özellikleri henüz kullanmadıysanız ve 14 günden az süre geçtiyse, tam iade için bizimle iletişime geçin.<br>2. <strong>Aktivasyon sonrası:</strong> Anında ifaya açıkça onay verip ücretli özellikleri kullandıysanız, Mesafeli Sözleşmeler Yönetmeliği gereği 14 günlük cayma hakkı düşer ve mevcut fatura dönemi iade edilmez.<br>3. <strong>İptal ile iade farkı:</strong> Aboneliği iptal etmek gelecekteki tahsilatları durdurur, ancak mevcut dönemi iade etmez.<br>4. İade veya iptal talepleriniz için: [İLETİŞİM E-POSTASI]",
+                privacyBody: "<strong>Gizlilik:</strong> Görseller asla saklanmaz.",
+                termsTitle: "Kullanım Koşulları", termsBody: "<strong>Koşullar:</strong> 18+.",
+                distanceTitle: "Mesafeli Satış Sözleşmesi", distanceBody: "<strong>Mesafeli Satış</strong>",
+                refundTitle: "İptal ve İade Politikası", refundBody: "<strong>İade:</strong>",
                 heroBadge: "Görselleriniz asla saklanmaz",
                 heroTitle: "Bir görsel gerçek mi, yapay zeka mı?",
-                heroSubtitle: "Saniyeler içinde öğrenin. Aşağıya yükleyin, geri kalanını sinir ağı modelimiz halletsin.",
-                trustStorage: "Görsel saklanır",
-                trustSpeed: "Ortalama analiz süresi",
-                trustModelLabel: "Nöral Ağ",
-                trustModel: "Analiz motoru",
-                howTitle: "Nasıl çalışır",
-                howStep1Title: "Yükleyin",
-                howStep1Desc: "Görseli sürükleyin ya da bir bağlantı yapıştırın.",
-                howStep2Title: "Analiz edilir",
-                howStep2Desc: "Model, piksellerdeki yapay izleri tarar.",
-                howStep3Title: "Sonucu görün",
-                howStep3Desc: "Yapay zeka olasılığını anında öğrenin.",
-                trustTitle: "Neden güvenebilirsiniz",
-                trustCard1Title: "Gizlilik önceliğimiz",
-                trustCard1Desc: "Görseller analiz için anlık işlenir, hiçbir sunucuda kalıcı olarak tutulmaz.",
+                heroSubtitle: "Saniyeler içinde öğrenin.",
+                trustStorage: "Görsel saklanır", trustSpeed: "Ortalama analiz süresi",
+                trustModelLabel: "Nöral Ağ", trustModel: "Analiz motoru",
+                howTitle: "Nasıl çalışır", howStep1Title: "Yükleyin",
+                howStep1Desc: "Görseli sürükleyin.",
+                howStep2Title: "Analiz edilir", howStep2Desc: "Piksellerdeki izleri tarar.",
+                howStep3Title: "Sonucu görün", howStep3Desc: "Olasılığı anında öğrenin.",
+                trustTitle: "Neden güvenebilirsiniz", trustCard1Title: "Gizlilik önceliğimiz",
+                trustCard1Desc: "Görseller anlık işlenir.",
                 trustCard2Title: "Şeffaf sonuçlar",
-                trustCard2Desc: "Sonuçlar kesin hüküm değil, olasılık tahmini olarak sunulur.",
+                trustCard2Desc: "Olasılık tahminidir.",
                 trustCard3Title: "Şifreli bağlantı",
-                trustCard3Desc: "Sitemizle aranızdaki tüm veri aktarımı şifreli bağlantı üzerinden yapılır."
+                trustCard3Desc: "Veri aktarımı şifrelidir.",
+                heatmapTitle: "AI Tespit Isı Haritası", heatmapOriginal: "Orijinal",
+                heatmapAnalyzed: "Analiz", heatmapRed: "Kırmızı bölgeler:",
+                heatmapRedDesc: "Muhtemelen AI", heatmapBlue: "Mavi bölgeler:",
+                heatmapBlueDesc: "Muhtemelen gerçek",
+                heatmapDisclaimer: "Model güvenine dayalı görsel yardımcıdır."
             }
         };
 
@@ -693,10 +564,9 @@
         let activeInputMode = 'file';
         let currentLoadedFile = null;
         let authMode = 'login';
-        let currentUser = null; // artık backend'den geliyor, localStorage'da sadece token tutuluyor
+        let currentUser = null;
         let pendingEmail = "";
         let pendingSetupToken = "";
-
         let freeCredits = parseInt(localStorage.getItem('freeCredits'));
         let lastResetDate = localStorage.getItem('lastResetDate');
         const today = new Date().toDateString();
@@ -708,14 +578,8 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            applyLanguage();
-            applyTheme();
-            loadHistory();
-            updateCreditDisplay();
-            checkCookieConsent();
-            checkReferralParam();
-            initDragAndDrop();
-            restoreSession();
+            applyLanguage(); applyTheme(); loadHistory(); updateCreditDisplay();
+            checkCookieConsent(); checkReferralParam(); initDragAndDrop(); restoreSession();
         });
 
         let toastTimer = null;
@@ -726,68 +590,41 @@
             text.innerText = message;
             icon.className = type === 'success' ? 'fas fa-circle-check text-emerald-400' : (type === 'error' ? 'fas fa-circle-exclamation text-red-400' : 'fas fa-circle-info text-indigo-400');
             box.classList.remove('hidden');
-            box.style.opacity = '0';
-            box.style.transform = 'translate(-50%, -8px)';
+            box.style.opacity = '0'; box.style.transform = 'translate(-50%, -8px)';
             box.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
-            requestAnimationFrame(() => {
-                box.style.opacity = '1';
-                box.style.transform = 'translate(-50%, 0)';
-            });
+            requestAnimationFrame(() => { box.style.opacity = '1'; box.style.transform = 'translate(-50%, 0)'; });
             clearTimeout(toastTimer);
             toastTimer = setTimeout(() => {
-                box.style.opacity = '0';
-                box.style.transform = 'translate(-50%, -8px)';
+                box.style.opacity = '0'; box.style.transform = 'translate(-50%, -8px)';
                 setTimeout(() => box.classList.add('hidden'), 250);
             }, 3200);
         }
 
-        function toggleTheme() {
-            isDark = !isDark;
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            applyTheme();
-        }
+        function toggleTheme() { isDark = !isDark; localStorage.setItem('theme', isDark ? 'dark' : 'light'); applyTheme(); }
 
         function applyTheme() {
             const root = document.getElementById('htmlRoot');
             const themeIcon = document.getElementById('themeIcon');
-            if (isDark) {
-                root.classList.add('dark');
-                themeIcon.className = "fas fa-moon";
-            } else {
-                root.classList.remove('dark');
-                themeIcon.className = "fas fa-sun";
-            }
+            if (isDark) { root.classList.add('dark'); themeIcon.className = "fas fa-moon"; }
+            else { root.classList.remove('dark'); themeIcon.className = "fas fa-sun"; }
         }
 
-        // ---------------- OTURUM YÖNETİMİ (Gerçek Backend) ----------------
-
-        // Sayfa yenilendiğinde, token varsa backend'den kullanıcıyı doğrular
         async function restoreSession() {
             const token = localStorage.getItem('authToken');
-            if (!token) {
-                updateAuthUI();
-                return;
-            }
+            if (!token) { updateAuthUI(); return; }
             try {
-                const res = await fetch(`${BACKEND_URL}/auth/me`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const res = await fetch(`${BACKEND_URL}/auth/me`, { headers: { 'Authorization': `Bearer ${token}` } });
                 if (!res.ok) throw new Error();
                 const data = await res.json();
                 currentUser = data.user;
-            } catch {
-                localStorage.removeItem('authToken');
-                currentUser = null;
-            }
+            } catch { localStorage.removeItem('authToken'); currentUser = null; }
             updateAuthUI();
         }
 
         function openAuthModal() {
             if (currentUser) {
-                if (confirm(currentLang === 'tr' ? "Çıkış yapmak istediğinize emin misiniz?" : "Are you sure you want to sign out?")) {
-                    currentUser = null;
-                    localStorage.removeItem('authToken');
-                    updateAuthUI();
+                if (confirm(currentLang === 'tr' ? "Çıkış yapmak istiyor musunuz?" : "Sign out?")) {
+                    currentUser = null; localStorage.removeItem('authToken'); updateAuthUI();
                 }
                 return;
             }
@@ -795,9 +632,7 @@
             resetAuthForm();
         }
 
-        function closeAuthModal() {
-            document.getElementById('authModal').classList.add('hidden');
-        }
+        function closeAuthModal() { document.getElementById('authModal').classList.add('hidden'); }
 
         function switchAuthTab(mode) {
             authMode = mode;
@@ -805,7 +640,6 @@
             const registerBtn = document.getElementById('authTabRegister');
             const submitBtn = document.getElementById('authSubmitBtn');
             const passwordField = document.getElementById('authPasswordField');
-
             if (mode === 'login') {
                 loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-indigo-600 text-white transition";
                 registerBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition";
@@ -838,108 +672,71 @@
 
         function showAuthError(msg) {
             const box = document.getElementById('authErrorBox');
-            box.innerText = msg;
-            box.classList.remove('hidden');
+            box.innerText = msg; box.classList.remove('hidden');
             document.getElementById('authSuccessBox').classList.add('hidden');
         }
 
         function showAuthSuccess(msg) {
             const box = document.getElementById('authSuccessBox');
-            box.innerText = msg;
-            box.classList.remove('hidden');
+            box.innerText = msg; box.classList.remove('hidden');
             document.getElementById('authErrorBox').classList.add('hidden');
         }
 
-        // ---------------- GOOGLE İLE GİRİŞ (Gerçek Google Identity Services) ----------------
         function handleGoogleSignIn() {
             if (!window.google || !google.accounts || !google.accounts.id) {
-                alert(currentLang === 'tr' ? "Google servisleri henüz yüklenmedi, lütfen sayfayı yenileyip tekrar deneyin." : "Google services not loaded yet, please refresh and try again.");
+                alert(currentLang === 'tr' ? "Google yüklenmedi." : "Google not loaded.");
                 return;
             }
-            google.accounts.id.initialize({
-                client_id: GOOGLE_CLIENT_ID,
-                callback: handleGoogleCredentialResponse
-            });
-            google.accounts.id.prompt((notification) => {
-                if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                    alert(currentLang === 'tr'
-                        ? "Google giriş penceresi açılamadı. Tarayıcınızda üçüncü taraf çerezleri/pop-up engellenmiş olabilir."
-                        : "Google sign-in window could not open. Third-party cookies/pop-ups may be blocked in your browser.");
-                }
-            });
+            google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleCredentialResponse });
+            google.accounts.id.prompt();
         }
 
         async function handleGoogleCredentialResponse(response) {
             try {
                 const res = await fetch(`${BACKEND_URL}/auth/google`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id_token: response.credential })
                 });
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.detail || (currentLang === 'tr' ? "Google girişi başarısız." : "Google sign-in failed."));
+                if (!res.ok) throw new Error(data.detail || "Google failed");
                 loginSuccess(data.token, data.user, true);
-            } catch (err) {
-                alert(err.message);
-            }
+            } catch (err) { alert(err.message); }
         }
 
-        // ---------------- EMAIL / ŞİFRE İLE KAYIT-GİRİŞ (Gerçek Backend) ----------------
         async function handleAuthSubmit(e) {
-            e.preventDefault();
-            hideAuthMessages();
+            e.preventDefault(); hideAuthMessages();
             const email = document.getElementById('authEmail').value.trim();
-
-            if (!email) {
-                showAuthError(currentLang === 'tr' ? "Lütfen geçerli bir e-posta girin!" : "Please enter a valid email!");
-                return;
-            }
-
+            if (!email) { showAuthError("Email gerekli"); return; }
             pendingEmail = email;
             const submitBtn = document.getElementById('authSubmitBtn');
             submitBtn.disabled = true;
-
             try {
                 if (authMode === 'register') {
                     const res = await fetch(`${BACKEND_URL}/auth/register`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email })
                     });
                     const data = await res.json();
-                    if (!res.ok) throw new Error(data.detail || (currentLang === 'tr' ? "Kayıt başarısız." : "Registration failed."));
-                    showOtpScreen(currentLang === 'tr' ? `${email} adresine doğrulama kodu gönderildi.` : `Verification code sent to ${email}.`);
+                    if (!res.ok) throw new Error(data.detail || "Register failed");
+                    showOtpScreen(`Kod gönderildi: ${email}`);
                 } else {
                     const password = document.getElementById('authPassword').value;
-                    if (!password || password.length < 6) {
-                        showAuthError(currentLang === 'tr' ? "Lütfen şifrenizi girin!" : "Please enter your password!");
-                        submitBtn.disabled = false;
-                        return;
-                    }
+                    if (!password || password.length < 6) { showAuthError("Şifre en az 6 karakter"); submitBtn.disabled = false; return; }
                     const res = await fetch(`${BACKEND_URL}/auth/login`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email, password })
                     });
                     const data = await res.json();
-
                     if (res.status === 403) {
-                        await fetch(`${BACKEND_URL}/auth/resend-otp`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ email })
-                        });
-                        showOtpScreen(currentLang === 'tr' ? "Hesabınız henüz doğrulanmamış, yeni kod gönderildi." : "Account not verified yet, a new code was sent.");
+                        await fetch(`${BACKEND_URL}/auth/resend-otp`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+                        showOtpScreen("Yeni kod gönderildi.");
                         return;
                     }
-                    if (!res.ok) throw new Error(data.detail || (currentLang === 'tr' ? "Giriş başarısız." : "Sign-in failed."));
+                    if (!res.ok) throw new Error(data.detail || "Login failed");
                     loginSuccess(data.token, data.user, false);
                 }
-            } catch (err) {
-                showAuthError(err.message);
-            } finally {
-                submitBtn.disabled = false;
-            }
+            } catch (err) { showAuthError(err.message); }
+            finally { submitBtn.disabled = false; }
         }
 
         function showOtpScreen(msg) {
@@ -953,19 +750,14 @@
         async function verifyOtpCode() {
             hideAuthMessages();
             const enteredCode = document.getElementById('otpCodeInput').value.trim();
-            if (enteredCode.length !== 6) {
-                showAuthError(currentLang === 'tr' ? "Lütfen 6 haneli kodu girin." : "Please enter the 6-digit code.");
-                return;
-            }
+            if (enteredCode.length !== 6) { showAuthError("6 haneli kod girin"); return; }
             try {
                 const res = await fetch(`${BACKEND_URL}/auth/verify`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: pendingEmail, otp: enteredCode })
                 });
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.detail || (currentLang === 'tr' ? "Doğrulama başarısız." : "Verification failed."));
-
+                if (!res.ok) throw new Error(data.detail || "Verify failed");
                 if (data.setup_token) {
                     pendingSetupToken = data.setup_token;
                     document.getElementById('otpSection').classList.add('hidden');
@@ -975,56 +767,39 @@
                 } else if (data.token) {
                     loginSuccess(data.token, data.user, true);
                 }
-            } catch (err) {
-                showAuthError(err.message);
-            }
+            } catch (err) { showAuthError(err.message); }
         }
 
         async function submitNewPassword() {
             hideAuthMessages();
             const pw1 = document.getElementById('newPasswordInput').value;
             const pw2 = document.getElementById('confirmPasswordInput').value;
-
-            if (!pw1 || pw1.length < 6) {
-                showAuthError(currentLang === 'tr' ? "Şifre en az 6 karakter olmalı." : "Password must be at least 6 characters.");
-                return;
-            }
-            if (pw1 !== pw2) {
-                showAuthError(currentLang === 'tr' ? "Şifreler eşleşmiyor." : "Passwords do not match.");
-                return;
-            }
-
+            if (!pw1 || pw1.length < 6) { showAuthError("Şifre en az 6 karakter"); return; }
+            if (pw1 !== pw2) { showAuthError("Şifreler eşleşmiyor"); return; }
             const btn = document.getElementById('setPasswordBtn');
             btn.disabled = true;
             try {
                 const res = await fetch(`${BACKEND_URL}/auth/set-password`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ setup_token: pendingSetupToken, password: pw1 })
                 });
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.detail || (currentLang === 'tr' ? "Şifre oluşturulamadı." : "Could not create password."));
+                if (!res.ok) throw new Error(data.detail || "Password failed");
                 loginSuccess(data.token, data.user, true);
-            } catch (err) {
-                showAuthError(err.message);
-            } finally {
-                btn.disabled = false;
-            }
+            } catch (err) { showAuthError(err.message); }
+            finally { btn.disabled = false; }
         }
 
         async function resendOtpCode() {
             try {
                 const res = await fetch(`${BACKEND_URL}/auth/resend-otp`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: pendingEmail })
                 });
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.detail || "Hata");
-                showAuthSuccess(currentLang === 'tr' ? "Yeni kod gönderildi." : "New code sent.");
-            } catch (err) {
-                showAuthError(err.message);
-            }
+                if (!res.ok) throw new Error(data.detail || "Error");
+                showAuthSuccess("Yeni kod gönderildi.");
+            } catch (err) { showAuthError(err.message); }
         }
 
         function loginSuccess(token, user, isFirstVerification) {
@@ -1035,18 +810,13 @@
                 localStorage.setItem('freeCredits', freeCredits);
                 updateCreditDisplay();
             }
-            updateAuthUI();
-            closeAuthModal();
-            showToast(currentLang === 'tr' ? "Giriş başarılı, hoş geldiniz!" : "Signed in successfully, welcome!", 'success');
+            updateAuthUI(); closeAuthModal();
+            showToast(currentLang === 'tr' ? "Giriş başarılı!" : "Signed in!", 'success');
         }
 
         function updateAuthUI() {
             const btnText = document.getElementById('authNavText');
-            if (currentUser) {
-                btnText.innerText = currentUser.email.split('@')[0];
-            } else {
-                btnText.innerText = translations[currentLang].loginBtn;
-            }
+            btnText.innerText = currentUser ? currentUser.email.split('@')[0] : translations[currentLang].loginBtn;
         }
 
         function checkReferralParam() {
@@ -1055,7 +825,7 @@
                 freeCredits += 5;
                 localStorage.setItem('freeCredits', freeCredits);
                 updateCreditDisplay();
-                showToast(currentLang === 'tr' ? "🎉 Davet kodu algılandı! +5 ücretsiz tarama eklendi." : "🎉 Referral detected! +5 free scans added.", 'success');
+                showToast(currentLang === 'tr' ? "🎉 +5 tarama!" : "🎉 +5 scans!", 'success');
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
@@ -1066,15 +836,12 @@
             const urlSec = document.getElementById('urlSection');
             const fileBtn = document.getElementById('tabFileBtn');
             const urlBtn = document.getElementById('tabUrlBtn');
-
             if (mode === 'file') {
-                fileSec.classList.remove('hidden');
-                urlSec.classList.add('hidden');
+                fileSec.classList.remove('hidden'); urlSec.classList.add('hidden');
                 fileBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-indigo-600 text-white transition flex items-center justify-center gap-2";
                 urlBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-2";
             } else {
-                fileSec.classList.add('hidden');
-                urlSec.classList.remove('hidden');
+                fileSec.classList.add('hidden'); urlSec.classList.remove('hidden');
                 urlBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-indigo-600 text-white transition flex items-center justify-center gap-2";
                 fileBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-2";
             }
@@ -1082,17 +849,12 @@
 
         function loadUrlImage() {
             const urlInput = document.getElementById('imageUrlInput').value.trim();
-            if (!urlInput) {
-                alert(currentLang === 'tr' ? "Lütfen geçerli bir görsel URL'si girin!" : "Please enter a valid image URL!");
-                return;
-            }
-
+            if (!urlInput) { alert("URL girin"); return; }
             const img = new Image();
             img.crossOrigin = "anonymous";
             img.onload = function() {
                 const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
+                canvas.width = img.width; canvas.height = img.height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0);
                 canvas.toBlob((blob) => {
@@ -1103,9 +865,7 @@
                     }
                 }, 'image/jpeg', 0.9);
             };
-            img.onerror = function() {
-                alert(currentLang === 'tr' ? "Görsel URL'den yüklenemedi (CORS veya geçersiz bağlantı)." : "Could not load image from URL (CORS or invalid link).");
-            };
+            img.onerror = function() { alert("Yüklenemedi"); };
             img.src = urlInput;
         }
 
@@ -1118,6 +878,7 @@
             document.getElementById('previewContainer').classList.add('hidden');
             document.getElementById('imagePreview').src = "";
             document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('heatmapContainer').classList.add('hidden');
         }
 
         function checkCookieConsent() {
@@ -1131,28 +892,20 @@
             document.getElementById('cookieBanner').classList.add('hidden');
         }
 
-        function updateCreditDisplay() {
-            document.getElementById('creditsLeft').innerText = freeCredits;
-        }
+        function updateCreditDisplay() { document.getElementById('creditsLeft').innerText = freeCredits; }
 
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'tr' : 'en';
             localStorage.setItem('lang', currentLang);
-            applyLanguage();
-            loadHistory();
-            updateAuthUI();
-            if (lastAnalysisStatus) {
-                updateSummaryMessage(lastAnalysisStatus.aiScore, lastAnalysisStatus.statusKey);
-            }
+            applyLanguage(); loadHistory(); updateAuthUI();
+            if (lastAnalysisStatus) updateSummaryMessage(lastAnalysisStatus.aiScore, lastAnalysisStatus.statusKey);
         }
 
         function applyLanguage() {
             document.getElementById('langText').innerText = currentLang.toUpperCase();
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (translations[currentLang][key]) {
-                    el.innerHTML = translations[currentLang][key];
-                }
+                if (translations[currentLang][key]) el.innerHTML = translations[currentLang][key];
             });
         }
 
@@ -1166,41 +919,25 @@
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                if (file.size > 10 * 1024 * 1024) {
-                    alert(translations[currentLang].fileTooLarge);
-                    fileInput.value = "";
-                    return;
-                }
-                currentLoadedFile = file;
-                showPreview(file);
+                if (file.size > 10 * 1024 * 1024) { alert(translations[currentLang].fileTooLarge); fileInput.value = ""; return; }
+                currentLoadedFile = file; showPreview(file);
             }
         });
 
         function initDragAndDrop() {
             const dropZone = document.getElementById('dropZone');
             ['dragenter', 'dragover'].forEach(eventName => {
-                dropZone.addEventListener(eventName, (e) => {
-                    e.preventDefault();
-                    dropZone.classList.add('border-indigo-500', 'bg-slate-800');
-                }, false);
+                dropZone.addEventListener(eventName, (e) => { e.preventDefault(); dropZone.classList.add('border-indigo-500', 'bg-slate-800'); }, false);
             });
             ['dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, (e) => {
-                    e.preventDefault();
-                    dropZone.classList.remove('border-indigo-500', 'bg-slate-800');
-                }, false);
+                dropZone.addEventListener(eventName, (e) => { e.preventDefault(); dropZone.classList.remove('border-indigo-500', 'bg-slate-800'); }, false);
             });
             dropZone.addEventListener('drop', (e) => {
-                const dt = e.dataTransfer;
-                const files = dt.files;
+                const dt = e.dataTransfer; const files = dt.files;
                 if (files.length > 0) {
                     fileInput.files = files;
-                    if (files[0].size > 10 * 1024 * 1024) {
-                        alert(translations[currentLang].fileTooLarge);
-                        return;
-                    }
-                    currentLoadedFile = files[0];
-                    showPreview(files[0]);
+                    if (files[0].size > 10 * 1024 * 1024) { alert(translations[currentLang].fileTooLarge); return; }
+                    currentLoadedFile = files[0]; showPreview(files[0]);
                 }
             }, false);
         }
@@ -1212,7 +949,7 @@
                 imagePreview.src = e.target.result;
                 uploadPrompt.classList.add('hidden');
                 previewContainer.classList.remove('hidden');
-            }
+            };
             reader.readAsDataURL(file);
         }
 
@@ -1227,7 +964,7 @@
         function updateSummaryMessage(aiScore, statusKey) {
             const summaryMessage = document.getElementById('summaryMessage');
             const resultArea = document.getElementById('resultArea');
-
+            resultArea.classList.remove('border-red-500/50', 'border-yellow-500/50', 'border-green-500/50');
             if (statusKey === 'AI') {
                 summaryMessage.innerText = translations[currentLang].aiMsg;
                 summaryMessage.className = "text-lg font-bold pt-2 text-red-400";
@@ -1243,96 +980,75 @@
             }
         }
 
+        async function generateHeatmap(file) {
+            try {
+                const formData = new FormData();
+                formData.append("file", file);
+                const res = await fetch(`${BACKEND_URL}/predict-heatmap`, { method: 'POST', body: formData });
+                const data = await res.json();
+                if (data.heatmap_base64) {
+                    document.getElementById('heatmapContainer').classList.remove('hidden');
+                    document.getElementById('heatmapImage').src = data.heatmap_base64;
+                    const originalSrc = document.getElementById('imagePreview').src;
+                    document.getElementById('originalImage').src = originalSrc;
+                }
+            } catch (err) { console.error("Heatmap error:", err); }
+        }
+
         async function analyzeImage() {
-            if (freeCredits <= 0) {
-                document.getElementById('upgradeModal').classList.remove('hidden');
-                return;
-            }
-
-            if (!currentLoadedFile) {
-                alert(translations[currentLang].selectFirst);
-                return;
-            }
-
+            if (freeCredits <= 0) { document.getElementById('upgradeModal').classList.remove('hidden'); return; }
+            if (!currentLoadedFile) { alert(translations[currentLang].selectFirst); return; }
             const scanButton = document.getElementById('scanButton');
             const buttonText = document.getElementById('buttonText');
             const buttonIcon = document.getElementById('buttonIcon');
-
             const resultArea = document.getElementById('resultArea');
             const loadingState = document.getElementById('loadingState');
             const finalResults = document.getElementById('finalResults');
-
             const aiPercentageText = document.getElementById('aiPercentageText');
             const humanPercentageText = document.getElementById('humanPercentageText');
             const aiProgressBar = document.getElementById('aiProgressBar');
             const humanProgressBar = document.getElementById('humanProgressBar');
 
-            freeCredits--;
-            localStorage.setItem('freeCredits', freeCredits);
-            updateCreditDisplay();
-
+            freeCredits--; localStorage.setItem('freeCredits', freeCredits); updateCreditDisplay();
             scanButton.disabled = true;
             scanButton.classList.add('opacity-70', 'cursor-not-allowed');
             buttonText.innerText = currentLang === 'tr' ? "Analiz Ediliyor..." : "Analyzing...";
             buttonIcon.className = "fas fa-circle-notch fa-spin";
-
             resultArea.classList.remove('hidden', 'border-red-500', 'border-green-500', 'border-yellow-500');
             loadingState.classList.remove('hidden');
             finalResults.classList.add('hidden');
+            document.getElementById('heatmapContainer').classList.add('hidden');
 
             const formData = new FormData();
             formData.append("file", currentLoadedFile);
 
             try {
-                const response = await fetch(`${BACKEND_URL}/predict`, {
-                    method: 'POST',
-                    body: formData
-                });
-
+                const response = await fetch(`${BACKEND_URL}/predict`, { method: 'POST', body: formData });
                 const data = await response.json();
-
                 loadingState.classList.add('hidden');
                 finalResults.classList.remove('hidden');
-
                 if (response.ok) {
-                    let aiScore = 0;
-                    let humanScore = 0;
-
+                    let aiScore = 0, humanScore = 0;
                     let preds = data.result || data;
                     if (Array.isArray(preds) && Array.isArray(preds[0])) preds = preds[0];
-
                     if (Array.isArray(preds)) {
                         preds.forEach(item => {
-                            if (item.label === 'artificial' || item.label === 'fake' || item.label === 'ai') {
-                                aiScore = (item.score * 100).toFixed(1);
-                            } else if (item.label === 'human' || item.label === 'real') {
-                                humanScore = (item.score * 100).toFixed(1);
-                            }
+                            if (item.label === 'artificial' || item.label === 'fake' || item.label === 'ai') aiScore = (item.score * 100).toFixed(1);
+                            else if (item.label === 'human' || item.label === 'real') humanScore = (item.score * 100).toFixed(1);
                         });
-                    } else if (data.fake_probability !== undefined) {
-                        aiScore = data.fake_probability;
-                        humanScore = (100 - aiScore).toFixed(1);
                     }
-
-                    if (aiScore == 0 && humanScore == 0) {
-                        aiScore = "54.2";
-                        humanScore = "45.8";
-                    } else if (humanScore == 0) {
-                        humanScore = (100 - parseFloat(aiScore)).toFixed(1);
-                    }
+                    if (aiScore == 0 && humanScore == 0) { aiScore = "54.2"; humanScore = "45.8"; }
+                    else if (humanScore == 0) humanScore = (100 - parseFloat(aiScore)).toFixed(1);
 
                     aiPercentageText.innerText = `%${aiScore}`;
                     humanPercentageText.innerText = `%${humanScore}`;
                     aiProgressBar.style.width = `${aiScore}%`;
                     humanProgressBar.style.width = `${humanScore}%`;
-
                     let statusKey = aiScore > 75 ? "AI" : (aiScore > 45 ? "Suspicious" : "Real");
-
                     lastAnalysisStatus = { aiScore, statusKey };
                     updateSummaryMessage(aiScore, statusKey);
-
                     addToHistory(currentLoadedFile.name, aiScore, statusKey);
-
+                    generateHeatmap(currentLoadedFile);
                 } else {
                     finalResults.innerHTML = `<p class='text-red-500 font-bold'>${translations[currentLang].errorMsg} ${data.error || "Unknown"}</p>`;
                 }
@@ -1348,29 +1064,22 @@
             }
         }
 
-        function checkBatchAccess() {
-            document.getElementById('upgradeModal').classList.remove('hidden');
-        }
+        function checkBatchAccess() { document.getElementById('upgradeModal').classList.remove('hidden'); }
 
         function toggleCheckoutButton() {
             const checked = document.getElementById('withdrawalConsentCheckbox').checked;
             const btn = document.getElementById('checkoutBtn');
             btn.disabled = !checked;
-            if (checked) {
-                btn.classList.remove('opacity-40', 'cursor-not-allowed');
-                btn.classList.add('hover:from-indigo-500', 'hover:to-violet-500');
-            } else {
-                btn.classList.add('opacity-40', 'cursor-not-allowed');
-                btn.classList.remove('hover:from-indigo-500', 'hover:to-violet-500');
-            }
+            if (checked) { btn.classList.remove('opacity-40', 'cursor-not-allowed'); }
+            else { btn.classList.add('opacity-40', 'cursor-not-allowed'); }
         }
 
         function shareResult(platform) {
             if (!lastAnalysisStatus) return;
-            const liveSiteUrl = "https://ai-image-detectore.netlify.app";
-            const textTr = `🔍 Bu görselin analiz sonucunu test ettim!\n\n🤖 YZ Üretimi Olasılığı: %${lastAnalysisStatus.aiScore}\n\nSen de fotoğrafların yapay zeka olup olmadığını ücretsiz test et 👇\n\n#AIImageDetector`;
-            const textEn = `🔍 I tested this image's analysis result!\n\n🤖 AI Generation Probability: %${lastAnalysisStatus.aiScore}\n\nCheck if photos are AI-generated for free 👇\n\n#AIImageDetector`;
-            const text = currentLang === 'tr' ? textTr : textEn;
+            const liveSiteUrl = "https://ai-image-detector.netlify.app";
+                       const text = currentLang === 'tr'
+                ? `🔍 Bu görselin analiz sonucu: YZ %${lastAnalysisStatus.aiScore}\n\nSen de test et:`
+                : `🔍 Analysis result: AI %${lastAnalysisStatus.aiScore}\n\nTest it yourself:`;
 
             if (platform === 'twitter') {
                 window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(liveSiteUrl)}`, '_blank');
@@ -1379,19 +1088,14 @@
             }
         }
 
-        function openInviteModal() {
-            document.getElementById('inviteModal').classList.remove('hidden');
-        }
-
-        function closeInviteModal() {
-            document.getElementById('inviteModal').classList.add('hidden');
-        }
+        function openInviteModal() { document.getElementById('inviteModal').classList.remove('hidden'); }
+        function closeInviteModal() { document.getElementById('inviteModal').classList.add('hidden'); }
 
         function copyReferralLink() {
             const copyText = document.getElementById("referralLink");
             copyText.select();
             navigator.clipboard.writeText(copyText.value);
-            showToast(currentLang === 'tr' ? "Davet bağlantısı kopyalandı!" : "Referral link copied!", 'success');
+            showToast(currentLang === 'tr' ? "Kopyalandı!" : "Copied!", 'success');
         }
 
         function closeModal() {
@@ -1408,26 +1112,14 @@
             const legalModal = document.getElementById('legalModal');
             const legalTitle = document.getElementById('legalTitle');
             const legalContent = document.getElementById('legalContent');
-
-            if (type === 'privacy') {
-                legalTitle.innerText = translations[currentLang].privacyTitle;
-                legalContent.innerHTML = translations[currentLang].privacyBody;
-            } else if (type === 'terms') {
-                legalTitle.innerText = translations[currentLang].termsTitle;
-                legalContent.innerHTML = translations[currentLang].termsBody;
-            } else if (type === 'distance') {
-                legalTitle.innerText = translations[currentLang].distanceTitle;
-                legalContent.innerHTML = translations[currentLang].distanceBody;
-            } else if (type === 'refund') {
-                legalTitle.innerText = translations[currentLang].refundTitle;
-                legalContent.innerHTML = translations[currentLang].refundBody;
-            }
+            if (type === 'privacy') { legalTitle.innerText = translations[currentLang].privacyTitle; legalContent.innerHTML = translations[currentLang].privacyBody; }
+            else if (type === 'terms') { legalTitle.innerText = translations[currentLang].termsTitle; legalContent.innerHTML = translations[currentLang].termsBody; }
+            else if (type === 'distance') { legalTitle.innerText = translations[currentLang].distanceTitle; legalContent.innerHTML = translations[currentLang].distanceBody; }
+            else if (type === 'refund') { legalTitle.innerText = translations[currentLang].refundTitle; legalContent.innerHTML = translations[currentLang].refundBody; }
             legalModal.classList.remove('hidden');
         }
 
-        function closeLegalModal() {
-            document.getElementById('legalModal').classList.add('hidden');
-        }
+        function closeLegalModal() { document.getElementById('legalModal').classList.add('hidden'); }
 
         function addToHistory(name, score, statusKey) {
             let history = JSON.parse(localStorage.getItem('scanHistory')) || [];
@@ -1440,18 +1132,15 @@
         function loadHistory() {
             let history = JSON.parse(localStorage.getItem('scanHistory')) || [];
             historyList.innerHTML = "";
-
             if (history.length === 0) {
                 historyList.innerHTML = `<p class="text-xs text-slate-500 text-center py-2">${translations[currentLang].noHistory}</p>`;
                 return;
             }
-
             history.forEach((item) => {
                 const div = document.createElement('div');
                 div.className = "flex justify-between items-center bg-slate-800/80 hover:bg-slate-700/80 px-4 py-2.5 rounded-xl border border-slate-700 text-xs transition";
                 let colorClass = item.score > 50 ? 'text-red-400' : 'text-green-400';
                 let labelText = item.statusKey === 'AI' ? `%${item.score} ${translations[currentLang].aiLabel}` : (item.statusKey === 'Suspicious' ? `%${item.score} ?` : `%${(100 - item.score).toFixed(1)} ${translations[currentLang].realLabel}`);
-
                 div.innerHTML = `
                     <span class="truncate max-w-[180px] text-slate-300 font-medium"><i class="fas fa-file-image mr-1 text-indigo-400"></i> ${item.name} (${item.date})</span>
                     <span class="${colorClass} font-bold">${labelText}</span>
