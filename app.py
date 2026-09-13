@@ -54,7 +54,7 @@ def init_db():
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT UNIQUE NOT NULL,
-                        is_pro INTEGER DEFAULT 0,
+                        credits INTEGER DEFAULT 3,
             password_hash TEXT,
             google_id TEXT,
             is_verified INTEGER DEFAULT 0,
@@ -153,7 +153,12 @@ def send_email(to_email: str, subject: str, html: str):
 
 
 def user_to_public(row) -> dict:
-    return {"email": row["email"], "is_verified": bool(row["is_verified"])}
+    is_pro = False
+    try:
+        is_pro = bool(row["is_pro"])
+    except (IndexError, KeyError):
+        is_pro = False
+    return {"email": row["email"], "is_verified": bool(row["is_verified"]), "is_pro": is_pro}
 
 
 # ---------- AUTH ROUTES ----------
@@ -308,7 +313,38 @@ def google_auth(data: GoogleAuthRequest):
     token = make_jwt(row["id"], row["email"])
     return {"token": token, "user": user_to_public(row)}
 
+@app.get("/user/credits")
+def get_credits(current=Depends(get_current_user)):
+    conn = get_db()
+    row = conn.execute("SELECT credits, is_pro FROM users WHERE id=?", (current["user_id"],)).fetchone()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı.")
+    return {"credits": row["credits"], "is_pro": bool(row["is_pro"])}
 
+
+@app.post("/user/use-credit")
+def use_credit(current=Depends(get_current_user)):
+    conn = get_db()
+    row = conn.execute("SELECT credits, is_pro FROM users WHERE id=?", (current["user_id"],)).fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı.")
+    
+    # Pro kullanıcılar sınırsız
+    if row["is_pro"]:
+        conn.close()
+        return {"credits": 9999, "is_pro": True}
+    
+    if row["credits"] <= 0:
+        conn.close()
+        raise HTTPException(status_code=403, detail="Kredi tükendi. Pro'ya yükseltin.")
+    
+    new_credits = row["credits"] - 1
+    conn.execute("UPDATE users SET credits=? WHERE id=?", (new_credits, current["user_id"]))
+    conn.commit()
+    conn.close()
+    return {"credits": new_credits, "is_pro": False}
 @app.get("/auth/me")
 def me(current=Depends(get_current_user)):
     conn = get_db()
@@ -316,7 +352,7 @@ def me(current=Depends(get_current_user)):
     conn.close()
     if not row:
         raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı.")
-    return {"user": user_to_public(row)}
+    return {"user": user_to_public(row), "is_pro": bool(row["is_pro"]) if "is_pro" in row.keys() else False}
 
 
 # ---------- HOME ----------

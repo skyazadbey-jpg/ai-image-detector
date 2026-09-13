@@ -735,6 +735,17 @@
                 if (!res.ok) throw new Error();
                 const data = await res.json();
                 currentUser = data.user;
+                // Backend'den gelen is_pro bilgisini localStorage'a kaydet
+                if (data.is_pro === true) {
+                    localStorage.setItem('isPro', 'true');
+                } else if (data.is_pro === false) {
+                    localStorage.removeItem('isPro');
+                }
+                if (isProUser()) {
+                    document.body.classList.add('pro-user');
+                    const proBadge = document.getElementById('proBadgePill');
+                    if (proBadge) proBadge.classList.remove('hidden');
+                }
             } catch { localStorage.removeItem('authToken'); currentUser = null; }
             updateAuthUI();
         }
@@ -1145,7 +1156,26 @@
             document.getElementById('cookieBanner').classList.add('hidden');
         }
 
-        function updateCreditDisplay() { document.getElementById('creditsLeft').innerText = freeCredits; }
+        async function updateCreditDisplay() {
+            if (currentUser) {
+                try {
+                    const token = localStorage.getItem('authToken');
+                    const res = await fetch(`${BACKEND_URL}/user/credits`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const data = await res.json();
+                    if (data.is_pro) {
+                        document.getElementById('creditBadge').innerHTML = '<i class="fas fa-infinity"></i> <span>' + (currentLang === 'tr' ? 'Sınırsız' : 'Unlimited') + '</span>';
+                    } else {
+                        document.getElementById('creditsLeft').innerText = data.credits;
+                    }
+                } catch (err) {
+                    document.getElementById('creditsLeft').innerText = freeCredits;
+                }
+            } else {
+                document.getElementById('creditsLeft').innerText = freeCredits;
+            }
+        }
 
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'tr' : 'en';
@@ -1249,7 +1279,22 @@
         }
 
         async function analyzeImage() {
-            if (freeCredits <= 0 && !isProUser()) { document.getElementById('upgradeModal').classList.remove('hidden'); return; }
+            if (!currentUser && freeCredits <= 0 && !isProUser()) { document.getElementById('upgradeModal').classList.remove('hidden'); return; }
+            if (currentUser) {
+                try {
+                    const token = localStorage.getItem('authToken');
+                    const creditRes = await fetch(`${BACKEND_URL}/user/use-credit`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (creditRes.status === 403) {
+                        document.getElementById('upgradeModal').classList.remove('hidden');
+                        return;
+                    }
+                } catch (err) {
+                    console.error("Kredi kontrolü başarısız:", err);
+                }
+            }
             if (!currentLoadedFile) { alert(translations[currentLang].selectFirst); return; }
             const scanButton = document.getElementById('scanButton');
             const buttonText = document.getElementById('buttonText');
