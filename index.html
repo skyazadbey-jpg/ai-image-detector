@@ -1067,9 +1067,24 @@
             } catch (err) { showAuthError(err.message); }
         }
 
-        function loginSuccess(token, user, isFirstVerification) {
+               function loginSuccess(token, user, isFirstVerification) {
             localStorage.setItem('authToken', token);
             currentUser = user;
+            if (user && user.is_pro === true) {
+                localStorage.setItem('isPro', 'true');
+                document.body.classList.add('pro-user');
+                const proBadge = document.getElementById('proBadgePill');
+                if (proBadge) proBadge.classList.remove('hidden');
+                const creditBadge = document.getElementById('creditBadge');
+                if (creditBadge) {
+                    creditBadge.innerHTML = '<i class="fas fa-infinity"></i> <span>' + (currentLang === 'tr' ? 'Sınırsız' : 'Unlimited') + '</span>';
+                }
+                const btn = document.getElementById('buttonText');
+                if (btn) btn.innerText = currentLang === 'tr' ? 'Pro Tara' : 'Pro Scan';
+            } else {
+                localStorage.removeItem('isPro');
+                document.body.classList.remove('pro-user');
+            }
             if (isFirstVerification) {
                 freeCredits += 3;
                 localStorage.setItem('freeCredits', freeCredits);
@@ -1304,6 +1319,13 @@
         }
 
         async function analyzeImage() {
+                        if (!currentUser) {
+                showToast(currentLang === 'tr' ? 'Tarama yapmak için lütfen giriş yapın.' : 'Please sign in to scan.', 'info');
+                setTimeout(() => {
+                    openAuthModal();
+                }, 800);
+                return;
+            }
             if (!currentUser && freeCredits <= 0 && !isProUser()) { document.getElementById('upgradeModal').classList.remove('hidden'); return; }
             if (currentUser) {
                 try {
