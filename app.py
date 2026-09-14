@@ -1,6 +1,5 @@
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends, Header
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, EmailStr
 import os
@@ -13,6 +12,9 @@ import requests
 import io
 import base64
 import random
+import hmac
+import hashlib
+import json
 from PIL import Image, ImageFilter, ImageDraw
 from passlib.hash import bcrypt
 from google.oauth2 import id_token as google_id_token
@@ -36,6 +38,7 @@ RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 FROM_EMAIL = os.getenv("FROM_EMAIL", "onboarding@resend.dev")
+LEMONSQUEEZY_WEBHOOK_SECRET = os.getenv("LEMONSQUEEZY_WEBHOOK_SECRET", "")
 
 DB_PATH = "users.db"
 
@@ -322,6 +325,7 @@ def google_auth(data: GoogleAuthRequest):
     token = make_jwt(row["id"], row["email"])
     return {"token": token, "user": user_to_public(row)}
 
+
 @app.get("/user/credits")
 def get_credits(current=Depends(get_current_user)):
     conn = get_db()
@@ -339,21 +343,22 @@ def use_credit(current=Depends(get_current_user)):
     if not row:
         conn.close()
         raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı.")
-    
-    # Pro kullanıcılar sınırsız
+
     if row["is_pro"]:
         conn.close()
         return {"credits": 9999, "is_pro": True}
-    
+
     if row["credits"] <= 0:
         conn.close()
         raise HTTPException(status_code=403, detail="Kredi tükendi. Pro'ya yükseltin.")
-    
+
     new_credits = row["credits"] - 1
     conn.execute("UPDATE users SET credits=? WHERE id=?", (new_credits, current["user_id"]))
     conn.commit()
     conn.close()
     return {"credits": new_credits, "is_pro": False}
+
+
 @app.get("/auth/me")
 def me(current=Depends(get_current_user)):
     conn = get_db()
@@ -370,46 +375,79 @@ def api_home():
     return {"status": "AI Image Detector API is running"}
 
 
-# ---------- PREDICT ----------
 # ---------- LEMON SQUEEZY WEBHOOK ----------
-from fastapi import Request
-import hmac
-import hashlib
-import json
-
 @app.post("/webhooks/lemonsqueezy")
 async def lemonsqueezy_webhook(request: Request):
     try:
         raw_body = await request.body()
         signature = request.headers.get("X-Signature", "")
-        webhook_secret = os.getenv("LEMONSQUEEZY_WEBHOOK_SECRET", "")
 
-        if webhook_secret:
+        if LEMONSQUEEZY_WEBHOOK_SECRET:
             computed = hmac.new(
-                webhook_secret.encode('utf-8'),
+                LEMONSQUEEZY_WEBHOOK_SECRET.encode("utf-8"),
                 raw_body,
-                hashlib.sha256
+                hashlib.sha256,
             ).hexdigest()
             if not hmac.compare_digest(computed, signature):
+                print("LEMON SQUEEZY: imza dogrulama basarisiz, webhook reddedildi.")
                 return {"error": "Gecersiz imza"}
 
         payload = json.loads(raw_body)
         event_name = payload.get("meta", {}).get("event_name")
+        custom_data = payload.get("meta", {}).get("custom_data", {}) or {}
         data = payload.get("data", {})
         attributes = data.get("attributes", {})
         user_email = attributes.get("user_email")
 
-        if user_email:
-            conn = get_db()
-            conn.execute("UPDATE users SET is_pro = 1 WHERE email = ?", (user_email,))
-            conn.commit()
-            conn.close()
-            print(f"PRO: {user_email}")
+        # DEBUG: bu satir Render Logs'ta neyin geldigini gormeni saglar
+        print(f"LEMON SQUEEZY WEBHOOK: event={event_name} email={user_email} custom_data={custom_data}")
 
-        return {"status": "ok", "received": event_name}
+        pro_events = {"order_created", "subscription_created", "subscription_updated", "subscription_resumed"}
+        cancel_events = {"subscription_cancelled", "subscription_expired", "subscription_paused"}
+
+        matched = False
+        conn = get_db()
+
+        # 1) Once custom_data icindeki user_id ile kesin eslestirme dene (en guvenilir yol)
+        custom_user_id = custom_data.get("user_id")
+        if custom_user_id:
+            row = conn.execute("SELECT id FROM users WHERE id=?", (custom_user_id,)).fetchone()
+            if row:
+                matched = True
+                if event_name in pro_events:
+                    conn.execute("UPDATE users SET is_pro=1 WHERE id=?", (custom_user_id,))
+                elif event_name in cancel_events:
+                    conn.execute("UPDATE users SET is_pro=0 WHERE id=?", (custom_user_id,))
+                conn.commit()
+                print(f"LEMON SQUEEZY: user_id={custom_user_id} eslesti, guncellendi.")
+
+        # 2) Eslesme olmadiysa email ile dene (bosluk/buyuk-kucuk harf farkina duyarsiz)
+        if not matched and user_email:
+            normalized_email = user_email.strip().lower()
+            row = conn.execute(
+                "SELECT id FROM users WHERE LOWER(TRIM(email))=?", (normalized_email,)
+            ).fetchone()
+            if row:
+                matched = True
+                if event_name in pro_events:
+                    conn.execute("UPDATE users SET is_pro=1 WHERE id=?", (row["id"],))
+                elif event_name in cancel_events:
+                    conn.execute("UPDATE users SET is_pro=0 WHERE id=?", (row["id"],))
+                conn.commit()
+                print(f"LEMON SQUEEZY: email={normalized_email} eslesti, guncellendi.")
+
+        conn.close()
+
+        if not matched:
+            print(f"LEMON SQUEEZY UYARI: hicbir kullanici eslesmedi. email={user_email} custom_data={custom_data}")
+
+        return {"status": "ok", "received": event_name, "matched": matched}
     except Exception as e:
         print(f"Webhook Hatasi: {e}")
         return {"status": "error", "message": str(e)}
+
+
+# ---------- PREDICT ----------
 @app.post("/predict")
 async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
     try:
@@ -487,13 +525,13 @@ async def predict_heatmap(file: UploadFile = File(None), image_url: str = Form(N
             x = random.randint(0, width)
             y = random.randint(0, height)
             r = random.randint(40, 120)
-            draw.ellipse([x-r, y-r, x+r, y+r], fill=(255, 50, 50, 60))
+            draw.ellipse([x - r, y - r, x + r, y + r], fill=(255, 50, 50, 60))
 
         for _ in range(num_blue_blobs):
             x = random.randint(0, width)
             y = random.randint(0, height)
             r = random.randint(30, 90)
-            draw.ellipse([x-r, y-r, x+r, y+r], fill=(50, 150, 255, 50))
+            draw.ellipse([x - r, y - r, x + r, y + r], fill=(50, 150, 255, 50))
 
         overlay = overlay.filter(ImageFilter.GaussianBlur(radius=25))
         combined = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
@@ -519,4 +557,9 @@ def serve_index():
 
 @app.get("/privacy")
 def serve_privacy():
+    return FileResponse("privacy.html")
+
+
+@app.get("/privacy.html")
+def serve_privacy_html():
     return FileResponse("privacy.html")

@@ -889,16 +889,36 @@
             return localStorage.getItem('isPro') === 'true';
         }
 
-        function checkUpgradeParam() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('upgrade') && urlParams.get('upgrade') === 'success') {
-                setProUser(true);
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
+      function checkUpgradeParam() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('upgrade') && urlParams.get('upgrade') === 'success') {
+        window.history.replaceState({}, document.title, window.location.pathname);
+        showToast(currentLang === 'tr' ? "Ödemeniz alındı, hesabınız güncelleniyor..." : "Payment received, updating your account...", 'info');
+        pollForProStatus();
+    }
+}
+
+async function pollForProStatus(attempt = 0) {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+    try {
+        const res = await fetch(`${BACKEND_URL}/auth/me`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const data = await res.json();
+        const isPro = data.is_pro === true || (data.user && data.user.is_pro === true);
+        if (isPro) {
+            setProUser(true);
+            currentUser = data.user;
+            updateAuthUI();
+            return;
         }
+    } catch (e) {}
 
-        function closeAuthModal() { document.getElementById('authModal').classList.add('hidden'); }
-
+    if (attempt < 10) {
+        setTimeout(() => pollForProStatus(attempt + 1), 3000);
+    } else {
+        showToast(currentLang === 'tr' ? "Güncelleme gecikti, birkaç dakika sonra sayfayı yenileyin." : "Update is delayed, please refresh in a few minutes.", 'error');
+    }
+}
         function switchAuthTab(mode) {
             authMode = mode;
             const loginBtn = document.getElementById('authTabLogin');
@@ -1462,10 +1482,32 @@
             toggleCheckoutButton();
         }
 
-        function proceedToCheckout() {
-            window.location.href = "https://aimagedetector.lemonsqueezy.com/checkout/buy/d06f800e-3e99-4a0e-a1f0-f2467904be52";
-        }
+      function parseJwt(token) {
+    try {
+        const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+        return JSON.parse(atob(base64));
+    } catch { return null; }
+}
 
+function proceedToCheckout() {
+    if (!currentUser) {
+        showToast(currentLang === 'tr' ? "Önce giriş yapmalısınız." : "Please sign in first.", 'error');
+        closeModal();
+        openAuthModal();
+        return;
+    }
+    const token = localStorage.getItem('authToken');
+    const payload = parseJwt(token);
+    const userId = payload ? payload.user_id : '';
+
+    const baseUrl = "https://aimagedetector.lemonsqueezy.com/checkout/buy/d06f800e-3e99-4a0e-a1f0-f2467904be52";
+    const params = new URLSearchParams({
+        'checkout[email]': currentUser.email,
+        'checkout[custom][user_id]': userId,
+        'checkout[custom][email]': currentUser.email
+    });
+    window.location.href = `${baseUrl}?${params.toString()}`;
+}
         function openModal(type) {
             const legalModal = document.getElementById('legalModal');
             const legalTitle = document.getElementById('legalTitle');
