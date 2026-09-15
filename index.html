@@ -1476,15 +1476,15 @@ async function pollForProStatus(attempt = 0) {
             showToast(currentLang === 'tr' ? "Kopyalandı!" : "Copied!", 'success');
         }
 
-        function closeModal() {function closeAuthModal() {
-    document.getElementById('authModal').classList.add('hidden');
-}
+            function closeAuthModal() {
+            document.getElementById('authModal').classList.add('hidden');
+        }
 
+        function closeModal() {
             document.getElementById('upgradeModal').classList.add('hidden');
             document.getElementById('withdrawalConsentCheckbox').checked = false;
             toggleCheckoutButton();
         }
-
       function parseJwt(token) {
     try {
         const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
