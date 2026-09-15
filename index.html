@@ -55,6 +55,43 @@
             animation: scanSweep 4.5s ease-in-out infinite;
         }
         .scan-frame { position: relative; overflow: hidden; }
+                /* ---- MOD SEKMELERİ ---- */
+        .mode-tab {
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid transparent;
+        }
+        .mode-tab:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: #c7d2fe;
+        }
+        .mode-tab.active {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+        /* Araba modu aktifken */
+        body.mode-car .mode-tab.active {
+            background: linear-gradient(135deg, #dc2626 0%, #f59e0b 100%);
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+        }
+        body.mode-car #scanButton {
+            background: linear-gradient(135deg, #dc2626 0%, #f59e0b 100%) !important;
+        }
+        body.mode-car #scanButton:hover {
+            background: linear-gradient(135deg, #ef4444 0%, #fbbf24 100%) !important;
+        }
+        /* Emlak modu aktifken */
+        body.mode-realestate .mode-tab.active {
+            background: linear-gradient(135deg, #0891b2 0%, #10b981 100%);
+            box-shadow: 0 4px 15px rgba(8, 145, 178, 0.4);
+        }
+        body.mode-realestate #scanButton {
+            background: linear-gradient(135deg, #0891b2 0%, #10b981 100%) !important;
+        }
+        body.mode-realestate #scanButton:hover {
+            background: linear-gradient(135deg, #06b6d4 0%, #34d399 100%) !important;
+        }
         /* ---- PRO KULLANICI STİLLERİ ---- */
         .pro-user #authNavBtn {
             background: linear-gradient(135deg, #f59e0b 0%, #eab308 50%, #f59e0b 100%) !important;
@@ -126,7 +163,23 @@
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300 min-h-screen flex flex-col items-center justify-between p-4 sm:p-6 font-sans relative">
-
+    <!-- ÜST MENÜ: 3 SEKMELİ YAPI -->
+    <div class="w-full max-w-4xl mx-auto mt-4 mb-2 z-20 relative">
+        <div class="flex justify-center gap-2 sm:gap-3 bg-slate-800/60 border border-slate-700/60 rounded-2xl p-2 backdrop-blur-sm">
+            <button onclick="switchMode('general')" id="modeGeneral" class="mode-tab active flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition">
+                <i class="fas fa-magnifying-glass"></i>
+                <span data-i18n="modeGeneral">Genel Tarama</span>
+            </button>
+            <button onclick="switchMode('car')" id="modeCar" class="mode-tab flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition">
+                <i class="fas fa-car"></i>
+                <span data-i18n="modeCar">Araba</span>
+            </button>
+            <button onclick="switchMode('realestate')" id="modeRealestate" class="mode-tab flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition">
+                <i class="fas fa-house"></i>
+                <span data-i18n="modeRealestate">Emlak</span>
+            </button>
+        </div>
+    </div>
     <div class="absolute top-4 right-4 sm:top-6 sm:right-6 flex items-center gap-2 sm:gap-3 z-30">
         <div class="relative" id="userMenuWrapper">
             <button onclick="toggleUserMenu()" id="authNavBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 sm:px-4 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5">
@@ -595,6 +648,9 @@
                 heatmapRedDesc: "Likely AI-generated", heatmapBlue: "Blue areas:",
                 heatmapBlueDesc: "Likely authentic",
                 heatmapDisclaimer: "Visual aid based on model confidence.",
+                                modeGeneral: "General Scan",
+                modeCar: "Car",
+                modeRealestate: "Real Estate",
                 signedInAs: "Signed in as",
                 upgradeMenuBtn: "Upgrade to Pro",
                 inviteMenuBtn: "Invite Friends",
@@ -664,6 +720,9 @@
                 heatmapRedDesc: "Muhtemelen AI", heatmapBlue: "Mavi bölgeler:",
                 heatmapBlueDesc: "Muhtemelen gerçek",
                 heatmapDisclaimer: "Model güvenine dayalı görsel yardımcıdır.",
+                                modeGeneral: "Genel Tarama",
+                modeCar: "Araba",
+                modeRealestate: "Emlak",
                 signedInAs: "Giriş yapıldı",
                 upgradeMenuBtn: "Pro'ya Yükselt",
                 inviteMenuBtn: "Arkadaş Davet Et",
@@ -691,13 +750,17 @@
             localStorage.setItem('lastResetDate', today);
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
+             window.addEventListener('DOMContentLoaded', () => {
             applyLanguage(); applyTheme(); loadHistory(); updateCreditDisplay();
             checkCookieConsent(); checkReferralParam(); initDragAndDrop(); restoreSession();
             checkUpgradeParam();
             if (isProUser()) {
                 document.body.classList.add('pro-user');
                 setTimeout(() => updateAuthUI(), 100);
+            }
+            // Kaydedilmiş modu yükle
+            if (currentMode && currentMode !== 'general') {
+                switchMode(currentMode);
             }
         });
 
@@ -1475,7 +1538,80 @@ async function pollForProStatus(attempt = 0) {
             navigator.clipboard.writeText(copyText.value);
             showToast(currentLang === 'tr' ? "Kopyalandı!" : "Copied!", 'success');
         }
+        // ---------- MOD SEÇİMİ ----------
+        let currentMode = localStorage.getItem('mode') || 'general';
 
+        const modeTexts = {
+            general: {
+                tr: {
+                    title: "Bir görsel gerçek mi, yapay zeka mı?",
+                    subtitle: "Saniyeler içinde öğrenin.",
+                    tip: "💡 İpucu: En iyi sonuç için net ve yüksek çözünürlüklü görsel yükleyin."
+                },
+                en: {
+                    title: "Is that image real, or AI-generated?",
+                    subtitle: "Find out in seconds.",
+                    tip: "💡 Tip: Upload a clear, high-resolution image for best results."
+                }
+            },
+            car: {
+                tr: {
+                    title: "Bu araç fotoğrafı gerçek mi?",
+                    subtitle: "İkinci el araç alım-satımında dolandırılmaktan korunun.",
+                    tip: "💡 İpucu: Aracın plakasını, kilometre bilgisini ve şasi numarasını da mutlaka kontrol edin."
+                },
+                en: {
+                    title: "Is this car photo real?",
+                    subtitle: "Protect yourself from fraud in second-hand car sales.",
+                    tip: "💡 Tip: Also check the license plate, mileage, and chassis number."
+                }
+            },
+            realestate: {
+                tr: {
+                    title: "Bu daire fotoğrafı gerçek mi?",
+                    subtitle: "Emlak alım-satımında dolandırılmaktan korunun.",
+                    tip: "💡 İpucu: Tapu, imar durumu ve emlak vergisi bilgilerini de mutlaka kontrol edin."
+                },
+                en: {
+                    title: "Is this apartment photo real?",
+                    subtitle: "Protect yourself from fraud in real estate.",
+                    tip: "💡 Tip: Also verify title deed, zoning status, and property tax records."
+                }
+            }
+        };
+
+        function switchMode(mode) {
+            currentMode = mode;
+            localStorage.setItem('mode', mode);
+            
+            // Body'ye class ekle
+            document.body.classList.remove('mode-car', 'mode-realestate');
+            if (mode === 'car') document.body.classList.add('mode-car');
+            if (mode === 'realestate') document.body.classList.add('mode-realestate');
+            
+            // Aktif sekmeyi güncelle
+            document.querySelectorAll('.mode-tab').forEach(tab => tab.classList.remove('active'));
+            const activeTab = document.getElementById('mode' + mode.charAt(0).toUpperCase() + mode.slice(1));
+            if (activeTab) activeTab.classList.add('active');
+            
+            // Başlık ve metinleri güncelle
+            const texts = modeTexts[mode][currentLang];
+            const heroTitle = document.querySelector('[data-i18n="heroTitle"]');
+            const heroSubtitle = document.querySelector('[data-i18n="heroSubtitle"]');
+            if (heroTitle) heroTitle.innerText = texts.title;
+            if (heroSubtitle) heroSubtitle.innerText = texts.subtitle;
+            
+            // Sayfa başlığını güncelle
+            const pageTitle = document.querySelector('[data-i18n="title"]');
+            if (pageTitle) {
+                const titles = {
+                    general: { tr: "AI Image Detector Pro", en: "AI Image Detector Pro" },
+                    car: { tr: "Araba Detector", en: "Car Detector" },
+                    realestate: { tr: "Emlak Detector", en: "Real Estate Detector" }
+                };
+                pageTitle.innerText = titles[mode][currentLang];
+            }
+        }
             function closeAuthModal() {
             document.getElementById('authModal').classList.add('hidden');
         }
