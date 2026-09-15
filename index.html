@@ -55,6 +55,36 @@
             animation: scanSweep 4.5s ease-in-out infinite;
         }
         .scan-frame { position: relative; overflow: hidden; }
+                /* ---- İPUCU KARTLARI ---- */
+        .tip-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .tip-icon-wrapper {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            transition: all 0.3s ease;
+        }
+        .tip-card:hover .tip-icon-wrapper {
+            transform: scale(1.1) rotate(-5deg);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+        }
+        /* Araba modu */
+        body.mode-car .tip-icon-wrapper {
+            background: linear-gradient(135deg, #dc2626 0%, #f59e0b 100%);
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+        }
+        body.mode-car .tip-card:hover .tip-icon-wrapper {
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5);
+        }
+        /* Emlak modu */
+        body.mode-realestate .tip-icon-wrapper {
+            background: linear-gradient(135deg, #0891b2 0%, #10b981 100%);
+            box-shadow: 0 4px 15px rgba(8, 145, 178, 0.3);
+        }
+        body.mode-realestate .tip-card:hover .tip-icon-wrapper {
+            box-shadow: 0 6px 20px rgba(8, 145, 178, 0.5);
+        }
                 /* ---- MOD SEKMELERİ ---- */
         .mode-tab {
             background: transparent;
@@ -1594,53 +1624,53 @@ async function pollForProStatus(attempt = 0) {
             }
         };
         // ---------- MODA ÖZEL İPUÇLARI ----------
-        const modeTips = {
+               const modeTips = {
             general: {
                 tr: [
-                    { icon: "fa-search", title: "Kaynağı Kontrol Edin", desc: "Görselin nereden geldiğini ve kim tarafından paylaşıldığını kontrol edin." },
-                    { icon: "fa-expand", title: "Yüksek Çözünürlük", desc: "Yüksek çözünürlüklü görseller daha güvenilir sonuç verir." },
-                    { icon: "fa-user-shield", title: "Şüpheli Durumda Danışın", desc: "Emin olamadığınızda bir uzmana veya güvendiğiniz birine danışın." }
+                    { icon: "fa-fingerprint", title: "Kaynağı Kontrol Edin", desc: "Görselin nereden geldiğini ve kim tarafından paylaşıldığını kontrol edin." },
+                    { icon: "fa-magnifying-glass-plus", title: "Yüksek Çözünürlük", desc: "Yüksek çözünürlüklü görseller daha güvenilir sonuç verir." },
+                    { icon: "fa-shield-halved", title: "Şüpheli Durumda Danışın", desc: "Emin olamadığınızda bir uzmana veya güvendiğiniz birine danışın." }
                 ],
                 en: [
-                    { icon: "fa-search", title: "Check the Source", desc: "Verify where the image came from and who shared it." },
-                    { icon: "fa-expand", title: "High Resolution", desc: "Higher resolution images give more reliable results." },
-                    { icon: "fa-user-shield", title: "Consult an Expert", desc: "When in doubt, consult an expert or someone you trust." }
+                    { icon: "fa-fingerprint", title: "Check the Source", desc: "Verify where the image came from and who shared it." },
+                    { icon: "fa-magnifying-glass-plus", title: "High Resolution", desc: "Higher resolution images give more reliable results." },
+                    { icon: "fa-shield-halved", title: "Consult an Expert", desc: "When in doubt, consult an expert or someone you trust." }
                 ]
             },
             car: {
                 tr: [
-                    { icon: "fa-id-card", title: "Plaka ve Şasi Kontrolü", desc: "Plaka ve şasi numarasını E-Devlet veya TRAMER üzerinden doğrulayın." },
-                    { icon: "fa-gauge-high", title: "Kilometre Doğrulama", desc: "Aracın kilometre bilgisini mutlaka doğrulayın. Düşük kilometre her zaman iyi değildir." },
-                    { icon: "fa-eye", title: "Aracı Yerinde Görün", desc: "Fotoğrafa güvenmeyin. Aracı mutlaka yerinde inceleyin ve test sürüşü yapın." },
-                    { icon: "fa-file-contract", title: "Ekspertiz Raporu", desc: "Bağımsız bir ekspertiz raporu isteyin. Satıcı vermek istemiyorsa şüphelenin." },
-                    { icon: "fa-user-check", title: "Satıcı Kimliği", desc: "Satıcının kimliğini ve ruhsat sahibi olduğunu doğrulayın." },
-                    { icon: "fa-money-bill-wave", title: "Ödeme Güvenliği", desc: "Ödemeyi mutlaka resmi kanallar üzerinden yapın. Kapora için banka havalesi kullanın." }
+                    { icon: "fa-id-card-clip", title: "Plaka ve Şasi Kontrolü", desc: "Plaka ve şasi numarasını E-Devlet veya TRAMER üzerinden doğrulayın." },
+                    { icon: "fa-tachometer-alt", title: "Kilometre Doğrulama", desc: "Aracın kilometre bilgisini mutlaka doğrulayın. Düşük kilometre her zaman iyi değildir." },
+                    { icon: "fa-car-side", title: "Aracı Yerinde Görün", desc: "Fotoğrafa güvenmeyin. Aracı mutlaka yerinde inceleyin ve test sürüşü yapın." },
+                    { icon: "fa-clipboard-check", title: "Ekspertiz Raporu", desc: "Bağımsız bir ekspertiz raporu isteyin. Satıcı vermek istemiyorsa şüphelenin." },
+                    { icon: "fa-user-shield", title: "Satıcı Kimliği", desc: "Satıcının kimliğini ve ruhsat sahibi olduğunu doğrulayın." },
+                    { icon: "fa-vault", title: "Ödeme Güvenliği", desc: "Ödemeyi mutlaka resmi kanallar üzerinden yapın. Kapora için banka havalesi kullanın." }
                 ],
                 en: [
-                    { icon: "fa-id-card", title: "Check Plate & Chassis", desc: "Verify the license plate and chassis number via official records." },
-                    { icon: "fa-gauge-high", title: "Verify Mileage", desc: "Always verify the mileage. Low mileage isn't always good." },
-                    { icon: "fa-eye", title: "See It In Person", desc: "Don't trust photos. Inspect the car in person and take a test drive." },
-                    { icon: "fa-file-contract", title: "Inspection Report", desc: "Request an independent inspection report. Be suspicious if seller refuses." },
-                    { icon: "fa-user-check", title: "Seller Identity", desc: "Verify the seller's identity and that they own the vehicle." },
-                    { icon: "fa-money-bill-wave", title: "Payment Safety", desc: "Use official payment channels. Use bank transfers for deposits." }
+                    { icon: "fa-id-card-clip", title: "Check Plate & Chassis", desc: "Verify the license plate and chassis number via official records." },
+                    { icon: "fa-tachometer-alt", title: "Verify Mileage", desc: "Always verify the mileage. Low mileage isn't always good." },
+                    { icon: "fa-car-side", title: "See It In Person", desc: "Don't trust photos. Inspect the car in person and take a test drive." },
+                    { icon: "fa-clipboard-check", title: "Inspection Report", desc: "Request an independent inspection report. Be suspicious if seller refuses." },
+                    { icon: "fa-user-shield", title: "Seller Identity", desc: "Verify the seller's identity and that they own the vehicle." },
+                    { icon: "fa-vault", title: "Payment Safety", desc: "Use official payment channels. Use bank transfers for deposits." }
                 ]
             },
             realestate: {
                 tr: [
-                    { icon: "fa-file-signature", title: "Tapu ve İmar Kontrolü", desc: "Tapu kaydını ve imar durumunu mutlaka kontrol edin. E-Devlet üzerinden doğrulayın." },
-                    { icon: "fa-hand-holding-dollar", title: "Vergi Borcu", desc: "Emlak vergisi ve diğer borçları olup olmadığını kontrol edin." },
-                    { icon: "fa-person-walking", title: "Yerinde Ziyaret", desc: "Daireyi mutlaka yerinde görün. Fotoğraf ve gerçek farklı olabilir." },
+                    { icon: "fa-stamp", title: "Tapu ve İmar Kontrolü", desc: "Tapu kaydını ve imar durumunu mutlaka kontrol edin. E-Devlet üzerinden doğrulayın." },
+                    { icon: "fa-coins", title: "Vergi Borcu", desc: "Emlak vergisi ve diğer borçları olup olmadığını kontrol edin." },
+                    { icon: "fa-building-user", title: "Yerinde Ziyaret", desc: "Daireyi mutlaka yerinde görün. Fotoğraf ve gerçek farklı olabilir." },
                     { icon: "fa-user-tie", title: "Satıcı Doğrulama", desc: "Satıcının tapu sahibi olduğunu doğrulayın. Vekilse vekaletname isteyin." },
-                    { icon: "fa-certificate", title: "Yetki Belgesi", desc: "Emlakçının yetki belgesini ve ruhsatını kontrol edin." },
-                    { icon: "fa-scale-balanced", title: "Sözleşme", desc: "Mutlaka yazılı sözleşme yapın. Sözlü anlaşmalara güvenmeyin." }
+                    { icon: "fa-award", title: "Yetki Belgesi", desc: "Emlakçının yetki belgesini ve ruhsatını kontrol edin." },
+                    { icon: "fa-file-contract", title: "Sözleşme", desc: "Mutlaka yazılı sözleşme yapın. Sözlü anlaşmalara güvenmeyin." }
                 ],
                 en: [
-                    { icon: "fa-file-signature", title: "Title & Zoning", desc: "Check the title deed and zoning status. Verify via official records." },
-                    { icon: "fa-hand-holding-dollar", title: "Tax Debt", desc: "Check if there are any property tax or other debts." },
-                    { icon: "fa-person-walking", title: "Visit in Person", desc: "Always visit the apartment in person. Photos can differ from reality." },
+                    { icon: "fa-stamp", title: "Title & Zoning", desc: "Check the title deed and zoning status. Verify via official records." },
+                    { icon: "fa-coins", title: "Tax Debt", desc: "Check if there are any property tax or other debts." },
+                    { icon: "fa-building-user", title: "Visit in Person", desc: "Always visit the apartment in person. Photos can differ from reality." },
                     { icon: "fa-user-tie", title: "Verify Seller", desc: "Verify the seller owns the property. Request power of attorney if needed." },
-                    { icon: "fa-certificate", title: "Agent License", desc: "Check the real estate agent's license and credentials." },
-                    { icon: "fa-scale-balanced", title: "Written Contract", desc: "Always use a written contract. Don't rely on verbal agreements." }
+                    { icon: "fa-award", title: "Agent License", desc: "Check the real estate agent's license and credentials." },
+                    { icon: "fa-file-contract", title: "Written Contract", desc: "Always use a written contract. Don't rely on verbal agreements." }
                 ]
             }
         };
@@ -1660,12 +1690,14 @@ async function pollForProStatus(attempt = 0) {
             title.innerText = titles[mode][currentLang];
             container.innerHTML = '';
             
-            tips.forEach(tip => {
+            tips.forEach((tip, index) => {
                 const div = document.createElement('div');
-                div.className = "flex flex-col items-center text-center gap-2 p-4 bg-slate-800/40 border border-slate-700/40 rounded-xl";
+                div.className = "tip-card flex flex-col items-start text-left gap-3 p-5 bg-slate-800/40 border border-slate-700/40 rounded-2xl hover:border-slate-500/60 transition-all duration-300 hover:shadow-xl hover:-translate-y-1";
                 div.innerHTML = `
-                    <i class="fas ${tip.icon} text-indigo-400 text-xl"></i>
-                    <p class="text-sm font-semibold text-slate-200">${tip.title}</p>
+                    <div class="tip-icon-wrapper flex items-center justify-center w-12 h-12 rounded-xl" data-mode="${mode}">
+                        <i class="fas ${tip.icon} text-white text-lg"></i>
+                    </div>
+                    <p class="text-sm font-bold text-slate-100">${tip.title}</p>
                     <p class="text-xs text-slate-400 leading-relaxed">${tip.desc}</p>
                 `;
                 container.appendChild(div);
