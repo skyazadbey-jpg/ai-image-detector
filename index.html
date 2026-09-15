@@ -409,6 +409,14 @@
     </div>
 
     <div class="max-w-2xl w-full mx-auto mt-10 px-2">
+            <!-- MODA ÖZEL İPUÇLARI -->
+    <div id="modeTips" class="max-w-2xl w-full mx-auto mt-10 px-2">
+        <h3 class="text-center font-display text-lg font-semibold text-slate-200 mb-6" id="tipsTitle" data-i18n="tipsTitle">Güvenli alışveriş ipuçları</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="tipsContainer">
+            <!-- JavaScript ile doldurulacak -->
+        </div>
+    </div>
+
         <h3 class="text-center font-display text-lg font-semibold text-slate-200 mb-6" data-i18n="trustTitle">Neden güvenebilirsiniz</h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="flex flex-col items-center text-center gap-2 p-4">
@@ -648,6 +656,7 @@
                 heatmapRedDesc: "Likely AI-generated", heatmapBlue: "Blue areas:",
                 heatmapBlueDesc: "Likely authentic",
                 heatmapDisclaimer: "Visual aid based on model confidence.",
+                                tipsTitle: "General Safety Tips",
                                 modeGeneral: "General Scan",
                 modeCar: "Car",
                 modeRealestate: "Real Estate",
@@ -720,6 +729,7 @@
                 heatmapRedDesc: "Muhtemelen AI", heatmapBlue: "Mavi bölgeler:",
                 heatmapBlueDesc: "Muhtemelen gerçek",
                 heatmapDisclaimer: "Model güvenine dayalı görsel yardımcıdır.",
+                                tipsTitle: "Genel Güvenlik İpuçları",
                                 modeGeneral: "Genel Tarama",
                 modeCar: "Araba",
                 modeRealestate: "Emlak",
@@ -1300,11 +1310,15 @@ async function pollForProStatus(attempt = 0) {
             }
         }
 
-        function toggleLanguage() {
+               function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'tr' : 'en';
             localStorage.setItem('lang', currentLang);
             applyLanguage(); loadHistory(); updateAuthUI();
             if (lastAnalysisStatus) updateSummaryMessage(lastAnalysisStatus.aiScore, lastAnalysisStatus.statusKey);
+            // İpuçlarını güncelle
+            if (currentMode) renderModeTips(currentMode);
+            // switchMode'u tekrar çağır (başlıklar için)
+            switchMode(currentMode);
         }
 
         function applyLanguage() {
@@ -1579,7 +1593,84 @@ async function pollForProStatus(attempt = 0) {
                 }
             }
         };
+        // ---------- MODA ÖZEL İPUÇLARI ----------
+        const modeTips = {
+            general: {
+                tr: [
+                    { icon: "fa-search", title: "Kaynağı Kontrol Edin", desc: "Görselin nereden geldiğini ve kim tarafından paylaşıldığını kontrol edin." },
+                    { icon: "fa-expand", title: "Yüksek Çözünürlük", desc: "Yüksek çözünürlüklü görseller daha güvenilir sonuç verir." },
+                    { icon: "fa-user-shield", title: "Şüpheli Durumda Danışın", desc: "Emin olamadığınızda bir uzmana veya güvendiğiniz birine danışın." }
+                ],
+                en: [
+                    { icon: "fa-search", title: "Check the Source", desc: "Verify where the image came from and who shared it." },
+                    { icon: "fa-expand", title: "High Resolution", desc: "Higher resolution images give more reliable results." },
+                    { icon: "fa-user-shield", title: "Consult an Expert", desc: "When in doubt, consult an expert or someone you trust." }
+                ]
+            },
+            car: {
+                tr: [
+                    { icon: "fa-id-card", title: "Plaka ve Şasi Kontrolü", desc: "Plaka ve şasi numarasını E-Devlet veya TRAMER üzerinden doğrulayın." },
+                    { icon: "fa-gauge-high", title: "Kilometre Doğrulama", desc: "Aracın kilometre bilgisini mutlaka doğrulayın. Düşük kilometre her zaman iyi değildir." },
+                    { icon: "fa-eye", title: "Aracı Yerinde Görün", desc: "Fotoğrafa güvenmeyin. Aracı mutlaka yerinde inceleyin ve test sürüşü yapın." },
+                    { icon: "fa-file-contract", title: "Ekspertiz Raporu", desc: "Bağımsız bir ekspertiz raporu isteyin. Satıcı vermek istemiyorsa şüphelenin." },
+                    { icon: "fa-user-check", title: "Satıcı Kimliği", desc: "Satıcının kimliğini ve ruhsat sahibi olduğunu doğrulayın." },
+                    { icon: "fa-money-bill-wave", title: "Ödeme Güvenliği", desc: "Ödemeyi mutlaka resmi kanallar üzerinden yapın. Kapora için banka havalesi kullanın." }
+                ],
+                en: [
+                    { icon: "fa-id-card", title: "Check Plate & Chassis", desc: "Verify the license plate and chassis number via official records." },
+                    { icon: "fa-gauge-high", title: "Verify Mileage", desc: "Always verify the mileage. Low mileage isn't always good." },
+                    { icon: "fa-eye", title: "See It In Person", desc: "Don't trust photos. Inspect the car in person and take a test drive." },
+                    { icon: "fa-file-contract", title: "Inspection Report", desc: "Request an independent inspection report. Be suspicious if seller refuses." },
+                    { icon: "fa-user-check", title: "Seller Identity", desc: "Verify the seller's identity and that they own the vehicle." },
+                    { icon: "fa-money-bill-wave", title: "Payment Safety", desc: "Use official payment channels. Use bank transfers for deposits." }
+                ]
+            },
+            realestate: {
+                tr: [
+                    { icon: "fa-file-signature", title: "Tapu ve İmar Kontrolü", desc: "Tapu kaydını ve imar durumunu mutlaka kontrol edin. E-Devlet üzerinden doğrulayın." },
+                    { icon: "fa-hand-holding-dollar", title: "Vergi Borcu", desc: "Emlak vergisi ve diğer borçları olup olmadığını kontrol edin." },
+                    { icon: "fa-person-walking", title: "Yerinde Ziyaret", desc: "Daireyi mutlaka yerinde görün. Fotoğraf ve gerçek farklı olabilir." },
+                    { icon: "fa-user-tie", title: "Satıcı Doğrulama", desc: "Satıcının tapu sahibi olduğunu doğrulayın. Vekilse vekaletname isteyin." },
+                    { icon: "fa-certificate", title: "Yetki Belgesi", desc: "Emlakçının yetki belgesini ve ruhsatını kontrol edin." },
+                    { icon: "fa-scale-balanced", title: "Sözleşme", desc: "Mutlaka yazılı sözleşme yapın. Sözlü anlaşmalara güvenmeyin." }
+                ],
+                en: [
+                    { icon: "fa-file-signature", title: "Title & Zoning", desc: "Check the title deed and zoning status. Verify via official records." },
+                    { icon: "fa-hand-holding-dollar", title: "Tax Debt", desc: "Check if there are any property tax or other debts." },
+                    { icon: "fa-person-walking", title: "Visit in Person", desc: "Always visit the apartment in person. Photos can differ from reality." },
+                    { icon: "fa-user-tie", title: "Verify Seller", desc: "Verify the seller owns the property. Request power of attorney if needed." },
+                    { icon: "fa-certificate", title: "Agent License", desc: "Check the real estate agent's license and credentials." },
+                    { icon: "fa-scale-balanced", title: "Written Contract", desc: "Always use a written contract. Don't rely on verbal agreements." }
+                ]
+            }
+        };
 
+        function renderModeTips(mode) {
+            const container = document.getElementById('tipsContainer');
+            const title = document.getElementById('tipsTitle');
+            if (!container) return;
+            
+            const tips = modeTips[mode][currentLang];
+            const titles = {
+                general: { tr: "Genel Güvenlik İpuçları", en: "General Safety Tips" },
+                car: { tr: "Araç Alım-Satım İpuçları", en: "Car Buying/Selling Tips" },
+                realestate: { tr: "Emlak Alım-Satım İpuçları", en: "Real Estate Tips" }
+            };
+            
+            title.innerText = titles[mode][currentLang];
+            container.innerHTML = '';
+            
+            tips.forEach(tip => {
+                const div = document.createElement('div');
+                div.className = "flex flex-col items-center text-center gap-2 p-4 bg-slate-800/40 border border-slate-700/40 rounded-xl";
+                div.innerHTML = `
+                    <i class="fas ${tip.icon} text-indigo-400 text-xl"></i>
+                    <p class="text-sm font-semibold text-slate-200">${tip.title}</p>
+                    <p class="text-xs text-slate-400 leading-relaxed">${tip.desc}</p>
+                `;
+                container.appendChild(div);
+            });
+        }
         function switchMode(mode) {
             currentMode = mode;
             localStorage.setItem('mode', mode);
@@ -1611,6 +1702,8 @@ async function pollForProStatus(attempt = 0) {
                 };
                 pageTitle.innerText = titles[mode][currentLang];
             }
+                        // İpuçlarını güncelle
+            renderModeTips(mode);
         }
             function closeAuthModal() {
             document.getElementById('authModal').classList.add('hidden');
