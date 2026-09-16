@@ -1855,32 +1855,50 @@ async function pollForProStatus(attempt = 0) {
                 doc.setTextColor(...resultColor);
                 doc.text(resultText, 105, 135, { align: 'center' });
                 
-                // Görselleri ekle
+                                // Görselleri ekle (canvas ile PNG'ye çevirerek)
                 try {
                     const originalImg = document.getElementById('imagePreview');
                     const heatmapImg = document.getElementById('heatmapImage');
                     
+                    // Canvas yardımcı fonksiyonu - görseli PNG DataURL'e çevirir
+                    const imgToPngDataUrl = (imgElement) => {
+                        if (!imgElement || !imgElement.src) return null;
+                        try {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            canvas.width = imgElement.naturalWidth || imgElement.width;
+                            canvas.height = imgElement.naturalHeight || imgElement.height;
+                            ctx.drawImage(imgElement, 0, 0);
+                            return canvas.toDataURL('image/png');
+                        } catch (e) {
+                            console.log('Canvas çevirme hatası:', e);
+                            return null;
+                        }
+                    };
+                    
                     // Orijinal görsel - sol
-                    if (originalImg && originalImg.src && originalImg.src.startsWith('data:')) {
+                    const originalPng = imgToPngDataUrl(originalImg);
+                    if (originalPng) {
                         doc.setFontSize(11);
                         doc.setFont('helvetica', 'bold');
                         doc.setTextColor(...darkColor);
                         doc.text(trFix(currentLang === 'tr' ? 'Orijinal Gorsel' : 'Original Image'), 15, 155);
                         try {
-                            doc.addImage(originalImg.src, 'JPEG', 15, 160, 85, 85);
+                            doc.addImage(originalPng, 'PNG', 15, 160, 85, 85);
                         } catch (e) {
                             console.log('Orijinal görsel eklenemedi:', e);
                         }
                     }
                     
                     // Isı haritası - sağ
-                    if (heatmapImg && heatmapImg.src && heatmapImg.src.startsWith('data:')) {
+                    const heatmapPng = imgToPngDataUrl(heatmapImg);
+                    if (heatmapPng) {
                         doc.setFontSize(11);
                         doc.setFont('helvetica', 'bold');
                         doc.setTextColor(...darkColor);
                         doc.text(trFix(currentLang === 'tr' ? 'Isi Haritasi' : 'Heatmap'), 110, 155);
                         try {
-                            doc.addImage(heatmapImg.src, 'PNG', 110, 160, 85, 85);
+                            doc.addImage(heatmapPng, 'PNG', 110, 160, 85, 85);
                         } catch (e) {
                             console.log('Isı haritası eklenemedi:', e);
                         }
@@ -1888,7 +1906,7 @@ async function pollForProStatus(attempt = 0) {
                 } catch (imgErr) {
                     console.log('Görseller eklenemedi:', imgErr);
                 }
-                
+
                 // Alt bilgi
                 doc.setFontSize(8);
                 doc.setFont('helvetica', 'italic');
