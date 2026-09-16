@@ -6,6 +6,7 @@
     <title>AI Image Detector - Pro</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%236366f1'/><stop offset='100%' style='stop-color:%23a855f7'/></linearGradient></defs><rect width='100' height='100' rx='22' fill='url(%23g)'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>AI</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -401,6 +402,12 @@
                     </button>
                     <button onclick="shareResult('whatsapp')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5">
                         <i class="fab fa-whatsapp"></i> <span data-i18n="shareWhatsapp">WhatsApp</span>
+                    </button>
+                </div>
+                                <div class="pt-2 flex justify-center">
+                    <button onclick="downloadPDF()" id="pdfDownloadBtn" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-lg">
+                        <i class="fas fa-file-pdf"></i> 
+                        <span data-i18n="downloadPdf">PDF Rapor İndir</span>
                     </button>
                 </div>
                 <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-800 mt-2">
@@ -818,6 +825,7 @@
                 planRealestateFeature4: "Batch scan (10 images)",
                 planRealestateFeature5: "PDF report + priority support",
                 mostPopular: "MOST POPULAR",
+                                downloadPdf: "Download PDF Report",
                                 modeGeneral: "General Scan",
                 modeCar: "Car",
                 modeRealestate: "Real Estate",
@@ -911,6 +919,7 @@
                 planRealestateFeature4: "Toplu tarama (10 görsel)",
                 planRealestateFeature5: "PDF rapor + öncelikli destek",
                 mostPopular: "EN POPÜLER",
+                                downloadPdf: "PDF Rapor İndir",
                                 modeGeneral: "Genel Tarama",
                 modeCar: "Araba",
                 modeRealestate: "Emlak",
@@ -1457,6 +1466,8 @@ async function pollForProStatus(attempt = 0) {
             document.getElementById('imagePreview').src = "";
             document.getElementById('resultArea').classList.add('hidden');
             document.getElementById('heatmapContainer').classList.add('hidden');
+                        const pdfBtnReset = document.getElementById('pdfDownloadBtn');
+            if (pdfBtnReset) pdfBtnReset.classList.add('hidden');
         }
 
         function checkCookieConsent() {
@@ -1682,6 +1693,11 @@ async function pollForProStatus(attempt = 0) {
                     }
                     addToHistory(currentLoadedFile.name, aiScore, statusKey);
                     generateHeatmap(currentLoadedFile);
+                                        // PDF butonunu göster (sadece Pro için)
+                    const pdfBtn = document.getElementById('pdfDownloadBtn');
+                    if (pdfBtn && isProUser()) {
+                        pdfBtn.classList.remove('hidden');
+                    }
                 } else {
                     finalResults.innerHTML = `<p class='text-red-500 font-bold'>${translations[currentLang].errorMsg} ${data.error || "Unknown"}</p>`;
                 }
@@ -1710,6 +1726,170 @@ async function pollForProStatus(attempt = 0) {
             else { btn.classList.add('opacity-40', 'cursor-not-allowed'); }
         }
 
+                // ---------- PDF RAPOR İNDİRME ----------
+        function downloadPDF() {
+            if (!isProUser()) {
+                showToast(currentLang === 'tr' ? 'PDF raporu sadece Pro üyeler içindir.' : 'PDF report is only for Pro members.', 'info');
+                document.getElementById('upgradeModal').classList.remove('hidden');
+                return;
+            }
+            
+            if (!lastAnalysisStatus) {
+                showToast(currentLang === 'tr' ? 'Önce bir görsel tarayın.' : 'Please scan an image first.', 'error');
+                return;
+            }
+            
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Renk paleti
+                const primaryColor = [99, 102, 241];   // indigo
+                const darkColor = [30, 36, 51];
+                const lightGray = [100, 116, 139];
+                const redColor = [220, 38, 38];
+                const greenColor = [16, 185, 129];
+                
+                // Başlık bandı
+                doc.setFillColor(...primaryColor);
+                doc.rect(0, 0, 210, 30, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(22);
+                doc.setFont('helvetica', 'bold');
+                doc.text('AI IMAGE DETECTOR', 105, 15, { align: 'center' });
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Analiz Raporu / Analysis Report', 105, 23, { align: 'center' });
+                
+                // Tarih
+                doc.setTextColor(...lightGray);
+                doc.setFontSize(9);
+                const now = new Date();
+                const dateStr = now.toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US', {
+                    year: 'numeric', month: 'long', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                });
+                doc.text(`${currentLang === 'tr' ? 'Rapor Tarihi' : 'Report Date'}: ${dateStr}`, 15, 40);
+                
+                // Mod bilgisi
+                const modeNames = {
+                    general: currentLang === 'tr' ? 'Genel Tarama' : 'General Scan',
+                    car: currentLang === 'tr' ? 'Araba Detector' : 'Car Detector',
+                    realestate: currentLang === 'tr' ? 'Emlak Detector' : 'Real Estate Detector'
+                };
+                doc.text(`${currentLang === 'tr' ? 'Mod' : 'Mode'}: ${modeNames[currentMode]}`, 15, 47);
+                
+                // Dosya adı
+                const fileName = document.getElementById('fileName')?.innerText || 'image.jpg';
+                doc.text(`${currentLang === 'tr' ? 'Dosya' : 'File'}: ${fileName}`, 15, 54);
+                
+                // Ayırıcı çizgi
+                doc.setDrawColor(...lightGray);
+                doc.line(15, 60, 195, 60);
+                
+                // Analiz sonuçları
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(...darkColor);
+                doc.text(currentLang === 'tr' ? 'Analiz Sonuçları' : 'Analysis Results', 15, 72);
+                
+                // AI olasılığı
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(...darkColor);
+                doc.text(currentLang === 'tr' ? 'Yapay Zeka Olasılığı:' : 'AI Generated Probability:', 15, 85);
+                doc.setTextColor(...redColor);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(16);
+                doc.text(`%${lastAnalysisStatus.aiScore}`, 170, 85);
+                
+                // AI progress bar
+                doc.setFillColor(230, 230, 240);
+                doc.rect(15, 90, 180, 8, 'F');
+                doc.setFillColor(...redColor);
+                doc.rect(15, 90, (parseFloat(lastAnalysisStatus.aiScore) / 100) * 180, 8, 'F');
+                
+                // Gerçek olasılığı
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(...darkColor);
+                doc.text(currentLang === 'tr' ? 'Gerçek Fotoğraf Olasılığı:' : 'Real Photo Probability:', 15, 110);
+                doc.setTextColor(...greenColor);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(16);
+                const humanScore = (100 - parseFloat(lastAnalysisStatus.aiScore)).toFixed(1);
+                doc.text(`%${humanScore}`, 170, 110);
+                
+                // Human progress bar
+                doc.setFillColor(230, 230, 240);
+                doc.rect(15, 115, 180, 8, 'F');
+                doc.setFillColor(...greenColor);
+                doc.rect(15, 115, (humanScore / 100) * 180, 8, 'F');
+                
+                // Sonuç mesajı
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                let resultColor, resultText;
+                if (lastAnalysisStatus.statusKey === 'AI') {
+                    resultColor = redColor;
+                    resultText = currentLang === 'tr' ? 'SONUÇ: Yüksek ihtimalle YAPAY ZEKA' : 'RESULT: Likely AI-GENERATED';
+                } else if (lastAnalysisStatus.statusKey === 'Suspicious') {
+                    resultColor = [245, 158, 11];
+                    resultText = currentLang === 'tr' ? 'SONUÇ: Karışık sinyaller' : 'RESULT: Mixed indicators';
+                } else {
+                    resultColor = greenColor;
+                    resultText = currentLang === 'tr' ? 'SONUÇ: Yüksek ihtimalle GERÇEK FOTOĞRAF' : 'RESULT: Likely REAL PHOTO';
+                }
+                doc.setTextColor(...resultColor);
+                doc.text(resultText, 105, 140, { align: 'center' });
+                
+                // Isı haritası ekle (eğer varsa)
+                try {
+                    const heatmapImg = document.getElementById('heatmapImage');
+                    if (heatmapImg && heatmapImg.src && !heatmapImg.src.includes('about:blank')) {
+                        doc.setFontSize(12);
+                        doc.setFont('helvetica', 'bold');
+                        doc.setTextColor(...darkColor);
+                        doc.text(currentLang === 'tr' ? 'Isı Haritası' : 'Heatmap', 15, 155);
+                        doc.addImage(heatmapImg.src, 'PNG', 15, 160, 80, 80);
+                        
+                        const originalImg = document.getElementById('imagePreview');
+                        if (originalImg && originalImg.src) {
+                            doc.text(currentLang === 'tr' ? 'Orijinal Görsel' : 'Original Image', 110, 155);
+                            doc.addImage(originalImg.src, 'JPEG', 110, 160, 80, 80);
+                        }
+                    }
+                } catch (imgErr) {
+                    console.log('Isı haritası eklenemedi:', imgErr);
+                }
+                
+                // Alt bilgi
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'italic');
+                doc.setTextColor(...lightGray);
+                doc.text(
+                    currentLang === 'tr' 
+                        ? 'Bu rapor olasılık tahminine dayanır, kesin hüküm değildir. Karar vermeden önce ek doğrulama yapın.'
+                        : 'This report is based on probability estimation, not a final verdict. Verify before making decisions.',
+                    105, 250, { align: 'center', maxWidth: 180 }
+                );
+                
+                // Alt çizgi
+                doc.setDrawColor(...lightGray);
+                doc.line(15, 260, 195, 260);
+                doc.setFontSize(8);
+                doc.text('ai-image-detector.com', 105, 268, { align: 'center' });
+                
+                // PDF'i indir
+                doc.save(`AI-Detector-Rapor-${Date.now()}.pdf`);
+                
+                showToast(currentLang === 'tr' ? '✅ PDF raporu indiriliyor...' : '✅ PDF report downloading...', 'success');
+                
+            } catch (err) {
+                console.error('PDF hatası:', err);
+                showToast(currentLang === 'tr' ? 'PDF oluşturulamadı.' : 'Could not create PDF.', 'error');
+            }
+        }
         function shareResult(platform) {
             if (!lastAnalysisStatus) return;
             const liveSiteUrl = window.location.origin;
