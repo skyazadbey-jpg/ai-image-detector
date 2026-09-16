@@ -55,6 +55,27 @@
             animation: scanSweep 4.5s ease-in-out infinite;
         }
         .scan-frame { position: relative; overflow: hidden; }
+                /* ---- PLAN KARTLARI ---- */
+        .plan-card {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .plan-card.selected {
+            border-color: #6366f1 !important;
+            background: rgba(99, 102, 241, 0.1) !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2), 0 10px 30px rgba(99, 102, 241, 0.3);
+            transform: translateY(-4px);
+        }
+        #planCar.selected {
+            border-color: #dc2626 !important;
+            background: rgba(220, 38, 38, 0.1) !important;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2), 0 10px 30px rgba(220, 38, 38, 0.3);
+        }
+        #planRealestate.selected {
+            border-color: #0891b2 !important;
+            background: rgba(8, 145, 178, 0.15) !important;
+            box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.3), 0 10px 30px rgba(8, 145, 178, 0.3);
+        }
                 /* ---- İPUCU KARTLARI ---- */
         .tip-card {
             position: relative;
@@ -578,23 +599,108 @@
         </div>
     </div>
 
-    <div id="upgradeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-slate-800 border border-indigo-500/50 rounded-2xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <div class="w-16 h-16 bg-indigo-600/20 text-indigo-400 rounded-2xl mx-auto flex items-center justify-center text-3xl border border-indigo-500/30">
-                <i class="fas fa-crown"></i>
+       <!-- 3 SEÇENEKLİ PRO MODALI -->
+    <div id="upgradeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-slate-800 border border-indigo-500/50 rounded-2xl max-w-5xl w-full p-6 shadow-2xl relative my-8">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-4 mb-6">
+                <div>
+                    <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fas fa-crown text-yellow-400"></i>
+                        <span data-i18n="modalTitle">Pro Planınızı Seçin</span>
+                    </h3>
+                    <p class="text-slate-400 text-sm mt-1" data-i18n="modalDesc">Sınırsız tarama ve özel özellikler için bir plan seçin</p>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white text-2xl"><i class="fas fa-xmark"></i></button>
             </div>
-            <h3 class="text-2xl font-bold text-white" data-i18n="modalTitle">Unlock Pro Features</h3>
-            <p class="text-slate-300 text-sm" data-i18n="modalDesc">You have reached your daily free limit.</p>
-            <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex items-center justify-between">
-                <span class="text-sm text-slate-300 font-medium" data-i18n="modalPlan">Pro Unlimited Plan</span>
-                <span class="text-xl font-extrabold text-indigo-400">$14.99 <span class="text-xs text-slate-400">/mo</span></span>
+
+            <!-- 3 PLAN YAN YANA -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                
+                <!-- PLAN 1: GENEL -->
+                <div class="plan-card bg-slate-900/60 border-2 border-slate-700 hover:border-indigo-500 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:-translate-y-1" onclick="selectPlan('general')" id="planGeneral">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
+                            <i class="fas fa-magnifying-glass text-white text-xl"></i>
+                        </div>
+                        <input type="radio" name="plan" value="general" class="w-5 h-5 accent-indigo-600">
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-1" data-i18n="planGeneralTitle">Genel Tarama</h4>
+                    <p class="text-xs text-slate-400 mb-3" data-i18n="planGeneralDesc">Tüm görseller için genel yapay zeka tespiti</p>
+                    <div class="mb-4">
+                        <span class="text-3xl font-extrabold text-white">$14.99</span>
+                        <span class="text-sm text-slate-400">/mo</span>
+                    </div>
+                    <ul class="space-y-2 text-xs text-slate-300 mb-4">
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planFeature1">Sınırsız tarama</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planFeature2">Isı haritası analizi</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planFeature3">Tarama geçmişi</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planFeature4">3 cihaz desteği</span></li>
+                    </ul>
+                </div>
+
+                <!-- PLAN 2: ARABA -->
+                <div class="plan-card bg-slate-900/60 border-2 border-slate-700 hover:border-red-500 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:-translate-y-1" onclick="selectPlan('car')" id="planCar">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center">
+                            <i class="fas fa-car text-white text-xl"></i>
+                        </div>
+                        <input type="radio" name="plan" value="car" class="w-5 h-5 accent-red-600">
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-1" data-i18n="planCarTitle">Araba Detector</h4>
+                    <p class="text-xs text-slate-400 mb-3" data-i18n="planCarDesc">İkinci el araç alım-satımı için özel koruma</p>
+                    <div class="mb-4">
+                        <span class="text-3xl font-extrabold text-white">$19.99</span>
+                        <span class="text-sm text-slate-400">/mo</span>
+                    </div>
+                    <ul class="space-y-2 text-xs text-slate-300 mb-4">
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planCarFeature1">Genel planın tüm özellikleri</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planCarFeature2">Araba güvenlik rehberi</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planCarFeature3">Plaka ve şasi kontrol ipuçları</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planCarFeature4">PDF rapor indirme</span></li>
+                    </ul>
+                </div>
+
+                <!-- PLAN 3: EMLAK (EN POPÜLER) -->
+                <div class="plan-card bg-gradient-to-br from-slate-900/80 to-cyan-950/30 border-2 border-cyan-500 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:-translate-y-1 relative" onclick="selectPlan('realestate')" id="planRealestate">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">
+                        ⭐ <span data-i18n="mostPopular">EN POPÜLER</span>
+                    </div>
+                    <div class="flex items-center justify-between mb-3 mt-2">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center">
+                            <i class="fas fa-house text-white text-xl"></i>
+                        </div>
+                        <input type="radio" name="plan" value="realestate" class="w-5 h-5 accent-cyan-600">
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-1" data-i18n="planRealestateTitle">Emlak Detector</h4>
+                    <p class="text-xs text-slate-400 mb-3" data-i18n="planRealestateDesc">Emlak alım-satımı için tam koruma paketi</p>
+                    <div class="mb-4">
+                        <span class="text-3xl font-extrabold text-white">$24.99</span>
+                        <span class="text-sm text-slate-400">/mo</span>
+                    </div>
+                    <ul class="space-y-2 text-xs text-slate-300 mb-4">
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planRealestateFeature1">Genel planın tüm özellikleri</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planRealestateFeature2">Emlak güvenlik rehberi</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planRealestateFeature3">Tapu ve imar kontrol ipuçları</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planRealestateFeature4">Toplu tarama (10 görsel)</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planRealestateFeature5">PDF rapor + öncelikli destek</span></li>
+                    </ul>
+                </div>
+
             </div>
-            <label class="flex items-start gap-2.5 text-left bg-slate-900/60 p-3 rounded-xl border border-slate-700 cursor-pointer">
-                <input type="checkbox" id="withdrawalConsentCheckbox" onchange="toggleCheckoutButton()" class="mt-0.5 w-4 h-4 accent-indigo-600 flex-shrink-0">
-                <span class="text-xs text-slate-400" data-i18n="withdrawalConsentText">I confirm immediate performance.</span>
-            </label>
-            <button onclick="proceedToCheckout()" id="checkoutBtn" disabled class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition opacity-40 cursor-not-allowed" data-i18n="modalBtn">Upgrade Now</button>
-            <button onclick="closeModal()" class="text-xs text-slate-400 hover:text-white transition" data-i18n="modalClose">Maybe Later</button>
+
+            <!-- ONAY VE ÖDEME -->
+            <div class="bg-slate-900/60 border border-slate-700 rounded-xl p-4 mb-4">
+                <label class="flex items-start gap-3 cursor-pointer">
+                    <input type="checkbox" id="withdrawalConsentCheckbox" onchange="toggleCheckoutButton()" class="mt-0.5 w-4 h-4 accent-indigo-600 flex-shrink-0">
+                    <span class="text-xs text-slate-400 leading-relaxed" data-i18n="withdrawalConsentText">Hizmetin hemen başlatılmasını onaylıyorum, bu nedenle 14 günlük cayma hakkımdan feragat ediyorum.</span>
+                </label>
+            </div>
+
+            <button onclick="proceedToCheckout()" id="checkoutBtn" disabled class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold py-4 rounded-xl shadow-lg transition opacity-40 cursor-not-allowed text-lg">
+                <i class="fas fa-lock mr-2"></i>
+                <span id="checkoutBtnText" data-i18n="modalBtn">Plan Seçin ve Ödeyin</span>
+            </button>
+            <button onclick="closeModal()" class="w-full text-xs text-slate-400 hover:text-white transition mt-3" data-i18n="modalClose">Belki Sonra</button>
         </div>
     </div>
 
@@ -692,6 +798,26 @@
                 heatmapBlueDesc: "Likely authentic",
                 heatmapDisclaimer: "Visual aid based on model confidence.",
                                 tipsTitle: "General Safety Tips",
+                                                planGeneralTitle: "General Scan",
+                planGeneralDesc: "General AI detection for all images",
+                planFeature1: "Unlimited scans",
+                planFeature2: "Heatmap analysis",
+                planFeature3: "Scan history",
+                planFeature4: "3 device support",
+                planCarTitle: "Car Detector",
+                planCarDesc: "Special protection for second-hand car sales",
+                planCarFeature1: "All General plan features",
+                planCarFeature2: "Car safety guide",
+                planCarFeature3: "Plate & chassis tips",
+                planCarFeature4: "PDF report download",
+                planRealestateTitle: "Real Estate Detector",
+                planRealestateDesc: "Full protection for real estate",
+                planRealestateFeature1: "All General plan features",
+                planRealestateFeature2: "Real estate safety guide",
+                planRealestateFeature3: "Title & zoning tips",
+                planRealestateFeature4: "Batch scan (10 images)",
+                planRealestateFeature5: "PDF report + priority support",
+                mostPopular: "MOST POPULAR",
                                 modeGeneral: "General Scan",
                 modeCar: "Car",
                 modeRealestate: "Real Estate",
@@ -765,6 +891,26 @@
                 heatmapBlueDesc: "Muhtemelen gerçek",
                 heatmapDisclaimer: "Model güvenine dayalı görsel yardımcıdır.",
                                 tipsTitle: "Genel Güvenlik İpuçları",
+                                                planGeneralTitle: "Genel Tarama",
+                planGeneralDesc: "Tüm görseller için genel yapay zeka tespiti",
+                planFeature1: "Sınırsız tarama",
+                planFeature2: "Isı haritası analizi",
+                planFeature3: "Tarama geçmişi",
+                planFeature4: "3 cihaz desteği",
+                planCarTitle: "Araba Detector",
+                planCarDesc: "İkinci el araç alım-satımı için özel koruma",
+                planCarFeature1: "Genel planın tüm özellikleri",
+                planCarFeature2: "Araba güvenlik rehberi",
+                planCarFeature3: "Plaka ve şasi kontrol ipuçları",
+                planCarFeature4: "PDF rapor indirme",
+                planRealestateTitle: "Emlak Detector",
+                planRealestateDesc: "Emlak alım-satımı için tam koruma paketi",
+                planRealestateFeature1: "Genel planın tüm özellikleri",
+                planRealestateFeature2: "Emlak güvenlik rehberi",
+                planRealestateFeature3: "Tapu ve imar kontrol ipuçları",
+                planRealestateFeature4: "Toplu tarama (10 görsel)",
+                planRealestateFeature5: "PDF rapor + öncelikli destek",
+                mostPopular: "EN POPÜLER",
                                 modeGeneral: "Genel Tarama",
                 modeCar: "Araba",
                 modeRealestate: "Emlak",
@@ -1807,9 +1953,47 @@ async function pollForProStatus(attempt = 0) {
             document.getElementById('authModal').classList.add('hidden');
         }
 
-        function closeModal() {
+                // ---------- PLAN SEÇİMİ ----------
+        let selectedPlan = null;
+
+        function selectPlan(plan) {
+            selectedPlan = plan;
+            
+            // Tüm kartlardan 'selected' class'ını kaldır
+            document.querySelectorAll('.plan-card').forEach(card => card.classList.remove('selected'));
+            
+            // Seçili karta 'selected' class'ı ekle
+            const planMap = {
+                general: 'planGeneral',
+                car: 'planCar',
+                realestate: 'planRealestate'
+            };
+            const selectedCard = document.getElementById(planMap[plan]);
+            if (selectedCard) selectedCard.classList.add('selected');
+            
+            // Radio button'u işaretle
+            const radio = document.querySelector(`input[name="plan"][value="${plan}"]`);
+            if (radio) radio.checked = true;
+            
+            // Buton metnini güncelle
+            const btnText = document.getElementById('checkoutBtnText');
+            const prices = { general: '$14.99', car: '$19.99', realestate: '$24.99' };
+            const planNames = {
+                general: currentLang === 'tr' ? 'Genel Plan' : 'General Plan',
+                car: currentLang === 'tr' ? 'Araba Planı' : 'Car Plan',
+                realestate: currentLang === 'tr' ? 'Emlak Planı' : 'Real Estate Plan'
+            };
+            if (btnText) {
+                btnText.innerText = `${planNames[plan]} - ${prices[plan]}/mo`;
+            }
+        }
+               function closeModal() {
             document.getElementById('upgradeModal').classList.add('hidden');
             document.getElementById('withdrawalConsentCheckbox').checked = false;
+            document.querySelectorAll('.plan-card').forEach(card => card.classList.remove('selected'));
+            selectedPlan = null;
+            const btnText = document.getElementById('checkoutBtnText');
+            if (btnText) btnText.innerText = translations[currentLang].modalBtn;
             toggleCheckoutButton();
         }
       function parseJwt(token) {
@@ -1819,25 +2003,40 @@ async function pollForProStatus(attempt = 0) {
     } catch { return null; }
 }
 
-function proceedToCheckout() {
-    if (!currentUser) {
-        showToast(currentLang === 'tr' ? "Önce giriş yapmalısınız." : "Please sign in first.", 'error');
-        closeModal();
-        openAuthModal();
-        return;
-    }
-    const token = localStorage.getItem('authToken');
-    const payload = parseJwt(token);
-    const userId = payload ? payload.user_id : '';
-
-    const baseUrl = "https://aimagedetector.lemonsqueezy.com/checkout/buy/d06f800e-3e99-4a0e-a1f0-f2467904be52";
-    const params = new URLSearchParams({
-        'checkout[email]': currentUser.email,
-        'checkout[custom][user_id]': userId,
-        'checkout[custom][email]': currentUser.email
-    });
-    window.location.href = `${baseUrl}?${params.toString()}`;
-}
+        function proceedToCheckout() {
+            if (!currentUser) {
+                showToast(currentLang === 'tr' ? "Önce giriş yapmalısınız." : "Please sign in first.", 'error');
+                closeModal();
+                openAuthModal();
+                return;
+            }
+            
+            if (!selectedPlan) {
+                showToast(currentLang === 'tr' ? 'Lütfen bir plan seçin' : 'Please select a plan', 'error');
+                return;
+            }
+            
+            const token = localStorage.getItem('authToken');
+            const payload = parseJwt(token);
+            const userId = payload ? payload.user_id : '';
+            
+            // Her plan için farklı Lemon Squeezy checkout link'i
+            // ŞİMDİLİK HEPSİ AYNI LİNK - SONRA LEMON SQUEEZY'DE AYRI ÜRÜNLER OLUŞTURUNCA GÜNCELLE
+            const baseUrls = {
+                general: "https://aimagedetector.lemonsqueezy.com/checkout/buy/d06f800e-3e99-4a0e-a1f0-f2467904be52",
+                car: "https://aimagedetector.lemonsqueezy.com/checkout/buy/d06f800e-3e99-4a0e-a1f0-f2467904be52",
+                realestate: "https://aimagedetector.lemonsqueezy.com/checkout/buy/d06f800e-3e99-4a0e-a1f0-f2467904be52"
+            };
+            
+            const baseUrl = baseUrls[selectedPlan];
+            const params = new URLSearchParams({
+                'checkout[email]': currentUser.email,
+                'checkout[custom][user_id]': userId,
+                'checkout[custom][email]': currentUser.email,
+                'checkout[custom][plan]': selectedPlan
+            });
+            window.location.href = `${baseUrl}?${params.toString()}`;
+        }
         function openModal(type) {
             const legalModal = document.getElementById('legalModal');
             const legalTitle = document.getElementById('legalTitle');
