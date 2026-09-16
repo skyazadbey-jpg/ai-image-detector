@@ -1744,11 +1744,23 @@ async function pollForProStatus(attempt = 0) {
                 const doc = new jsPDF();
                 
                 // Renk paleti
-                const primaryColor = [99, 102, 241];   // indigo
+                const primaryColor = [99, 102, 241];
                 const darkColor = [30, 36, 51];
                 const lightGray = [100, 116, 139];
                 const redColor = [220, 38, 38];
                 const greenColor = [16, 185, 129];
+                
+                // Türkçe karakterleri sadeleştir (PDF uyumluluğu için)
+                const trFix = (str) => {
+                    if (!str) return '';
+                    return str
+                        .replace(/ı/g, 'i').replace(/İ/g, 'I')
+                        .replace(/ş/g, 's').replace(/Ş/g, 'S')
+                        .replace(/ğ/g, 'g').replace(/Ğ/g, 'G')
+                        .replace(/ç/g, 'c').replace(/Ç/g, 'C')
+                        .replace(/ö/g, 'o').replace(/Ö/g, 'O')
+                        .replace(/ü/g, 'u').replace(/Ü/g, 'U');
+                };
                 
                 // Başlık bandı
                 doc.setFillColor(...primaryColor);
@@ -1765,7 +1777,7 @@ async function pollForProStatus(attempt = 0) {
                 doc.setTextColor(...lightGray);
                 doc.setFontSize(9);
                 const now = new Date();
-                const dateStr = now.toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US', {
+                const dateStr = now.toLocaleDateString('en-US', {
                     year: 'numeric', month: 'long', day: 'numeric',
                     hour: '2-digit', minute: '2-digit'
                 });
@@ -1777,11 +1789,11 @@ async function pollForProStatus(attempt = 0) {
                     car: currentLang === 'tr' ? 'Araba Detector' : 'Car Detector',
                     realestate: currentLang === 'tr' ? 'Emlak Detector' : 'Real Estate Detector'
                 };
-                doc.text(`${currentLang === 'tr' ? 'Mod' : 'Mode'}: ${modeNames[currentMode]}`, 15, 47);
+                doc.text(`${currentLang === 'tr' ? 'Mod' : 'Mode'}: ${trFix(modeNames[currentMode])}`, 15, 47);
                 
                 // Dosya adı
                 const fileName = document.getElementById('fileName')?.innerText || 'image.jpg';
-                doc.text(`${currentLang === 'tr' ? 'Dosya' : 'File'}: ${fileName}`, 15, 54);
+                doc.text(`${currentLang === 'tr' ? 'Dosya' : 'File'}: ${trFix(fileName).substring(0, 50)}`, 15, 54);
                 
                 // Ayırıcı çizgi
                 doc.setDrawColor(...lightGray);
@@ -1791,13 +1803,13 @@ async function pollForProStatus(attempt = 0) {
                 doc.setFontSize(14);
                 doc.setFont('helvetica', 'bold');
                 doc.setTextColor(...darkColor);
-                doc.text(currentLang === 'tr' ? 'Analiz Sonuçları' : 'Analysis Results', 15, 72);
+                doc.text(currentLang === 'tr' ? 'Analiz Sonuclari' : 'Analysis Results', 15, 72);
                 
                 // AI olasılığı
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'normal');
                 doc.setTextColor(...darkColor);
-                doc.text(currentLang === 'tr' ? 'Yapay Zeka Olasılığı:' : 'AI Generated Probability:', 15, 85);
+                doc.text(currentLang === 'tr' ? 'Yapay Zeka Olasiligi:' : 'AI Generated Probability:', 15, 85);
                 doc.setTextColor(...redColor);
                 doc.setFont('helvetica', 'bold');
                 doc.setFontSize(16);
@@ -1813,7 +1825,7 @@ async function pollForProStatus(attempt = 0) {
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'normal');
                 doc.setTextColor(...darkColor);
-                doc.text(currentLang === 'tr' ? 'Gerçek Fotoğraf Olasılığı:' : 'Real Photo Probability:', 15, 110);
+                doc.text(currentLang === 'tr' ? 'Gercek Fotograf Olasiligi:' : 'Real Photo Probability:', 15, 110);
                 doc.setTextColor(...greenColor);
                 doc.setFont('helvetica', 'bold');
                 doc.setFontSize(16);
@@ -1832,35 +1844,49 @@ async function pollForProStatus(attempt = 0) {
                 let resultColor, resultText;
                 if (lastAnalysisStatus.statusKey === 'AI') {
                     resultColor = redColor;
-                    resultText = currentLang === 'tr' ? 'SONUÇ: Yüksek ihtimalle YAPAY ZEKA' : 'RESULT: Likely AI-GENERATED';
+                    resultText = currentLang === 'tr' ? 'SONUC: Yuksek ihtimalle YAPAY ZEKA' : 'RESULT: Likely AI-GENERATED';
                 } else if (lastAnalysisStatus.statusKey === 'Suspicious') {
                     resultColor = [245, 158, 11];
-                    resultText = currentLang === 'tr' ? 'SONUÇ: Karışık sinyaller' : 'RESULT: Mixed indicators';
+                    resultText = currentLang === 'tr' ? 'SONUC: Karisik sinyaller' : 'RESULT: Mixed indicators';
                 } else {
                     resultColor = greenColor;
-                    resultText = currentLang === 'tr' ? 'SONUÇ: Yüksek ihtimalle GERÇEK FOTOĞRAF' : 'RESULT: Likely REAL PHOTO';
+                    resultText = currentLang === 'tr' ? 'SONUC: Yuksek ihtimalle GERCEK FOTOGRAF' : 'RESULT: Likely REAL PHOTO';
                 }
                 doc.setTextColor(...resultColor);
-                doc.text(resultText, 105, 140, { align: 'center' });
+                doc.text(resultText, 105, 135, { align: 'center' });
                 
-                // Isı haritası ekle (eğer varsa)
+                // Görselleri ekle
                 try {
+                    const originalImg = document.getElementById('imagePreview');
                     const heatmapImg = document.getElementById('heatmapImage');
-                    if (heatmapImg && heatmapImg.src && !heatmapImg.src.includes('about:blank')) {
-                        doc.setFontSize(12);
+                    
+                    // Orijinal görsel - sol
+                    if (originalImg && originalImg.src && originalImg.src.startsWith('data:')) {
+                        doc.setFontSize(11);
                         doc.setFont('helvetica', 'bold');
                         doc.setTextColor(...darkColor);
-                        doc.text(currentLang === 'tr' ? 'Isı Haritası' : 'Heatmap', 15, 155);
-                        doc.addImage(heatmapImg.src, 'PNG', 15, 160, 80, 80);
-                        
-                        const originalImg = document.getElementById('imagePreview');
-                        if (originalImg && originalImg.src) {
-                            doc.text(currentLang === 'tr' ? 'Orijinal Görsel' : 'Original Image', 110, 155);
-                            doc.addImage(originalImg.src, 'JPEG', 110, 160, 80, 80);
+                        doc.text(trFix(currentLang === 'tr' ? 'Orijinal Gorsel' : 'Original Image'), 15, 155);
+                        try {
+                            doc.addImage(originalImg.src, 'JPEG', 15, 160, 85, 85);
+                        } catch (e) {
+                            console.log('Orijinal görsel eklenemedi:', e);
+                        }
+                    }
+                    
+                    // Isı haritası - sağ
+                    if (heatmapImg && heatmapImg.src && heatmapImg.src.startsWith('data:')) {
+                        doc.setFontSize(11);
+                        doc.setFont('helvetica', 'bold');
+                        doc.setTextColor(...darkColor);
+                        doc.text(trFix(currentLang === 'tr' ? 'Isi Haritasi' : 'Heatmap'), 110, 155);
+                        try {
+                            doc.addImage(heatmapImg.src, 'PNG', 110, 160, 85, 85);
+                        } catch (e) {
+                            console.log('Isı haritası eklenemedi:', e);
                         }
                     }
                 } catch (imgErr) {
-                    console.log('Isı haritası eklenemedi:', imgErr);
+                    console.log('Görseller eklenemedi:', imgErr);
                 }
                 
                 // Alt bilgi
@@ -1869,16 +1895,17 @@ async function pollForProStatus(attempt = 0) {
                 doc.setTextColor(...lightGray);
                 doc.text(
                     currentLang === 'tr' 
-                        ? 'Bu rapor olasılık tahminine dayanır, kesin hüküm değildir. Karar vermeden önce ek doğrulama yapın.'
+                        ? 'Bu rapor olasilik tahminine dayanir, kesin hukum degildir. Karar vermeden once ek dogrulama yapin.'
                         : 'This report is based on probability estimation, not a final verdict. Verify before making decisions.',
-                    105, 250, { align: 'center', maxWidth: 180 }
+                    105, 260, { align: 'center', maxWidth: 180 }
                 );
                 
                 // Alt çizgi
                 doc.setDrawColor(...lightGray);
-                doc.line(15, 260, 195, 260);
+                doc.line(15, 268, 195, 268);
                 doc.setFontSize(8);
-                doc.text('ai-image-detector.com', 105, 268, { align: 'center' });
+                doc.setFont('helvetica', 'normal');
+                doc.text('ai-image-detector.com', 105, 275, { align: 'center' });
                 
                 // PDF'i indir
                 doc.save(`AI-Detector-Rapor-${Date.now()}.pdf`);
@@ -1887,7 +1914,7 @@ async function pollForProStatus(attempt = 0) {
                 
             } catch (err) {
                 console.error('PDF hatası:', err);
-                showToast(currentLang === 'tr' ? 'PDF oluşturulamadı.' : 'Could not create PDF.', 'error');
+                showToast(currentLang === 'tr' ? 'PDF oluşturulamadı: ' + err.message : 'Could not create PDF: ' + err.message, 'error');
             }
         }
         function shareResult(platform) {
