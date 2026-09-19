@@ -282,6 +282,10 @@
             <i class="fas fa-shield-halved"></i>
             <span data-i18n="heroBadge">Görselleriniz asla saklanmaz</span>
         </div>
+                <div class="inline-flex items-center gap-2 bg-emerald-950/40 border border-emerald-800/50 text-emerald-300 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 ml-2">
+            <i class="fas fa-check-circle"></i>
+            <span data-i18n="heroBadge2">%100 gizli · Ücretsiz deneyin</span>
+        </div>
                 <div id="modeHeroIcon" class="mb-4 flex justify-center">
             <div class="w-16 h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg">
                 <i class="fas fa-magnifying-glass text-white text-2xl"></i>
@@ -411,7 +415,17 @@
                     </button>
                 </div>
                 <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-800 mt-2">
-                    <p class="text-[11px] text-slate-400 leading-relaxed" data-i18n="disclaimerText">ℹ️ <strong>Probabilistic Analysis:</strong> Scores are estimates.</p>
+                    <div class="bg-amber-950/40 p-4 rounded-xl border border-amber-700/50 mt-3">
+    <div class="flex items-start gap-3">
+        <i class="fas fa-triangle-exclamation text-amber-400 text-lg mt-0.5"></i>
+        <div class="text-left">
+            <p class="text-xs font-bold text-amber-300 mb-1" data-i18n="disclaimerTitle">⚠️ Önemli Uyarı</p>
+            <p class="text-[11px] text-amber-100/80 leading-relaxed" data-i18n="disclaimerText">
+                Bu sonuç <strong>olasılık tahminidir</strong>, kesin hüküm değildir. Yapay zeka modelleri piksel desenlerini analiz eder ve <strong>%100 doğru değildir</strong>. Önemli kararlar vermeden önce (emlak alım-satımı, araç alım-satımı, hukuki süreçler) mutlaka <strong>ek doğrulama</strong> yapın. Satıcıdan daha fazla bilgi isteyin, resmi kayıtları kontrol edin.
+            </p>
+        </div>
+    </div>
+</div>
                 </div>
             </div>
 
@@ -480,6 +494,33 @@
         </div>
     </div>
 
+        <!-- NASIL KULLANILIR -->
+    <div class="max-w-2xl w-full mx-auto mt-10 px-2">
+        <h3 class="text-center font-display text-lg font-semibold text-slate-200 mb-6" data-i18n="howToUseTitle">Sonuçları Nasıl Yorumlarsınız?</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-emerald-950/30 border border-emerald-700/50 rounded-xl p-4">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fas fa-circle-check text-emerald-400 text-lg"></i>
+                    <span class="text-sm font-bold text-emerald-300" data-i18n="resultGreenTitle">%0-40 AI</span>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed" data-i18n="resultGreenDesc">Yüksek ihtimalle gerçek fotoğraf. Ama yine de emin olmak için kaynağı kontrol edin.</p>
+            </div>
+            <div class="bg-amber-950/30 border border-amber-700/50 rounded-xl p-4">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fas fa-triangle-exclamation text-amber-400 text-lg"></i>
+                    <span class="text-sm font-bold text-amber-300" data-i18n="resultYellowTitle">%40-70 AI</span>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed" data-i18n="resultYellowDesc">Karışık sinyaller. Görsel düzenlenmiş olabilir. Mutlaka ek doğrulama yapın.</p>
+            </div>
+            <div class="bg-red-950/30 border border-red-700/50 rounded-xl p-4">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fas fa-circle-exclamation text-red-400 text-lg"></i>
+                    <span class="text-sm font-bold text-red-300" data-i18n="resultRedTitle">%70-100 AI</span>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed" data-i18n="resultRedDesc">Yüksek ihtimalle yapay zeka. Ama kesin hüküm değil. Dikkatli olun.</p>
+            </div>
+        </div>
+    </div>
         <h3 class="text-center font-display text-lg font-semibold text-slate-200 mb-6" data-i18n="trustTitle">Neden güvenebilirsiniz</h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="flex flex-col items-center text-center gap-2 p-4">
@@ -503,6 +544,7 @@
     <footer class="mt-8 text-center text-xs text-slate-500 space-y-2 mb-12">
         <p>&copy; 2026 AI Image Detector Pro. <span data-i18n="footerRights">All rights reserved.</span></p>
               <p class="text-slate-600 text-[10px]" data-i18n="footerCompanyLine">Türkiye'de hizmet vermektedir · 18+</p>
+                      <p class="text-[10px] text-slate-500 italic mt-1" data-i18n="footerDisclaimer">Bu araç yardımcı bir araçtır. Kesin hüküm vermez. Önemli kararlar için ek doğrulama yapın.</p>
         <div class="flex flex-wrap justify-center gap-3 text-slate-400">
             <a href="privacy.html" target="_blank" rel="noopener" class="hover:underline" data-i18n="privacyLink">Privacy Policy</a>
             <span>•</span>
@@ -771,11 +813,20 @@
                 modalPlan: "Pro Unlimited Plan", modalBtn: "Upgrade Now",
                 modalClose: "Maybe Later", withdrawalConsentText: "I confirm immediate performance.",
                 fileTooLarge: "File size exceeds 10MB limit!",
+                                howToUseTitle: "How to Interpret Results?",
+                resultGreenTitle: "0-40% AI",
+                resultGreenDesc: "Likely a real photo. But verify the source to be sure.",
+                resultYellowTitle: "40-70% AI",
+                resultYellowDesc: "Mixed signals. The image may be edited. Do additional verification.",
+                resultRedTitle: "70-100% AI",
+                resultRedDesc: "Likely AI-generated. But not definitive. Be careful.",
+                disclaimerTitle: "⚠️ Important Notice",
                 disclaimerText: "ℹ️ <strong>Probabilistic Analysis:</strong> Scores are estimates.",
                 shareTwitter: "Share on X", shareWhatsapp: "WhatsApp",
                 inviteTitle: "Invite Friends", inviteDesc: "Share your referral link.",
                 copyBtn: "Copy", footerRights: "All rights reserved.",
                                footerCompanyLine: "Serving in Turkey · 18+",
+                                               footerDisclaimer: "This is a helper tool. Not a definitive verdict. Verify before making decisions.",
                 privacyLink: "Privacy Policy", termsLink: "Terms of Service",
                 distanceLink: "Distance Sales Agreement", refundLink: "Refund Policy",
                 closeBtn: "Close", cookieText: "We use cookies.", cookieBtn: "Accept & Close",
@@ -785,6 +836,7 @@
                 distanceTitle: "Distance Sales Agreement", distanceBody: "<strong>Distance Contract</strong>",
                 refundTitle: "Refund Policy", refundBody: "<strong>Refund:</strong>",
                 heroBadge: "Your images are never stored",
+                                heroBadge2: "100% private · Try free",
                 heroTitle: "Is that image real, or AI-generated?",
                 heroSubtitle: "Find out in seconds.",
                 trustStorage: "Images stored", trustSpeed: "Average analysis time",
@@ -865,11 +917,20 @@
                 modalPlan: "Pro Sınırsız Plan", modalBtn: "Hemen Yükselt",
                 modalClose: "Belki Sonra", withdrawalConsentText: "Hemen başlatılmasını onaylıyorum.",
                 fileTooLarge: "Dosya boyutu 10MB sınırını aşıyor!",
+                                howToUseTitle: "Sonuçları Nasıl Yorumlarsınız?",
+                resultGreenTitle: "%0-40 AI",
+                resultGreenDesc: "Yüksek ihtimalle gerçek fotoğraf. Ama emin olmak için kaynağı kontrol edin.",
+                resultYellowTitle: "%40-70 AI",
+                resultYellowDesc: "Karışık sinyaller. Görsel düzenlenmiş olabilir. Ek doğrulama yapın.",
+                resultRedTitle: "%70-100 AI",
+                resultRedDesc: "Yüksek ihtimalle yapay zeka. Ama kesin hüküm değil. Dikkatli olun.",
+                disclaimerTitle: "⚠️ Önemli Uyarı",
                 disclaimerText: "ℹ️ <strong>Olasılıksal Analiz:</strong> Skorlar tahminidir.",
                 shareTwitter: "X'te Paylaş", shareWhatsapp: "WhatsApp",
                 inviteTitle: "Arkadaşını Davet Et", inviteDesc: "Davet bağlantını paylaş.",
                 copyBtn: "Kopyala", footerRights: "Tüm hakları saklıdır.",
                  footerCompanyLine: "Türkiye'de hizmet vermektedir · 18+",
+                                 footerDisclaimer: "Bu araç yardımcı bir araçtır. Kesin hüküm vermez. Önemli kararlar için ek doğrulama yapın.",
                 privacyLink: "Gizlilik Politikası", termsLink: "Kullanım Koşulları",
                 distanceLink: "Mesafeli Satış Sözleşmesi", refundLink: "İptal ve İade",
                 closeBtn: "Kapat", cookieText: "Çerez kullanıyoruz.", cookieBtn: "Kabul Et",
@@ -879,6 +940,7 @@
                 distanceTitle: "Mesafeli Satış Sözleşmesi", distanceBody: "<strong>Mesafeli Satış</strong>",
                 refundTitle: "İptal ve İade Politikası", refundBody: "<strong>İade:</strong>",
                 heroBadge: "Görselleriniz asla saklanmaz",
+                                heroBadge2: "%100 gizli · Ücretsiz deneyin",
                 heroTitle: "Bir görsel gerçek mi, yapay zeka mı?",
                 heroSubtitle: "Saniyeler içinde öğrenin.",
                 trustStorage: "Görsel saklanır", trustSpeed: "Ortalama analiz süresi",
