@@ -32,9 +32,7 @@ app.add_middleware(
 
 # ---------- CONFIG ----------
 HF_TOKEN = os.getenv("HF_TOKEN")
-API_URL = "https://router.huggingface.co/hf-inference/models/umm-maybe/AI-image-detector"
-API_URL_2 = "https://router.huggingface.co/hf-inference/models/prithivMLmods/deepfake-detector-model-v1"
-
+API_URL = "https://router.huggingface.co/hf-inference/models/Bombek1/ai-image-detector-siglip-dinov2"
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
@@ -449,36 +447,7 @@ async def lemonsqueezy_webhook(request: Request):
 
 
 # ---------- PREDICT ----------
-# ---------- İKİ MODELİ BİRLEŞTİREN YARDIMCI FONKSİYON ----------
-def get_ai_score_from_model(api_url, headers, image_data):
-    """Tek bir modelden 'AI olma' olasılığını alır."""
-    try:
-        response = requests.post(api_url, headers=headers, data=image_data, timeout=30)
-        if response.status_code != 200:
-            return None
-        
-        result = response.json()
-        
-        # Modelin döndürdüğü formata göre skoru bul
-        ai_score = 0.0
-        if isinstance(result, list) and result:
-            for item in result:
-                if isinstance(item, dict):
-                    label = item.get("label", "").lower()
-                    score = item.get("score", 0)
-                    if any(word in label for word in ['ai', 'fake', 'artificial', 'deepfake']):
-                        ai_score = max(ai_score, score)
-        elif isinstance(result, dict):
-            if "score" in result:
-                ai_score = result["score"]
-        
-        return ai_score
-    except Exception as e:
-        print(f"Model hatası ({api_url}): {e}")
-        return None
-
-
-# ---------- ANA PREDICT FONKSİYONU (İKİ MODEL) ----------
+# ---------- YENİ YÜKSEK DOĞRULUKLU MODEL ----------
 @app.post("/predict")
 async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
     try:
@@ -502,31 +471,13 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
             "Content-Type": content_type,
         }
 
-        # İKİ MODELİ AYNI ANDA ÇALIŞTIR
-        score_1 = get_ai_score_from_model(API_URL, headers, contents)
-        score_2 = get_ai_score_from_model(API_URL_2, headers, contents)
+        # Yeni yüksek doğruluklu modeli çağır
+        response = requests.post(API_URL, headers=headers, data=contents, timeout=60)
 
-        # Sonuçları birleştir
-        scores = [s for s in [score_1, score_2] if s is not None]
-        
-        if not scores:
-            return {"error": "Hiçbir model yanıt vermedi."}
-        
-        # Ortalama al
-        final_ai_score = sum(scores) / len(scores)
-        final_human_score = 1 - final_ai_score
+        if response.status_code != 200:
+            return {"error": f"Hugging Face API Error: {response.text}"}
 
-        return {
-            "result": [
-                {"label": "artificial", "score": final_ai_score},
-                {"label": "human", "score": final_human_score}
-            ],
-            "models_used": len(scores),
-            "individual_scores": {
-                "model_1": score_1,
-                "model_2": score_2
-            }
-        }
+        return {"result": response.json()}
     except Exception as e:
         return {"error": str(e)}
 
