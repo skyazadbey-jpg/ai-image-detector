@@ -2055,31 +2055,32 @@ async function pollForProStatus(attempt = 0) {
                     tip: "💡 Tip: Upload a clear, high-resolution image for best results."
                 }
             },
-                     car: {
-                tr: [
-                    { icon: "fa-id-card-clip", title: "Plaka ve Şasi Kontrolü", desc: "Plaka ve şasi numarasını E-Devlet veya TRAMER üzerinden doğrulayın." },
-                    { icon: "fa-tachometer-alt", title: "Kilometre Doğrulama", desc: "Aracın kilometre bilgisini mutlaka doğrulayın. Düşük kilometre her zaman iyi değildir." },
-                    { icon: "fa-car-side", title: "Aracı Yerinde Görün", desc: "Fotoğrafa güvenmeyin. Aracı mutlaka yerinde inceleyin ve test sürüşü yapın." },
-                    { icon: "fa-clipboard-check", title: "Ekspertiz Raporu", desc: "Bağımsız bir ekspertiz raporu isteyin. Satıcı vermek istemiyorsa şüphelenin." },
-                    { icon: "fa-user-shield", title: "Satıcı Kimliği", desc: "Satıcının kimliğini ve ruhsat sahibi olduğunu doğrulayın." },
-                    { icon: "fa-vault", title: "Ödeme Güvenliği", desc: "Ödemeyi mutlaka resmi kanallar üzerinden yapın. Kapora için banka havalesi kullanın." },
-                    { icon: "fa-shield-halved", title: "Sigorta Sorgulama", desc: "Aracın sigorta geçmişini ve hasar kaydını mutlaka sorgulayın." },
-                    { icon: "fa-file-invoice", title: "Hasar Kaydı", desc: "TRAMER üzerinden aracın hasar kaydını mutlaka kontrol edin." },
-                    { icon: "fa-calendar-check", title: "Muayene Tarihi", desc: "Aracın muayene tarihinin geçerli olduğundan emin olun." }
-                ],
-                en: [
-                    { icon: "fa-id-card-clip", title: "Check Plate & Chassis", desc: "Verify the license plate and chassis number via official records." },
-                    { icon: "fa-tachometer-alt", title: "Verify Mileage", desc: "Always verify the mileage. Low mileage isn't always good." },
-                    { icon: "fa-car-side", title: "See It In Person", desc: "Don't trust photos. Inspect the car in person and take a test drive." },
-                    { icon: "fa-clipboard-check", title: "Inspection Report", desc: "Request an independent inspection report. Be suspicious if seller refuses." },
-                    { icon: "fa-user-shield", title: "Seller Identity", desc: "Verify the seller's identity and that they own the vehicle." },
-                    { icon: "fa-vault", title: "Payment Safety", desc: "Use official payment channels. Use bank transfers for deposits." },
-                    { icon: "fa-shield-halved", title: "Insurance Check", desc: "Always check the vehicle's insurance history and damage records." },
-                    { icon: "fa-file-invoice", title: "Damage History", desc: "Always check the vehicle's damage history via official records." },
-                    { icon: "fa-calendar-check", title: "Inspection Date", desc: "Make sure the vehicle's inspection date is valid." }
-                ]
-            },
-        };
+            car: {
+        tr: {
+            title: "Bu araç fotoğrafı gerçek mi?",
+            subtitle: "İkinci el araç alım-satımında dolandırılmaktan korunun.",
+            tip: "💡 İpucu: Plaka, kilometre ve şasi numarasını da kontrol edin."
+        },
+        en: {
+            title: "Is this car photo real?",
+            subtitle: "Protect yourself from fraud in second-hand car sales.",
+            tip: "💡 Tip: Also check the license plate, mileage, and chassis number."
+        }
+    },
+    realestate: {
+        tr: {
+            title: "Bu daire fotoğrafı gerçek mi?",
+            subtitle: "Emlak alım-satımında dolandırılmaktan korunun.",
+            tip: "💡 İpucu: Tapu, imar durumu ve emlak vergisi bilgilerini kontrol edin."
+        },
+        en: {
+            title: "Is this apartment photo real?",
+            subtitle: "Protect yourself from fraud in real estate.",
+            tip: "💡 Tip: Also verify title deed, zoning status, and property tax records."
+        }
+    }
+};
+        
         // ---------- MODA ÖZEL İPUÇLARI ----------
                const modeTips = {
             general: {
