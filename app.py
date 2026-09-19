@@ -32,7 +32,7 @@ app.add_middleware(
 
 # ---------- CONFIG ----------
 HF_TOKEN = os.getenv("HF_TOKEN")
-API_URL = "https://router.huggingface.co/hf-inference/models/Bombek1/ai-image-detector-siglip-dinov2"
+API_URL = "https://router.huggingface.co/hf-inference/models/Ateeqq/ai-vs-human-image-detector"
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
@@ -447,7 +447,6 @@ async def lemonsqueezy_webhook(request: Request):
 
 
 # ---------- PREDICT ----------
-# ---------- YENİ YÜKSEK DOĞRULUKLU MODEL ----------
 @app.post("/predict")
 async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
     try:
@@ -471,7 +470,6 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
             "Content-Type": content_type,
         }
 
-        # Yeni yüksek doğruluklu modeli çağır
         response = requests.post(API_URL, headers=headers, data=contents, timeout=60)
 
         if response.status_code != 200:
