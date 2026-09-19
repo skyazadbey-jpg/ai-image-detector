@@ -476,8 +476,6 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
         r3 = requests.post(API_URL_3, headers=headers, data=contents, timeout=60)
         scores = []
         for r in [r1, r2, r3]:
-                    # Model 3: Flux dedektörü
-        r3 = requests.post(API_URL_3, headers=headers, data=contents, timeout=60)
             if r.status_code == 200:
                 for item in r.json():
                     if isinstance(item, dict) and item.get("label") in ["Fake", "fake", "ai", "artificial"]:
