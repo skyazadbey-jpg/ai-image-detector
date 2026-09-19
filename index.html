@@ -2236,7 +2236,7 @@ async function pollForProStatus(attempt = 0) {
     } catch { return null; }
 }
 
-        function proceedToCheckout() {
+              function proceedToCheckout() {
             if (!currentUser) {
                 showToast(currentLang === 'tr' ? "Önce giriş yapmalısınız." : "Please sign in first.", 'error');
                 closeModal();
@@ -2253,12 +2253,11 @@ async function pollForProStatus(attempt = 0) {
             const payload = parseJwt(token);
             const userId = payload ? payload.user_id : '';
             
-            // Her plan için farklı Lemon Squeezy checkout link'i
-            // ŞİMDİLİK HEPSİ AYNI LİNK - SONRA LEMON SQUEEZY'DE AYRI ÜRÜNLER OLUŞTURUNCA GÜNCELLE
+            // Her plan için ayrı Lemon Squeezy checkout linki
             const baseUrls = {
                 general: "https://aimagedetector.lemonsqueezy.com/checkout/buy/d06f800e-3e99-4a0e-a1f0-f2467904be52",
-                car: "https://aimagedetector.lemonsqueezy.com/checkout/buy/d06f800e-3e99-4a0e-a1f0-f2467904be52",
-                realestate: "https://aimagedetector.lemonsqueezy.com/checkout/buy/d06f800e-3e99-4a0e-a1f0-f2467904be52"
+                car: "https://aimagedetector.lemonsqueezy.com/checkout/buy/a0599342-8ddb-45af-a3b6-6edf469dbc28",
+                realestate: "https://aimagedetector.lemonsqueezy.com/checkout/buy/29b14a1e-0953-4dcb-bbee-25c7a9de24bb"
             };
             
             const baseUrl = baseUrls[selectedPlan];
