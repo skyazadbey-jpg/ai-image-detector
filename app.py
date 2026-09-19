@@ -32,7 +32,9 @@ app.add_middleware(
 
 # ---------- CONFIG ----------
 HF_TOKEN = os.getenv("HF_TOKEN")
-API_URL = "https://router.huggingface.co/hf-inference/models/Ateeqq/ai-vs-human-image-detector"
+API_URL = "https://router.huggingface.co/hf-inference/models/prithivMLmods/deepfake-detector-model-v1"
+API_URL_2 = "https://router.huggingface.co/hf-inference/models/umm-maybe/AI-image-detector"
+API_URL_3 = "https://router.huggingface.co/hf-inference/models/Vontra/detectra-v1"
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
@@ -452,30 +454,39 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
     try:
         contents = None
         content_type = "application/octet-stream"
-
         if file:
             contents = await file.read()
             content_type = file.content_type or "application/octet-stream"
         elif image_url:
             img_response = requests.get(image_url)
             if img_response.status_code != 200:
-                return {"error": "Görsel internet adresinden indirilemedi."}
+                return {"error": "Görsel indirilemedi."}
             contents = img_response.content
             content_type = img_response.headers.get("content-type", "image/jpeg")
         else:
             return {"error": "Görsel bulunamadı."}
 
-        headers = {
-            "Authorization": f"Bearer {HF_TOKEN}",
-            "Content-Type": content_type,
-        }
-
-        response = requests.post(API_URL, headers=headers, data=contents, timeout=60)
-
-        if response.status_code != 200:
-            return {"error": f"Hugging Face API Error: {response.text}"}
-
-        return {"result": response.json()}
+        headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": content_type}
+        
+        # Model 1: SigLIP2 (yeni nesil)
+        r1 = requests.post(API_URL, headers=headers, data=contents, timeout=60)
+        # Model 2: Genel dedektör (eski ama farklı bakış açısı)
+        r2 = requests.post(API_URL_2, headers=headers, data=contents, timeout=60)
+        
+        scores = []
+        for r in [r1, r2, r3]:
+                    # Model 3: Flux dedektörü
+        r3 = requests.post(API_URL_3, headers=headers, data=contents, timeout=60)
+            if r.status_code == 200:
+                for item in r.json():
+                    if isinstance(item, dict) and item.get("label") in ["Fake", "fake", "ai", "artificial"]:
+                        scores.append(item.get("score", 0.5))
+        
+        if not scores:
+            return {"error": "Model yanıt vermedi."}
+        
+        final_score = sum(scores) / len(scores)
+        return {"result": [{"label": "artificial", "score": final_score}, {"label": "human", "score": 1 - final_score}]}
     except Exception as e:
         return {"error": str(e)}
 
