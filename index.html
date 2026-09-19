@@ -1733,7 +1733,15 @@ async function pollForProStatus(attempt = 0) {
                 document.getElementById('upgradeModal').classList.remove('hidden');
                 return;
             }
-            
+                        // Isı haritasının yüklenmesini bekle
+            const heatmapImgCheck = document.getElementById('heatmapImage');
+            if (heatmapImgCheck && (!heatmapImgCheck.complete || heatmapImgCheck.naturalWidth === 0)) {
+                showToast(currentLang === 'tr' ? '⏳ Isı haritası hazırlanıyor, lütfen bekleyin...' : '⏳ Preparing heatmap, please wait...', 'info');
+                // 3 saniye bekle ve tekrar dene
+                setTimeout(() => downloadPDF(), 3000);
+                return;
+            }
+
             if (!lastAnalysisStatus) {
                 showToast(currentLang === 'tr' ? 'Önce bir görsel tarayın.' : 'Please scan an image first.', 'error');
                 return;
