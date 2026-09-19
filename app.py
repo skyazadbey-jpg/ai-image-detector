@@ -472,7 +472,8 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
         r1 = requests.post(API_URL, headers=headers, data=contents, timeout=60)
         # Model 2: Genel dedektör (eski ama farklı bakış açısı)
         r2 = requests.post(API_URL_2, headers=headers, data=contents, timeout=60)
-        
+                      # Model 3: Flux dedektörü
+        r3 = requests.post(API_URL_3, headers=headers, data=contents, timeout=60)
         scores = []
         for r in [r1, r2, r3]:
                     # Model 3: Flux dedektörü
