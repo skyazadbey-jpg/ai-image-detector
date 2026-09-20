@@ -671,15 +671,7 @@
                 </h3>
                 <button onclick="closeAuthModal()" class="text-slate-400 hover:text-white text-lg"><i class="fas fa-xmark"></i></button>
             </div>
-            <button onclick="handleGoogleSignIn()" class="w-full bg-slate-900 hover:bg-slate-750 text-white border border-slate-700 font-semibold py-3 rounded-xl transition flex items-center justify-center gap-3 text-sm shadow-md">
-                <svg class="w-5 h-5" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
-                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.2v3.15C3.15 21.32 7.23 24 12 24z"/>
-                    <path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.2C.43 8.15 0 9.89 0 12s.43 3.85 1.2 5.39l4.07-3.15z"/>
-                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.15 2.68 1.2 6.61l4.07 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/>
-                </svg>
-                <span data-i18n="googleBtnText">Continue with Google</span>
-            </button>
+        <div id="googleButtonContainer" class="flex justify-center"></div>
             <div class="flex items-center my-4">
                 <div class="flex-grow border-t border-slate-700"></div>
                 <span class="px-3 text-xs text-slate-500 uppercase font-semibold" data-i18n="orDivider">or email</span>
@@ -1177,6 +1169,7 @@
              window.addEventListener('DOMContentLoaded', () => {
             applyLanguage(); applyTheme(); loadHistory(); updateCreditDisplay();
             checkCookieConsent(); checkReferralParam(); initDragAndDrop(); restoreSession();
+                        renderGoogleButton();
             checkUpgradeParam();
             if (isProUser()) {
                 document.body.classList.add('pro-user');
@@ -1457,30 +1450,30 @@ async function pollForProStatus(attempt = 0) {
                // Google Identity Services'i SADECE BİR KERE başlat
         let googleInitialized = false;
 
-        function handleGoogleSignIn() {
+             // Google butonunu sayfa yüklendiğinde render et
+        function renderGoogleButton() {
             if (!window.google || !google.accounts || !google.accounts.id) {
-                alert(currentLang === 'tr' ? "Google yüklenmedi, sayfayı yenileyip tekrar deneyin." : "Google not loaded, please refresh and try again.");
+                setTimeout(renderGoogleButton, 500);
                 return;
             }
             
-            if (!googleInitialized) {
-                google.accounts.id.initialize({
-                    client_id: GOOGLE_CLIENT_ID,
-                    callback: handleGoogleCredentialResponse
-                });
-                googleInitialized = true;
-            }
-            
-            // Popup'ı doğrudan aç (prompt yerine)
-            google.accounts.id.prompt((notification) => {
-                if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                    // Prompt açılmadıysa, buton akışını dene
-                    google.accounts.id.renderButton(
-                        document.createElement('div'),
-                        { theme: 'outline', size: 'large' }
-                    );
-                }
+            google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: handleGoogleCredentialResponse,
+                auto_select: false,
+                cancel_on_tap_outside: true
             });
+            
+            const btnContainer = document.getElementById('googleButtonContainer');
+            if (btnContainer) {
+                google.accounts.id.renderButton(btnContainer, {
+                    theme: 'filled_black',
+                    size: 'large',
+                    text: 'continue_with',
+                    shape: 'rectangular',
+                    width: 350
+                });
+            }
         }
         async function handleGoogleCredentialResponse(response) {
             try {
