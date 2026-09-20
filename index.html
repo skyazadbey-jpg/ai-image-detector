@@ -1454,15 +1454,34 @@ async function pollForProStatus(attempt = 0) {
             document.getElementById('authErrorBox').classList.add('hidden');
         }
 
+               // Google Identity Services'i SADECE BİR KERE başlat
+        let googleInitialized = false;
+
         function handleGoogleSignIn() {
             if (!window.google || !google.accounts || !google.accounts.id) {
-                alert(currentLang === 'tr' ? "Google yüklenmedi." : "Google not loaded.");
+                alert(currentLang === 'tr' ? "Google yüklenmedi, sayfayı yenileyip tekrar deneyin." : "Google not loaded, please refresh and try again.");
                 return;
             }
-            google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleCredentialResponse });
-            google.accounts.id.prompt();
+            
+            if (!googleInitialized) {
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleGoogleCredentialResponse
+                });
+                googleInitialized = true;
+            }
+            
+            // Popup'ı doğrudan aç (prompt yerine)
+            google.accounts.id.prompt((notification) => {
+                if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                    // Prompt açılmadıysa, buton akışını dene
+                    google.accounts.id.renderButton(
+                        document.createElement('div'),
+                        { theme: 'outline', size: 'large' }
+                    );
+                }
+            });
         }
-
         async function handleGoogleCredentialResponse(response) {
             try {
                 const res = await fetch(`${BACKEND_URL}/auth/google`, {
