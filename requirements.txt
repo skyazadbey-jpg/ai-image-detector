@@ -9,3 +9,4 @@ google-auth
 email-validator
 pillow
 numpy
+c2pa-python

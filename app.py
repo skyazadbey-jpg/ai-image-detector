@@ -19,15 +19,16 @@ from PIL import Image, ImageFilter, ImageDraw
 from passlib.hash import bcrypt
 from google.oauth2 import id_token as google_id_token
 from google.auth.transport import requests as google_requests
+import c2pa
+import tempfile
+import json
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    ...
 )
 
 # ---------- CONFIG ----------
@@ -45,6 +46,45 @@ DB_PATH = "users.db"
 
 
 # ---------- DATABASE ----------
+def check_c2pa(contents):
+    """Görselin C2PA (Content Credentials) meta verisini kontrol eder."""
+    temp_path = None
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
+            temp_file.write(contents)
+            temp_path = temp_file.name
+
+        with c2pa.Reader(temp_path) as reader:
+            manifest_store = json.loads(reader.json())
+            
+            active_label = manifest_store.get("active_manifest")
+            manifests = manifest_store.get("manifests", {})
+            active = manifests.get(active_label, {})
+            
+            claim_generator = active.get("claim_generator", "").lower()
+            signature_issuer = active.get("signature_info", {}).get("issuer", "").lower()
+            
+            ai_keywords = ["dall-e", "midjourney", "adobe firefly", "stable diffusion", "flux", "bing image creator", "openai", "generative"]
+            camera_keywords = ["canon", "nikon", "sony", "leica", "apple", "samsung", "google", "camera"]
+            
+            if any(k in claim_generator for k in ai_keywords) or any(k in signature_issuer for k in ai_keywords):
+                return {"status": "ai", "source": claim_generator or signature_issuer, "confidence": 100}
+            
+            if any(k in claim_generator for k in camera_keywords) or any(k in signature_issuer for k in camera_keywords):
+                return {"status": "real", "source": claim_generator or signature_issuer, "confidence": 100}
+
+            return {"status": "unknown_c2pa", "source": claim_generator or signature_issuer, "confidence": 50}
+
+    except Exception as e:
+        error_str = str(e).lower()
+        if "manifestnotfound" in error_str or "not found" in error_str:
+            return {"status": "no_c2pa", "source": None, "confidence": 0}
+        return {"status": "error", "source": str(e), "confidence": 0}
+    finally:
+        if temp_path and os.path.exists(temp_path):
+            os.unlink(temp_path)
+
+
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -467,6 +507,28 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
             return {"error": "Görsel bulunamadı."}
 
         headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": content_type}
+                # --- C2PA KONTROLÜ ---
+        c2pa_result = check_c2pa(contents)
+        
+        if c2pa_result["status"] == "ai":
+            return {
+                "result": [
+                    {"label": "artificial", "score": 1.0},
+                    {"label": "human", "score": 0.0}
+                ],
+                "source": f"C2PA: {c2pa_result['source']}",
+                "method": "c2pa_verified"
+            }
+        elif c2pa_result["status"] == "real":
+            return {
+                "result": [
+                    {"label": "artificial", "score": 0.0},
+                    {"label": "human", "score": 1.0}
+                ],
+                "source": f"C2PA: {c2pa_result['source']}",
+                "method": "c2pa_verified"
+            }
+        # --- C2PA KONTROLÜ SONU ---
         
         # Model 1: SigLIP2 (yeni nesil)
         r1 = requests.post(API_URL, headers=headers, data=contents, timeout=60)
