@@ -511,13 +511,13 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
          
         
         # Model 1: SigLIP2 (yeni nesil)
-        r1 = requests.post(API_URL, headers=headers, data=contents, timeout=60)
+        r1 = requests.post(API_URL, headers=headers, data=contents, timeout=20)
         # Model 2: Genel dedektör (eski ama farklı bakış açısı)
-        r2 = requests.post(API_URL_2, headers=headers, data=contents, timeout=60)
+        r2 = requests.post(API_URL_2, headers=headers, data=contents, timeout=20)
                       # Model 3: Flux dedektörü
-        r3 = requests.post(API_URL_3, headers=headers, data=contents, timeout=60)
+        
         scores = []
-        for r in [r1, r2, r3]:
+        for r in [r1, r2,]:
             if r.status_code == 200:
                 for item in r.json():
                     if isinstance(item, dict) and item.get("label") in ["Fake", "fake", "ai", "artificial"]:
