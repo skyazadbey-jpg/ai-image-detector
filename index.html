@@ -1831,9 +1831,12 @@ async function pollForProStatus(attempt = 0) {
             } catch (err) { console.error("Heatmap error:", err); }
         }
 
-                function showC2PAInfo(data) {
+                    function showC2PAInfo(data) {
             const c2paBox = document.getElementById('c2paInfo');
             const c2paSource = document.getElementById('c2paSource');
+            
+            // Element yoksa hiçbir şey yapma
+            if (!c2paBox || !c2paSource) return;
             
             if (data && data.source && data.source.includes('C2PA')) {
                 c2paSource.innerText = data.source;
