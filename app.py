@@ -495,11 +495,12 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
     try:
         contents = None
         content_type = "application/octet-stream"
+        
         if file:
             contents = await file.read()
             content_type = file.content_type or "application/octet-stream"
         elif image_url:
-            img_response = requests.get(image_url)
+            img_response = requests.get(image_url, timeout=20)
             if img_response.status_code != 200:
                 return {"error": "Görsel indirilemedi."}
             contents = img_response.content
@@ -508,26 +509,47 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
             return {"error": "Görsel bulunamadı."}
 
         headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": content_type}
-         
         
-        # Model 1: SigLIP2 (yeni nesil)
-        r1 = requests.post(API_URL, headers=headers, data=contents, timeout=20)
-        # Model 2: Genel dedektör (eski ama farklı bakış açısı)
-        r2 = requests.post(API_URL_2, headers=headers, data=contents, timeout=20)
-                      # Model 3: Flux dedektörü
+        # Her model için ayrı ayrı skor al
+        def get_score(api_url):
+            try:
+                r = requests.post(api_url, headers=headers, data=contents, timeout=20)
+                if r.status_code != 200:
+                    return None
+                data = r.json()
+                # Farklı formatları dene
+                items = data.get("result", data) if isinstance(data, dict) else data
+                if isinstance(items, list):
+                    for item in items:
+                        if isinstance(item, dict):
+                            label = str(item.get("label", "")).lower()
+                            if label in ["ai", "fake", "artificial", "generated", "label_1"]:
+                                return float(item.get("score", 0))
+                            elif label in ["hum", "human", "real", "label_0"]:
+                                return 1 - float(item.get("score", 0))
+                return None
+            except Exception:
+                return None
         
-        scores = []
-        for r in [r1, r2,]:
-            if r.status_code == 200:
-                for item in r.json():
-                    if isinstance(item, dict) and item.get("label") in ["Fake", "fake", "ai", "artificial"]:
-                        scores.append(item.get("score", 0.5))
+        # İki modeli çalıştır
+        score_1 = get_score(API_URL)
+        score_2 = get_score(API_URL_2)
+        
+        scores = [s for s in [score_1, score_2] if s is not None]
         
         if not scores:
-            return {"error": "Model yanıt vermedi."}
+            return {"error": "Modeller yanıt vermedi. Lütfen tekrar deneyin."}
         
-        final_score = sum(scores) / len(scores)
-        return {"result": [{"label": "artificial", "score": final_score}, {"label": "human", "score": 1 - final_score}]}
+        final_ai_score = sum(scores) / len(scores)
+        final_human_score = 1 - final_ai_score
+        
+        return {
+            "result": [
+                {"label": "artificial", "score": final_ai_score},
+                {"label": "human", "score": final_human_score}
+            ],
+            "models_used": len(scores)
+        }
     except Exception as e:
         return {"error": str(e)}
 
