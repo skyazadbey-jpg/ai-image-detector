@@ -19,9 +19,7 @@ from PIL import Image, ImageFilter, ImageDraw
 from passlib.hash import bcrypt
 from google.oauth2 import id_token as google_id_token
 from google.auth.transport import requests as google_requests
-import c2pa
 import tempfile
-import json
 
 app = FastAPI()
 app.add_middleware(
@@ -47,43 +45,6 @@ DB_PATH = "users.db"
 
 
 # ---------- DATABASE ----------
-def check_c2pa(contents):
-    """Görselin C2PA (Content Credentials) meta verisini kontrol eder."""
-    temp_path = None
-    try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
-            temp_file.write(contents)
-            temp_path = temp_file.name
-
-        with c2pa.Reader(temp_path) as reader:
-            manifest_store = json.loads(reader.json())
-            
-            active_label = manifest_store.get("active_manifest")
-            manifests = manifest_store.get("manifests", {})
-            active = manifests.get(active_label, {})
-            
-            claim_generator = active.get("claim_generator", "").lower()
-            signature_issuer = active.get("signature_info", {}).get("issuer", "").lower()
-            
-            ai_keywords = ["dall-e", "midjourney", "adobe firefly", "stable diffusion", "flux", "bing image creator", "openai", "generative"]
-            camera_keywords = ["canon", "nikon", "sony", "leica", "apple", "samsung", "google", "camera"]
-            
-            if any(k in claim_generator for k in ai_keywords) or any(k in signature_issuer for k in ai_keywords):
-                return {"status": "ai", "source": claim_generator or signature_issuer, "confidence": 100}
-            
-            if any(k in claim_generator for k in camera_keywords) or any(k in signature_issuer for k in camera_keywords):
-                return {"status": "real", "source": claim_generator or signature_issuer, "confidence": 100}
-
-            return {"status": "unknown_c2pa", "source": claim_generator or signature_issuer, "confidence": 50}
-
-    except Exception as e:
-        error_str = str(e).lower()
-        if "manifestnotfound" in error_str or "not found" in error_str:
-            return {"status": "no_c2pa", "source": None, "confidence": 0}
-        return {"status": "error", "source": str(e), "confidence": 0}
-    finally:
-        if temp_path and os.path.exists(temp_path):
-            os.unlink(temp_path)
 
 
 def get_db():
