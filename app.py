@@ -508,28 +508,7 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
             return {"error": "Görsel bulunamadı."}
 
         headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": content_type}
-                # --- C2PA KONTROLÜ ---
-        c2pa_result = check_c2pa(contents)
-        
-        if c2pa_result["status"] == "ai":
-            return {
-                "result": [
-                    {"label": "artificial", "score": 1.0},
-                    {"label": "human", "score": 0.0}
-                ],
-                "source": f"C2PA: {c2pa_result['source']}",
-                "method": "c2pa_verified"
-            }
-        elif c2pa_result["status"] == "real":
-            return {
-                "result": [
-                    {"label": "artificial", "score": 0.0},
-                    {"label": "human", "score": 1.0}
-                ],
-                "source": f"C2PA: {c2pa_result['source']}",
-                "method": "c2pa_verified"
-            }
-        # --- C2PA KONTROLÜ SONU ---
+         
         
         # Model 1: SigLIP2 (yeni nesil)
         r1 = requests.post(API_URL, headers=headers, data=contents, timeout=60)
