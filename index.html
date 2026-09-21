@@ -6,7 +6,7 @@
     <title>AI Image Detector - Pro</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%236366f1'/><stop offset='100%' style='stop-color:%23a855f7'/></linearGradient></defs><rect width='100' height='100' rx='22' fill='url(%23g)'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>AI</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -56,11 +56,7 @@
             animation: scanSweep 4.5s ease-in-out infinite;
         }
         .scan-frame { position: relative; overflow: hidden; }
-                /* ---- PLAN KARTLARI ---- */
-        .plan-card {
-            position: relative;
-            transition: all 0.3s ease;
-        }
+        .plan-card { position: relative; transition: all 0.3s ease; }
         .plan-card.selected {
             border-color: #6366f1 !important;
             background: rgba(99, 102, 241, 0.1) !important;
@@ -77,11 +73,7 @@
             background: rgba(8, 145, 178, 0.15) !important;
             box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.3), 0 10px 30px rgba(8, 145, 178, 0.3);
         }
-                /* ---- İPUCU KARTLARI ---- */
-        .tip-card {
-            position: relative;
-            overflow: hidden;
-        }
+        .tip-card { position: relative; overflow: hidden; }
         .tip-icon-wrapper {
             background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
             box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
@@ -91,7 +83,6 @@
             transform: scale(1.1) rotate(-5deg);
             box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
         }
-        /* Araba modu */
         body.mode-car .tip-icon-wrapper {
             background: linear-gradient(135deg, #dc2626 0%, #f59e0b 100%);
             box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
@@ -99,7 +90,6 @@
         body.mode-car .tip-card:hover .tip-icon-wrapper {
             box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5);
         }
-        /* Emlak modu */
         body.mode-realestate .tip-icon-wrapper {
             background: linear-gradient(135deg, #0891b2 0%, #10b981 100%);
             box-shadow: 0 4px 15px rgba(8, 145, 178, 0.3);
@@ -107,106 +97,61 @@
         body.mode-realestate .tip-card:hover .tip-icon-wrapper {
             box-shadow: 0 6px 20px rgba(8, 145, 178, 0.5);
         }
-                /* ---- MOD SEKMELERİ ---- */
-        .mode-tab {
-            background: transparent;
-            color: #94a3b8;
-            border: 1px solid transparent;
-        }
-        .mode-tab:hover {
-            background: rgba(99, 102, 241, 0.1);
-            color: #c7d2fe;
-        }
+        .mode-tab { background: transparent; color: #94a3b8; border: 1px solid transparent; }
+        .mode-tab:hover { background: rgba(99, 102, 241, 0.1); color: #c7d2fe; }
         .mode-tab.active {
             background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
             color: #ffffff;
             box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
         }
-        /* Araba modu aktifken */
         body.mode-car .mode-tab.active {
             background: linear-gradient(135deg, #dc2626 0%, #f59e0b 100%);
             box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
         }
-        body.mode-car #scanButton {
-            background: linear-gradient(135deg, #dc2626 0%, #f59e0b 100%) !important;
-        }
-        body.mode-car #scanButton:hover {
-            background: linear-gradient(135deg, #ef4444 0%, #fbbf24 100%) !important;
-        }
-        /* Emlak modu aktifken */
+        body.mode-car #scanButton { background: linear-gradient(135deg, #dc2626 0%, #f59e0b 100%) !important; }
+        body.mode-car #scanButton:hover { background: linear-gradient(135deg, #ef4444 0%, #fbbf24 100%) !important; }
         body.mode-realestate .mode-tab.active {
             background: linear-gradient(135deg, #0891b2 0%, #10b981 100%);
             box-shadow: 0 4px 15px rgba(8, 145, 178, 0.4);
         }
-        body.mode-realestate #scanButton {
-            background: linear-gradient(135deg, #0891b2 0%, #10b981 100%) !important;
-        }
-        body.mode-realestate #scanButton:hover {
-            background: linear-gradient(135deg, #06b6d4 0%, #34d399 100%) !important;
-        }
-        /* ---- PRO KULLANICI STİLLERİ ---- */
+        body.mode-realestate #scanButton { background: linear-gradient(135deg, #0891b2 0%, #10b981 100%) !important; }
+        body.mode-realestate #scanButton:hover { background: linear-gradient(135deg, #06b6d4 0%, #34d399 100%) !important; }
         .pro-user #authNavBtn {
             background: linear-gradient(135deg, #f59e0b 0%, #eab308 50%, #f59e0b 100%) !important;
             box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4), 0 0 20px rgba(245, 158, 11, 0.3) !important;
             position: relative;
         }
         .pro-user #authNavBtn::after {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            border-radius: 12px;
+            content: ''; position: absolute; inset: -2px; border-radius: 12px;
             background: linear-gradient(135deg, #fbbf24, #f59e0b, #fbbf24);
-            z-index: -1;
-            opacity: 0.5;
-            filter: blur(6px);
+            z-index: -1; opacity: 0.5; filter: blur(6px);
         }
-        .pro-user #authNavBtn:hover {
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #fbbf24 100%) !important;
-        }
+        .pro-user #authNavBtn:hover { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #fbbf24 100%) !important; }
         .pro-user #creditBadge {
             background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%) !important;
-            color: #1e2433 !important;
-            border-color: #f59e0b !important;
+            color: #1e2433 !important; border-color: #f59e0b !important;
             box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
         }
-        .pro-user #creditBadge i {
-            color: #1e2433 !important;
-        }
+        .pro-user #creditBadge i { color: #1e2433 !important; }
         .pro-user #scanButton {
             background: linear-gradient(135deg, #f59e0b 0%, #8b5cf6 100%) !important;
             box-shadow: 0 0 25px rgba(245, 158, 11, 0.4) !important;
         }
-        .pro-user #scanButton:hover {
-            background: linear-gradient(135deg, #fbbf24 0%, #a78bfa 100%) !important;
-        }
+        .pro-user #scanButton:hover { background: linear-gradient(135deg, #fbbf24 0%, #a78bfa 100%) !important; }
         .pro-badge-pill {
-            position: fixed;
-            top: 6rem;
-            right: 1.5rem;
+            position: fixed; top: 6rem; right: 1.5rem;
             background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
-            color: #1e2433;
-            padding: 0.25rem 0.75rem;
-            border-radius: 999px;
-            font-size: 0.7rem;
-            font-weight: 800;
-            letter-spacing: 0.05em;
+            color: #1e2433; padding: 0.25rem 0.75rem; border-radius: 999px;
+            font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em;
             box-shadow: 0 4px 20px rgba(245, 158, 11, 0.5);
-            z-index: 40;
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
+            z-index: 40; display: flex; align-items: center; gap: 0.35rem;
             animation: proPulse 2s ease-in-out infinite;
         }
         @keyframes proPulse {
             0%, 100% { box-shadow: 0 4px 20px rgba(245, 158, 11, 0.5); }
             50% { box-shadow: 0 4px 30px rgba(245, 158, 11, 0.8); }
         }
-        .pro-crown {
-            display: inline-block;
-            color: #fbbf24;
-            margin-left: 0.25rem;
-            animation: crownShine 2s ease-in-out infinite;
-        }
+        .pro-crown { display: inline-block; color: #fbbf24; margin-left: 0.25rem; animation: crownShine 2s ease-in-out infinite; }
         @keyframes crownShine {
             0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px #fbbf24); }
             50% { transform: scale(1.15); filter: drop-shadow(0 0 6px #fbbf24); }
@@ -215,7 +160,6 @@
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300 min-h-screen flex flex-col items-center justify-between p-4 sm:p-6 font-sans relative">
-    <!-- ÜST MENÜ: 3 SEKMELİ YAPI -->
     <div class="w-full max-w-4xl mx-auto mt-4 mb-2 z-20 relative">
         <div class="flex justify-center gap-2 sm:gap-3 bg-slate-800/60 border border-slate-700/60 rounded-2xl p-2 backdrop-blur-sm">
             <button onclick="switchMode('general')" id="modeGeneral" class="mode-tab active flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition">
@@ -278,15 +222,15 @@
 
     <div class="max-w-2xl w-full mx-auto mt-24 sm:mt-16 mb-6 text-center scan-frame">
         <div class="scan-line" style="top: -10%;"></div>
-      <div class="inline-flex items-center gap-2 bg-emerald-950/40 border border-emerald-800/50 text-emerald-300 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 ml-2">
-    <i class="fas fa-check-circle"></i>
-    <span data-i18n="heroBadge2">%100 gizli · Ücretsiz deneyin</span>
-</div>
-<div class="inline-flex items-center gap-2 bg-indigo-950/40 border border-indigo-800/50 text-indigo-300 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 ml-2">
-    <i class="fas fa-flask"></i>
-    <span data-i18n="heroBadge3">1000+ görselle test edildi</span>
-</div>
-                <div id="modeHeroIcon" class="mb-4 flex justify-center">
+        <div class="inline-flex items-center gap-2 bg-emerald-950/40 border border-emerald-800/50 text-emerald-300 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 ml-2">
+            <i class="fas fa-check-circle"></i>
+            <span data-i18n="heroBadge2">%100 gizli · Ücretsiz deneyin</span>
+        </div>
+        <div class="inline-flex items-center gap-2 bg-indigo-950/40 border border-indigo-800/50 text-indigo-300 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 ml-2">
+            <i class="fas fa-flask"></i>
+            <span data-i18n="heroBadge3">1000+ görselle test edildi</span>
+        </div>
+        <div id="modeHeroIcon" class="mb-4 flex justify-center">
             <div class="w-16 h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg">
                 <i class="fas fa-magnifying-glass text-white text-2xl"></i>
             </div>
@@ -408,28 +352,28 @@
                         <i class="fab fa-whatsapp"></i> <span data-i18n="shareWhatsapp">WhatsApp</span>
                     </button>
                 </div>
-                                <div class="pt-2 flex justify-center">
+                <div class="pt-2 flex justify-center">
                     <button onclick="downloadPDF()" id="pdfDownloadBtn" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-lg">
-                        <i class="fas fa-file-pdf"></i> 
+                        <i class="fas fa-file-pdf"></i>
                         <span data-i18n="downloadPdf">PDF Rapor İndir</span>
                     </button>
                 </div>
-                
+
                 <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-800 mt-2">
-         <div class="bg-amber-950/40 p-4 rounded-xl border border-amber-700/50 mt-3">
-    <div class="flex items-start gap-3">
-        <i class="fas fa-triangle-exclamation text-amber-400 text-lg mt-0.5"></i>
-        <div class="text-left">
-            <p class="text-xs font-bold text-amber-300 mb-2" data-i18n="disclaimerTitle">⚠️ Önemli Uyarı ve Sınırlamalar</p>
-            <div class="text-[11px] text-amber-100/80 leading-relaxed space-y-1.5">
-                <p data-i18n="disclaimerP1"><strong>1. Olasılık Tahmini:</strong> Bu sonuç <strong>kesin hüküm değildir</strong>. Yapay zeka modelleri piksel desenlerini analiz eder ve <strong>%100 doğru değildir</strong>.</p>
-                <p data-i18n="disclaimerP2"><strong>2. Model Sınırlaması:</strong> Sistemimiz <strong>yeni nesil AI görselleri</strong> (Midjourney v6, DALL-E 3, Flux) için optimize edilmiştir. <strong>Eski AI modelleriyle</strong> (2022 öncesi) üretilmiş görsellerde doğruluk düşebilir.</p>
-                <p data-i18n="disclaimerP3"><strong>3. Ek Doğrulama Şart:</strong> Önemli kararlar için (emlak, araç, hukuki süreçler) mutlaka <strong>ek doğrulama</strong> yapın.</p>
-                <p data-i18n="disclaimerP4"><strong>4. Sorumluluk:</strong> Bu araç <strong>yardımcı bir araçtır</strong>. Sonuçlara dayanarak alınan kararlardan <strong>kullanıcı sorumludur</strong>.</p>
-            </div>
-        </div>
-    </div>
-</div>
+                    <div class="bg-amber-950/40 p-4 rounded-xl border border-amber-700/50 mt-3">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-triangle-exclamation text-amber-400 text-lg mt-0.5"></i>
+                            <div class="text-left">
+                                <p class="text-xs font-bold text-amber-300 mb-2" data-i18n="disclaimerTitle">⚠️ Önemli Uyarı ve Sınırlamalar</p>
+                                <div class="text-[11px] text-amber-100/80 leading-relaxed space-y-1.5">
+                                    <p data-i18n="disclaimerP1"><strong>1. Olasılık Tahmini:</strong> Bu sonuç <strong>kesin hüküm değildir</strong>. Yapay zeka modelleri piksel desenlerini analiz eder ve <strong>%100 doğru değildir</strong>.</p>
+                                    <p data-i18n="disclaimerP2"><strong>2. Model Sınırlaması:</strong> Sistemimiz <strong>yeni nesil AI görselleri</strong> için optimize edilmiştir. <strong>Eski AI modelleriyle</strong> üretilmiş görsellerde doğruluk düşebilir.</p>
+                                    <p data-i18n="disclaimerP3"><strong>3. Ek Doğrulama Şart:</strong> Önemli kararlar için mutlaka <strong>ek doğrulama</strong> yapın.</p>
+                                    <p data-i18n="disclaimerP4"><strong>4. Sorumluluk:</strong> Bu araç <strong>yardımcı bir araçtır</strong>. <strong>Kullanıcı sorumludur</strong>.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -468,6 +412,7 @@
             <div id="historyList" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
         </div>
     </div>
+
     <div class="max-w-2xl w-full mx-auto mt-10 px-2">
         <h3 class="text-center font-display text-lg font-semibold text-slate-200 mb-6" data-i18n="howTitle">Nasıl çalışır</h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -490,126 +435,120 @@
     </div>
 
     <div class="max-w-2xl w-full mx-auto mt-10 px-2">
-            <!-- MODA ÖZEL İPUÇLARI -->
-    <div id="modeTips" class="max-w-2xl w-full mx-auto mt-10 px-2">
-        <h3 class="text-center font-display text-lg font-semibold text-slate-200 mb-6" id="tipsTitle" data-i18n="tipsTitle">Güvenli alışveriş ipuçları</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="tipsContainer">
-            <!-- JavaScript ile doldurulacak -->
+        <div id="modeTips" class="max-w-2xl w-full mx-auto mt-10 px-2">
+            <h3 class="text-center font-display text-lg font-semibold text-slate-200 mb-6" id="tipsTitle" data-i18n="tipsTitle">Güvenli alışveriş ipuçları</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="tipsContainer"></div>
         </div>
-    </div>
 
-        <!-- NASIL KULLANILIR -->
-    <div class="max-w-2xl w-full mx-auto mt-10 px-2">
-        <h3 class="text-center font-display text-lg font-semibold text-slate-200 mb-6" data-i18n="howToUseTitle">Sonuçları Nasıl Yorumlarsınız?</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-emerald-950/30 border border-emerald-700/50 rounded-xl p-4">
-                <div class="flex items-center gap-2 mb-2">
-                    <i class="fas fa-circle-check text-emerald-400 text-lg"></i>
-                    <span class="text-sm font-bold text-emerald-300" data-i18n="resultGreenTitle">%0-40 AI</span>
+        <div class="max-w-2xl w-full mx-auto mt-10 px-2">
+            <h3 class="text-center font-display text-lg font-semibold text-slate-200 mb-6" data-i18n="howToUseTitle">Sonuçları Nasıl Yorumlarsınız?</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-emerald-950/30 border border-emerald-700/50 rounded-xl p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i class="fas fa-circle-check text-emerald-400 text-lg"></i>
+                        <span class="text-sm font-bold text-emerald-300" data-i18n="resultGreenTitle">%0-40 AI</span>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed" data-i18n="resultGreenDesc">Yüksek ihtimalle gerçek fotoğraf. Ama yine de emin olmak için kaynağı kontrol edin.</p>
                 </div>
-                <p class="text-xs text-slate-300 leading-relaxed" data-i18n="resultGreenDesc">Yüksek ihtimalle gerçek fotoğraf. Ama yine de emin olmak için kaynağı kontrol edin.</p>
-            </div>
-            <div class="bg-amber-950/30 border border-amber-700/50 rounded-xl p-4">
-                <div class="flex items-center gap-2 mb-2">
-                    <i class="fas fa-triangle-exclamation text-amber-400 text-lg"></i>
-                    <span class="text-sm font-bold text-amber-300" data-i18n="resultYellowTitle">%40-70 AI</span>
+                <div class="bg-amber-950/30 border border-amber-700/50 rounded-xl p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i class="fas fa-triangle-exclamation text-amber-400 text-lg"></i>
+                        <span class="text-sm font-bold text-amber-300" data-i18n="resultYellowTitle">%40-70 AI</span>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed" data-i18n="resultYellowDesc">Karışık sinyaller. Görsel düzenlenmiş olabilir. Mutlaka ek doğrulama yapın.</p>
                 </div>
-                <p class="text-xs text-slate-300 leading-relaxed" data-i18n="resultYellowDesc">Karışık sinyaller. Görsel düzenlenmiş olabilir. Mutlaka ek doğrulama yapın.</p>
-            </div>
-            <div class="bg-red-950/30 border border-red-700/50 rounded-xl p-4">
-                <div class="flex items-center gap-2 mb-2">
-                    <i class="fas fa-circle-exclamation text-red-400 text-lg"></i>
-                    <span class="text-sm font-bold text-red-300" data-i18n="resultRedTitle">%70-100 AI</span>
+                <div class="bg-red-950/30 border border-red-700/50 rounded-xl p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i class="fas fa-circle-exclamation text-red-400 text-lg"></i>
+                        <span class="text-sm font-bold text-red-300" data-i18n="resultRedTitle">%70-100 AI</span>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed" data-i18n="resultRedDesc">Yüksek ihtimalle yapay zeka. Ama kesin hüküm değil. Dikkatli olun.</p>
                 </div>
-                <p class="text-xs text-slate-300 leading-relaxed" data-i18n="resultRedDesc">Yüksek ihtimalle yapay zeka. Ama kesin hüküm değil. Dikkatli olun.</p>
-            </div>
-        </div>
-    </div>
-        <!-- ÖRNEK ANALİZLER -->
-    <div class="max-w-2xl w-full mx-auto mt-10 px-2">
-        <h3 class="text-center font-display text-lg font-semibold text-slate-200 mb-2" data-i18n="examplesTitle">Örnek Analizler</h3>
-        <p class="text-center text-slate-400 text-xs mb-6" data-i18n="examplesDesc">Sistemimizin nasıl çalıştığını görün</p>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-emerald-950/30 border border-emerald-700/50 rounded-xl p-4 text-center">
-                <div class="w-12 h-12 rounded-xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-3">
-                    <i class="fas fa-camera text-emerald-400 text-lg"></i>
-                </div>
-                <p class="text-xs font-bold text-emerald-300 mb-1" data-i18n="exampleReal">Gerçek Fotoğraf</p>
-                <p class="text-[10px] text-slate-400" data-i18n="exampleRealDesc">C2PA yok · 3 model analizi</p>
-                <p class="text-lg font-extrabold text-emerald-400 mt-2">%85</p>
-                <p class="text-[10px] text-slate-500" data-i18n="exampleRealResult">Gerçek</p>
-            </div>
-            <div class="bg-red-950/30 border border-red-700/50 rounded-xl p-4 text-center">
-                <div class="w-12 h-12 rounded-xl bg-red-600/20 border border-red-500/30 flex items-center justify-center mx-auto mb-3">
-                    <i class="fas fa-certificate text-red-400 text-lg"></i>
-                </div>
-                <p class="text-xs font-bold text-red-300 mb-1" data-i18n="exampleAI">AI Görsel (C2PA'lı)</p>
-                <p class="text-[10px] text-slate-400" data-i18n="exampleAIDesc">C2PA var · Kesin sonuç</p>
-                <p class="text-lg font-extrabold text-red-400 mt-2">%100</p>
-                <p class="text-[10px] text-slate-500" data-i18n="exampleAIResult">AI</p>
-            </div>
-            <div class="bg-amber-950/30 border border-amber-700/50 rounded-xl p-4 text-center">
-                <div class="w-12 h-12 rounded-xl bg-amber-600/20 border border-amber-500/30 flex items-center justify-center mx-auto mb-3">
-                    <i class="fas fa-robot text-amber-400 text-lg"></i>
-                </div>
-                <p class="text-xs font-bold text-amber-300 mb-1" data-i18n="exampleAISuspicious">AI Görsel (C2PA'sız)</p>
-                <p class="text-[10px] text-slate-400" data-i18n="exampleAISuspiciousDesc">C2PA yok · 3 model analizi</p>
-                <p class="text-lg font-extrabold text-amber-400 mt-2">%72</p>
-                <p class="text-[10px] text-slate-500" data-i18n="exampleAISuspiciousResult">AI</p>
             </div>
         </div>
-    </div>
 
-        <!-- DOĞRULUK RAPORU -->
-             <!-- SSS -->
-    <div class="max-w-2xl w-full mx-auto mt-10 px-2">
-        <h3 class="text-center font-display text-lg font-semibold text-slate-200 mb-6" data-i18n="faqTitle">Sıkça Sorulan Sorular</h3>
-        <div class="space-y-2">
-            <details class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 cursor-pointer">
-                <summary class="text-sm font-semibold text-slate-200" data-i18n="faqQ1">Bu araç %100 doğru mu?</summary>
-                <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA1">Hayır. C2PA imzası olan görsellerde %100 doğruluk sağlıyoruz. Ancak C2PA'sız görsellerde 3 model analizine dayalı olasılık tahmini yapıyoruz (%69 doğruluk). Kesin hüküm için ek doğrulama yapın.</p>
-            </details>
-            <details class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 cursor-pointer">
-                <summary class="text-sm font-semibold text-slate-200" data-i18n="faqQ2">C2PA nedir?</summary>
-                <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA2">C2PA (Content Credentials), bir görselin "kimlik kartı" gibidir. Kim tarafından, ne zaman, hangi araçla üretildiğini gösterir. Yeni nesil AI araçları (DALL-E 3, Midjourney v6, Flux) bu imzayı otomatik ekler.</p>
-            </details>
-            <details class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 cursor-pointer">
-                <summary class="text-sm font-semibold text-slate-200" data-i18n="faqQ3">Görsellerim saklanıyor mu?</summary>
-                <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA3">Hayır. Yüklediğiniz görseller anlık olarak işlenir, analiz sonrası otomatik silinir. Hiçbir görsel sunucularımızda kalıcı olarak saklanmaz.</p>
-            </details>
-            <details class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 cursor-pointer">
-                <summary class="text-sm font-semibold text-slate-200" data-i18n="faqQ4">Sonuçlar neden bazen farklı çıkıyor?</summary>
-                <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA4">AI tespit modelleri olasılık tahmini yapar. Görselin kalitesi, sıkıştırma oranı ve üretim tekniği sonucu etkileyebilir. Bu yüzden kesin hüküm değil, yardımcı araç olarak kullanmanızı öneririz.</p>
-            </details>
-            <details class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 cursor-pointer">
-                <summary class="text-sm font-semibold text-slate-200" data-i18n="faqQ5">Ücretsiz deneme var mı?</summary>
-                <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA5">Evet. Giriş yaptığınızda 3 ücretsiz tarama hakkınız olur. Ardından Pro plana geçerek sınırsız tarama, PDF rapor ve toplu tarama özelliklerine erişebilirsiniz.</p>
-            </details>
+        <div class="max-w-2xl w-full mx-auto mt-10 px-2">
+            <h3 class="text-center font-display text-lg font-semibold text-slate-200 mb-2" data-i18n="examplesTitle">Örnek Analizler</h3>
+            <p class="text-center text-slate-400 text-xs mb-6" data-i18n="examplesDesc">Sistemimizin nasıl çalıştığını görün</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-emerald-950/30 border border-emerald-700/50 rounded-xl p-4 text-center">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-camera text-emerald-400 text-lg"></i>
+                    </div>
+                    <p class="text-xs font-bold text-emerald-300 mb-1" data-i18n="exampleReal">Gerçek Fotoğraf</p>
+                    <p class="text-[10px] text-slate-400" data-i18n="exampleRealDesc">C2PA yok · 3 model analizi</p>
+                    <p class="text-lg font-extrabold text-emerald-400 mt-2">%85</p>
+                    <p class="text-[10px] text-slate-500" data-i18n="exampleRealResult">Gerçek</p>
+                </div>
+                <div class="bg-red-950/30 border border-red-700/50 rounded-xl p-4 text-center">
+                    <div class="w-12 h-12 rounded-xl bg-red-600/20 border border-red-500/30 flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-certificate text-red-400 text-lg"></i>
+                    </div>
+                    <p class="text-xs font-bold text-red-300 mb-1" data-i18n="exampleAI">AI Görsel (C2PA'lı)</p>
+                    <p class="text-[10px] text-slate-400" data-i18n="exampleAIDesc">C2PA var · Kesin sonuç</p>
+                    <p class="text-lg font-extrabold text-red-400 mt-2">%100</p>
+                    <p class="text-[10px] text-slate-500" data-i18n="exampleAIResult">AI</p>
+                </div>
+                <div class="bg-amber-950/30 border border-amber-700/50 rounded-xl p-4 text-center">
+                    <div class="w-12 h-12 rounded-xl bg-amber-600/20 border border-amber-500/30 flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-robot text-amber-400 text-lg"></i>
+                    </div>
+                    <p class="text-xs font-bold text-amber-300 mb-1" data-i18n="exampleAISuspicious">AI Görsel (C2PA'sız)</p>
+                    <p class="text-[10px] text-slate-400" data-i18n="exampleAISuspiciousDesc">C2PA yok · 3 model analizi</p>
+                    <p class="text-lg font-extrabold text-amber-400 mt-2">%72</p>
+                    <p class="text-[10px] text-slate-500" data-i18n="exampleAISuspiciousResult">AI</p>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <div class="max-w-2xl w-full mx-auto mt-10 px-2">
-        <div class="bg-gradient-to-r from-emerald-950/40 to-cyan-950/40 border border-emerald-700/50 rounded-2xl p-6 text-center">
-            <div class="flex items-center justify-center gap-2 mb-3">
-                <i class="fas fa-shield-halved text-emerald-400 text-2xl"></i>
-                <h3 class="font-display text-lg sm:text-xl font-bold text-white" data-i18n="accuracyTitle">Doğruluk Raporumuz</h3>
+        <div class="max-w-2xl w-full mx-auto mt-10 px-2">
+            <h3 class="text-center font-display text-lg font-semibold text-slate-200 mb-6" data-i18n="faqTitle">Sıkça Sorulan Sorular</h3>
+            <div class="space-y-2">
+                <details class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 cursor-pointer">
+                    <summary class="text-sm font-semibold text-slate-200" data-i18n="faqQ1">Bu araç %100 doğru mu?</summary>
+                    <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA1">Hayır. C2PA imzası olan görsellerde %100 doğruluk sağlıyoruz. Ancak C2PA'sız görsellerde 3 model analizine dayalı olasılık tahmini yapıyoruz (%69 doğruluk).</p>
+                </details>
+                <details class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 cursor-pointer">
+                    <summary class="text-sm font-semibold text-slate-200" data-i18n="faqQ2">C2PA nedir?</summary>
+                    <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA2">C2PA (Content Credentials), bir görselin "kimlik kartı" gibidir. Kim tarafından, ne zaman, hangi araçla üretildiğini gösterir.</p>
+                </details>
+                <details class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 cursor-pointer">
+                    <summary class="text-sm font-semibold text-slate-200" data-i18n="faqQ3">Görsellerim saklanıyor mu?</summary>
+                    <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA3">Hayır. Yüklediğiniz görseller anlık olarak işlenir, analiz sonrası otomatik silinir.</p>
+                </details>
+                <details class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 cursor-pointer">
+                    <summary class="text-sm font-semibold text-slate-200" data-i18n="faqQ4">Sonuçlar neden bazen farklı çıkıyor?</summary>
+                    <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA4">AI tespit modelleri olasılık tahmini yapar. Görselin kalitesi, sıkıştırma oranı ve üretim tekniği sonucu etkileyebilir.</p>
+                </details>
+                <details class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 cursor-pointer">
+                    <summary class="text-sm font-semibold text-slate-200" data-i18n="faqQ5">Ücretsiz deneme var mı?</summary>
+                    <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA5">Evet. Giriş yaptığınızda 3 ücretsiz tarama hakkınız olur. Ardından Pro plana geçerek sınırsız tarama özelliklerine erişebilirsiniz.</p>
+                </details>
             </div>
-            <p class="text-slate-300 text-sm mb-4" data-i18n="accuracyDesc">1000+ görsel ile bağımsız test edilmiştir</p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
-                <div class="bg-slate-900/60 rounded-xl p-3">
-                    <p class="text-xs text-slate-400" data-i18n="accuracyC2PA">C2PA'lı Görseller</p>
-                    <p class="text-2xl font-extrabold text-emerald-400">%100</p>
-                    <p class="text-[10px] text-slate-500" data-i18n="accuracyC2PADesc">Kesin tespit</p>
-                </div>
-                <div class="bg-slate-900/60 rounded-xl p-3">
-                    <p class="text-xs text-slate-400" data-i18n="accuracyGeneral">Genel Görseller</p>
-                    <p class="text-2xl font-extrabold text-cyan-400">%69</p>
-                    <p class="text-[10px] text-slate-500" data-i18n="accuracyGeneralDesc">Olasılık tahmini</p>
-                </div>
-            </div>
-            <p class="text-[10px] text-slate-500 mt-3 italic" data-i18n="accuracyNote">Test verileri bağımsız olarak toplanmış ve değerlendirilmiştir.</p>
         </div>
-    </div>
+
+        <div class="max-w-2xl w-full mx-auto mt-10 px-2">
+            <div class="bg-gradient-to-r from-emerald-950/40 to-cyan-950/40 border border-emerald-700/50 rounded-2xl p-6 text-center">
+                <div class="flex items-center justify-center gap-2 mb-3">
+                    <i class="fas fa-shield-halved text-emerald-400 text-2xl"></i>
+                    <h3 class="font-display text-lg sm:text-xl font-bold text-white" data-i18n="accuracyTitle">Doğruluk Raporumuz</h3>
+                </div>
+                <p class="text-slate-300 text-sm mb-4" data-i18n="accuracyDesc">1000+ görsel ile bağımsız test edilmiştir</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
+                    <div class="bg-slate-900/60 rounded-xl p-3">
+                        <p class="text-xs text-slate-400" data-i18n="accuracyC2PA">C2PA'lı Görseller</p>
+                        <p class="text-2xl font-extrabold text-emerald-400">%100</p>
+                        <p class="text-[10px] text-slate-500" data-i18n="accuracyC2PADesc">Kesin tespit</p>
+                    </div>
+                    <div class="bg-slate-900/60 rounded-xl p-3">
+                        <p class="text-xs text-slate-400" data-i18n="accuracyGeneral">Genel Görseller</p>
+                        <p class="text-2xl font-extrabold text-cyan-400">%69</p>
+                        <p class="text-[10px] text-slate-500" data-i18n="accuracyGeneralDesc">Olasılık tahmini</p>
+                    </div>
+                </div>
+                <p class="text-[10px] text-slate-500 mt-3 italic" data-i18n="accuracyNote">Test verileri bağımsız olarak toplanmış ve değerlendirilmiştir.</p>
+            </div>
+        </div>
 
         <h3 class="text-center font-display text-lg font-semibold text-slate-200 mb-6" data-i18n="trustTitle">Neden güvenebilirsiniz</h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -633,8 +572,8 @@
 
     <footer class="mt-8 text-center text-xs text-slate-500 space-y-2 mb-12">
         <p>&copy; 2026 AI Image Detector Pro. <span data-i18n="footerRights">All rights reserved.</span></p>
-              <p class="text-slate-600 text-[10px]" data-i18n="footerCompanyLine">Türkiye'de hizmet vermektedir · 18+</p>
-                      <p class="text-[10px] text-slate-500 italic mt-1" data-i18n="footerDisclaimer">Bu araç yardımcı bir araçtır. Kesin hüküm vermez. Önemli kararlar için ek doğrulama yapın.</p>
+        <p class="text-slate-600 text-[10px]" data-i18n="footerCompanyLine">Türkiye'de hizmet vermektedir · 18+</p>
+        <p class="text-[10px] text-slate-500 italic mt-1" data-i18n="footerDisclaimer">Bu araç yardımcı bir araçtır. Kesin hüküm vermez. Önemli kararlar için ek doğrulama yapın.</p>
         <div class="flex flex-wrap justify-center gap-3 text-slate-400">
             <a href="privacy.html" target="_blank" rel="noopener" class="hover:underline" data-i18n="privacyLink">Privacy Policy</a>
             <span>•</span>
@@ -663,6 +602,7 @@
         <button onclick="acceptCookies()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-md" data-i18n="cookieBtn">Accept & Close</button>
     </div>
 
+    <!-- AUTH MODAL -->
     <div id="authModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-700 pb-3">
@@ -671,7 +611,7 @@
                 </h3>
                 <button onclick="closeAuthModal()" class="text-slate-400 hover:text-white text-lg"><i class="fas fa-xmark"></i></button>
             </div>
-        <div id="googleButtonContainer" class="flex justify-center"></div>
+            <div id="googleButtonContainer" class="flex justify-center"></div>
             <div class="flex items-center my-4">
                 <div class="flex-grow border-t border-slate-700"></div>
                 <span class="px-3 text-xs text-slate-500 uppercase font-semibold" data-i18n="orDivider">or email</span>
@@ -683,6 +623,8 @@
             </div>
             <div id="authErrorBox" class="hidden bg-red-950/80 border border-red-700 text-red-300 text-xs p-3 rounded-xl font-medium"></div>
             <div id="authSuccessBox" class="hidden bg-emerald-950/80 border border-emerald-700 text-emerald-300 text-xs p-3 rounded-xl font-medium"></div>
+
+            <!-- LOGIN/REGISTER FORM -->
             <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1" data-i18n="emailLabel">Email Address</label>
@@ -693,12 +635,14 @@
                     <input type="password" id="authPassword" minlength="6" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
                 </div>
                 <div id="forgotPasswordLinkWrapper" class="text-right">
-    <button type="button" onclick="openForgotPassword()" class="text-xs text-indigo-400 hover:text-indigo-300 hover:underline transition" data-i18n="forgotPasswordLink">
-        Şifremi unuttum
-    </button>
-</div>
+                    <button type="button" onclick="openForgotPassword()" class="text-xs text-indigo-400 hover:text-indigo-300 hover:underline transition">
+                        Şifremi unuttum
+                    </button>
+                </div>
                 <button type="submit" id="authSubmitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg text-sm" data-i18n="authActionBtn">Sign In to Account</button>
             </form>
+
+            <!-- OTP SECTION -->
             <div id="otpSection" class="hidden space-y-4 text-center pt-2 border-t border-slate-700">
                 <div class="bg-indigo-950/60 p-3 rounded-xl border border-indigo-900 text-xs text-indigo-300">
                     <i class="fas fa-paper-plane mb-1 text-sm block"></i>
@@ -715,6 +659,8 @@
                     <button onclick="resetAuthForm()" class="text-indigo-400 hover:underline">E-postayı değiştir</button>
                 </div>
             </div>
+
+            <!-- PASSWORD SETUP SECTION -->
             <div id="passwordSetupSection" class="hidden space-y-4 pt-2 border-t border-slate-700">
                 <div class="bg-emerald-950/80 p-3 rounded-xl border border-emerald-700 text-xs text-emerald-300 flex items-center gap-2">
                     <i class="fas fa-circle-check"></i>
@@ -731,7 +677,9 @@
                 <button onclick="submitNewPassword()" id="setPasswordBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl transition text-sm shadow-lg flex items-center justify-center gap-2">
                     <i class="fas fa-key"></i> <span data-i18n="createPasswordBtn">Create Password</span>
                 </button>
-                            <!-- ŞİFREMİ UNUTTUM EKRANI -->
+            </div>
+
+            <!-- FORGOT PASSWORD SECTION (YENİ - DIŞARIDA) -->
             <div id="forgotPasswordSection" class="hidden space-y-4 pt-2">
                 <div class="bg-indigo-950/60 p-3 rounded-xl border border-indigo-900 text-xs text-indigo-300 flex items-start gap-2">
                     <i class="fas fa-info-circle mt-0.5"></i>
@@ -750,7 +698,7 @@
                 </button>
             </div>
 
-            <!-- YENİ ŞİFRE BELİRLEME EKRANI -->
+            <!-- RESET PASSWORD SECTION (YENİ - DIŞARIDA) -->
             <div id="resetPasswordSection" class="hidden space-y-4 pt-2">
                 <div class="bg-emerald-950/80 p-3 rounded-xl border border-emerald-700 text-xs text-emerald-300 flex items-center gap-2">
                     <i class="fas fa-circle-check"></i>
@@ -769,11 +717,10 @@
                     <span data-i18n="resetSubmitBtn">Şifremi Güncelle</span>
                 </button>
             </div>
-            </div>
         </div>
     </div>
 
-       <!-- 3 SEÇENEKLİ PRO MODALI -->
+    <!-- UPGRADE MODAL -->
     <div id="upgradeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-slate-800 border border-indigo-500/50 rounded-2xl max-w-5xl w-full p-6 shadow-2xl relative my-8">
             <div class="flex justify-between items-center border-b border-slate-700 pb-4 mb-6">
@@ -786,11 +733,7 @@
                 </div>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-white text-2xl"><i class="fas fa-xmark"></i></button>
             </div>
-
-            <!-- 3 PLAN YAN YANA -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                
-                <!-- PLAN 1: GENEL -->
                 <div class="plan-card bg-slate-900/60 border-2 border-slate-700 hover:border-indigo-500 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:-translate-y-1" onclick="selectPlan('general')" id="planGeneral">
                     <div class="flex items-center justify-between mb-3">
                         <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
@@ -798,21 +741,19 @@
                         </div>
                         <input type="radio" name="plan" value="general" class="w-5 h-5 accent-indigo-600">
                     </div>
-                    <h4 class="text-lg font-bold text-white mb-1" data-i18n="planGeneralTitle">Genel Tarama</h4>
-                    <p class="text-xs text-slate-400 mb-3" data-i18n="planGeneralDesc">Tüm görseller için genel yapay zeka tespiti</p>
+                    <h4 class="text-lg font-bold text-white mb-1">Genel Tarama</h4>
+                    <p class="text-xs text-slate-400 mb-3">Tüm görseller için genel yapay zeka tespiti</p>
                     <div class="mb-4">
                         <span class="text-3xl font-extrabold text-white">$14.99</span>
                         <span class="text-sm text-slate-400">/mo</span>
                     </div>
                     <ul class="space-y-2 text-xs text-slate-300 mb-4">
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planFeature1">Sınırsız tarama</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planFeature2">Isı haritası analizi</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planFeature3">Tarama geçmişi</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planFeature4">3 cihaz desteği</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Sınırsız tarama</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Isı haritası analizi</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Tarama geçmişi</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>3 cihaz desteği</span></li>
                     </ul>
                 </div>
-
-                <!-- PLAN 2: ARABA -->
                 <div class="plan-card bg-slate-900/60 border-2 border-slate-700 hover:border-red-500 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:-translate-y-1" onclick="selectPlan('car')" id="planCar">
                     <div class="flex items-center justify-between mb-3">
                         <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center">
@@ -820,24 +761,22 @@
                         </div>
                         <input type="radio" name="plan" value="car" class="w-5 h-5 accent-red-600">
                     </div>
-                    <h4 class="text-lg font-bold text-white mb-1" data-i18n="planCarTitle">Araba Detector</h4>
-                    <p class="text-xs text-slate-400 mb-3" data-i18n="planCarDesc">İkinci el araç alım-satımı için özel koruma</p>
+                    <h4 class="text-lg font-bold text-white mb-1">Araba Detector</h4>
+                    <p class="text-xs text-slate-400 mb-3">İkinci el araç alım-satımı için özel koruma</p>
                     <div class="mb-4">
                         <span class="text-3xl font-extrabold text-white">$19.99</span>
                         <span class="text-sm text-slate-400">/mo</span>
                     </div>
                     <ul class="space-y-2 text-xs text-slate-300 mb-4">
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planCarFeature1">Genel planın tüm özellikleri</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planCarFeature2">Araba güvenlik rehberi</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planCarFeature3">Plaka ve şasi kontrol ipuçları</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planCarFeature4">PDF rapor indirme</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Genel planın tüm özellikleri</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Araba güvenlik rehberi</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Plaka ve şasi kontrol ipuçları</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>PDF rapor indirme</span></li>
                     </ul>
                 </div>
-
-                <!-- PLAN 3: EMLAK (EN POPÜLER) -->
                 <div class="plan-card bg-gradient-to-br from-slate-900/80 to-cyan-950/30 border-2 border-cyan-500 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:-translate-y-1 relative" onclick="selectPlan('realestate')" id="planRealestate">
                     <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">
-                        ⭐ <span data-i18n="mostPopular">EN POPÜLER</span>
+                        ⭐ EN POPÜLER
                     </div>
                     <div class="flex items-center justify-between mb-3 mt-2">
                         <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center">
@@ -845,36 +784,32 @@
                         </div>
                         <input type="radio" name="plan" value="realestate" class="w-5 h-5 accent-cyan-600">
                     </div>
-                    <h4 class="text-lg font-bold text-white mb-1" data-i18n="planRealestateTitle">Emlak Detector</h4>
-                    <p class="text-xs text-slate-400 mb-3" data-i18n="planRealestateDesc">Emlak alım-satımı için tam koruma paketi</p>
+                    <h4 class="text-lg font-bold text-white mb-1">Emlak Detector</h4>
+                    <p class="text-xs text-slate-400 mb-3">Emlak alım-satımı için tam koruma paketi</p>
                     <div class="mb-4">
                         <span class="text-3xl font-extrabold text-white">$24.99</span>
                         <span class="text-sm text-slate-400">/mo</span>
                     </div>
                     <ul class="space-y-2 text-xs text-slate-300 mb-4">
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planRealestateFeature1">Genel planın tüm özellikleri</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planRealestateFeature2">Emlak güvenlik rehberi</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planRealestateFeature3">Tapu ve imar kontrol ipuçları</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planRealestateFeature4">Toplu tarama (10 görsel)</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planRealestateFeature5">PDF rapor + öncelikli destek</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Genel planın tüm özellikleri</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Emlak güvenlik rehberi</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Tapu ve imar kontrol ipuçları</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Toplu tarama (10 görsel)</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>PDF rapor + öncelikli destek</span></li>
                     </ul>
                 </div>
-
             </div>
-
-            <!-- ONAY VE ÖDEME -->
             <div class="bg-slate-900/60 border border-slate-700 rounded-xl p-4 mb-4">
                 <label class="flex items-start gap-3 cursor-pointer">
                     <input type="checkbox" id="withdrawalConsentCheckbox" onchange="toggleCheckoutButton()" class="mt-0.5 w-4 h-4 accent-indigo-600 flex-shrink-0">
-                    <span class="text-xs text-slate-400 leading-relaxed" data-i18n="withdrawalConsentText">Hizmetin hemen başlatılmasını onaylıyorum, bu nedenle 14 günlük cayma hakkımdan feragat ediyorum.</span>
+                    <span class="text-xs text-slate-400 leading-relaxed">Hizmetin hemen başlatılmasını onaylıyorum, bu nedenle 14 günlük cayma hakkımdan feragat ediyorum.</span>
                 </label>
             </div>
-
             <button onclick="proceedToCheckout()" id="checkoutBtn" disabled class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold py-4 rounded-xl shadow-lg transition opacity-40 cursor-not-allowed text-lg">
                 <i class="fas fa-lock mr-2"></i>
                 <span id="checkoutBtnText" data-i18n="modalBtn">Plan Seçin ve Ödeyin</span>
             </button>
-            <button onclick="closeModal()" class="w-full text-xs text-slate-400 hover:text-white transition mt-3" data-i18n="modalClose">Belki Sonra</button>
+            <button onclick="closeModal()" class="w-full text-xs text-slate-400 hover:text-white transition mt-3">Belki Sonra</button>
         </div>
     </div>
 
@@ -883,13 +818,13 @@
             <div class="w-16 h-16 bg-indigo-600/20 text-indigo-400 rounded-2xl mx-auto flex items-center justify-center text-3xl border border-indigo-500/30">
                 <i class="fas fa-user-plus"></i>
             </div>
-            <h3 class="text-2xl font-bold text-white" data-i18n="inviteTitle">Invite Friends</h3>
-            <p class="text-slate-300 text-sm" data-i18n="inviteDesc">Share your referral link.</p>
+            <h3 class="text-2xl font-bold text-white">Arkadaşını Davet Et</h3>
+            <p class="text-slate-300 text-sm">Davet bağlantını paylaş.</p>
             <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex items-center justify-between gap-2">
                 <input type="text" id="referralLink" readonly value="https://ai-image-detector-9lg1.onrender.com/?ref=pro2026" class="bg-transparent text-xs text-indigo-300 flex-1 px-2 focus:outline-none truncate">
-                <button onclick="copyReferralLink()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition" data-i18n="copyBtn">Copy</button>
+                <button onclick="copyReferralLink()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition">Copy</button>
             </div>
-            <button onclick="closeInviteModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl transition text-sm" data-i18n="closeBtn">Close</button>
+            <button onclick="closeInviteModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl transition text-sm">Close</button>
         </div>
     </div>
 
@@ -900,9 +835,10 @@
                 <button onclick="closeLegalModal()" class="text-slate-400 hover:text-white text-lg"><i class="fas fa-xmark"></i></button>
             </div>
             <div id="legalContent" class="text-sm text-slate-300 overflow-y-auto space-y-3 pr-2 flex-grow"></div>
-            <button onclick="closeLegalModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl transition text-sm" data-i18n="closeBtn">Close</button>
+            <button onclick="closeLegalModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl transition text-sm">Close</button>
         </div>
     </div>
+
     <script>
         const BACKEND_URL = window.location.origin;
         const GOOGLE_CLIENT_ID = "231913863443-oos54itr9jsirb8sv6705hqr00kchvr4.apps.googleusercontent.com";
@@ -915,7 +851,7 @@
                 changeText: "Click or drop to change", urlLabel: "Enter Image Direct URL",
                 loadBtn: "Load", batchTitle: "Batch Processing Mode",
                 batchDesc: "Scan multiple images (Pro)", batchBtn: "Enable",
-                                batchBtnSoon: "Coming Soon",
+                batchBtnSoon: "Coming Soon",
                 scanBtn: "Scan Image", resultTitle: "Analysis Result",
                 loadingText: "Analyzing...", aiProb: "AI Generated Probability",
                 humanProb: "Real Photo Probability", historyTitle: "Recent Scans",
@@ -938,24 +874,24 @@
                 modalPlan: "Pro Unlimited Plan", modalBtn: "Upgrade Now",
                 modalClose: "Maybe Later", withdrawalConsentText: "I confirm immediate performance.",
                 fileTooLarge: "File size exceeds 10MB limit!",
-                                howToUseTitle: "How to Interpret Results?",
+                howToUseTitle: "How to Interpret Results?",
                 resultGreenTitle: "0-40% AI",
                 resultGreenDesc: "Likely a real photo. But verify the source to be sure.",
                 resultYellowTitle: "40-70% AI",
                 resultYellowDesc: "Mixed signals. The image may be edited. Do additional verification.",
                 resultRedTitle: "70-100% AI",
                 resultRedDesc: "Likely AI-generated. But not definitive. Be careful.",
-                            disclaimerTitle: "⚠️ Important Notice & Limitations",
-                disclaimerP1: "<strong>1. Probability Estimation:</strong> This result is <strong>not a definitive verdict</strong>. AI models are <strong>not 100% accurate</strong>.",
-                disclaimerP2: "<strong>2. Model Limitation:</strong> Our system is optimized for <strong>modern AI images</strong> (Midjourney v6, DALL-E 3, Flux). Accuracy may decrease for images generated by <strong>older AI models</strong> (pre-2022).",
-                disclaimerP3: "<strong>3. Additional Verification Required:</strong> For important decisions (real estate, vehicles, legal matters), always do <strong>additional verification</strong>.",
-                disclaimerP4: "<strong>4. Liability:</strong> This is a <strong>helper tool</strong>. The <strong>user is responsible</strong> for decisions made.",
+                disclaimerTitle: "⚠️ Important Notice & Limitations",
+                disclaimerP1: "<strong>1. Probability Estimation:</strong> This result is <strong>not a definitive verdict</strong>.",
+                disclaimerP2: "<strong>2. Model Limitation:</strong> Our system is optimized for <strong>modern AI images</strong>.",
+                disclaimerP3: "<strong>3. Additional Verification Required:</strong> For important decisions, always do <strong>additional verification</strong>.",
+                disclaimerP4: "<strong>4. Liability:</strong> This is a <strong>helper tool</strong>.",
                 disclaimerText: "ℹ️ <strong>Probabilistic Analysis:</strong> Scores are estimates.",
                 shareTwitter: "Share on X", shareWhatsapp: "WhatsApp",
                 inviteTitle: "Invite Friends", inviteDesc: "Share your referral link.",
                 copyBtn: "Copy", footerRights: "All rights reserved.",
-                               footerCompanyLine: "Serving in Turkey · 18+",
-                                                              footerDisclaimer: "This is a helper tool. Not a definitive verdict. Verify before making decisions. Our system is optimized for modern AI images.",
+                footerCompanyLine: "Serving in Turkey · 18+",
+                footerDisclaimer: "This is a helper tool. Not a definitive verdict.",
                 privacyLink: "Privacy Policy", termsLink: "Terms of Service",
                 distanceLink: "Distance Sales Agreement", refundLink: "Refund Policy",
                 closeBtn: "Close", cookieText: "We use cookies.", cookieBtn: "Accept & Close",
@@ -965,9 +901,9 @@
                 distanceTitle: "Distance Sales Agreement", distanceBody: "<strong>Distance Contract</strong>",
                 refundTitle: "Refund Policy", refundBody: "<strong>Refund:</strong>",
                 heroBadge: "Your images are never stored",
-                                c2paFound: "🔐 C2PA Signature Found",
+                c2paFound: "🔐 C2PA Signature Found",
                 c2paSourceLabel: "Source: -",
-                                examplesTitle: "Example Analyses",
+                examplesTitle: "Example Analyses",
                 examplesDesc: "See how our system works",
                 exampleReal: "Real Photo",
                 exampleRealDesc: "No C2PA · 3 model analysis",
@@ -978,26 +914,26 @@
                 exampleAISuspicious: "AI Image (No C2PA)",
                 exampleAISuspiciousDesc: "No C2PA · 3 model analysis",
                 exampleAISuspiciousResult: "AI",
-                                faqTitle: "Frequently Asked Questions",
+                faqTitle: "Frequently Asked Questions",
                 faqQ1: "Is this tool 100% accurate?",
-                faqA1: "No. We achieve 100% accuracy for images with C2PA signatures. However, for images without C2PA, we rely on 3-model analysis (%69 accuracy). Always verify before making important decisions.",
+                faqA1: "No. We achieve 100% accuracy for images with C2PA signatures.",
                 faqQ2: "What is C2PA?",
-                faqA2: "C2PA (Content Credentials) is like an ID card for an image. It shows who created it, when, and with what tool. New-generation AI tools (DALL-E 3, Midjourney v6, Flux) automatically add this signature.",
+                faqA2: "C2PA (Content Credentials) is like an ID card for an image.",
                 faqQ3: "Are my images stored?",
-                faqA3: "No. Uploaded images are processed instantly and automatically deleted after analysis. No images are permanently stored on our servers.",
+                faqA3: "No. Uploaded images are processed instantly and automatically deleted after analysis.",
                 faqQ4: "Why do results sometimes differ?",
-                faqA4: "AI detection models make probability estimates. Image quality, compression, and generation technique can affect the result. We recommend using it as a helper tool, not a definitive verdict.",
+                faqA4: "AI detection models make probability estimates.",
                 faqQ5: "Is there a free trial?",
-                faqA5: "Yes. When you sign in, you get 3 free scans. Then you can upgrade to Pro for unlimited scans, PDF reports, and batch processing.",
-                                accuracyTitle: "Our Accuracy Report",
+                faqA5: "Yes. When you sign in, you get 3 free scans.",
+                accuracyTitle: "Our Accuracy Report",
                 accuracyDesc: "Independently tested with 1000+ images",
                 accuracyC2PA: "C2PA Images",
                 accuracyC2PADesc: "Certain detection",
                 accuracyGeneral: "General Images",
                 accuracyGeneralDesc: "Probability estimate",
                 accuracyNote: "Test data collected and evaluated independently.",
-                                heroBadge2: "100% private · Try free",
-                                                heroBadge3: "Tested with 1000+ images",
+                heroBadge2: "100% private · Try free",
+                heroBadge3: "Tested with 1000+ images",
                 heroTitle: "Is that image real, or AI-generated?",
                 heroSubtitle: "Find out in seconds.",
                 trustStorage: "Images stored", trustSpeed: "Average analysis time",
@@ -1017,8 +953,8 @@
                 heatmapRedDesc: "Likely AI-generated", heatmapBlue: "Blue areas:",
                 heatmapBlueDesc: "Likely authentic",
                 heatmapDisclaimer: "Visual aid based on model confidence.",
-                                tipsTitle: "General Safety Tips",
-                                                planGeneralTitle: "General Scan",
+                tipsTitle: "General Safety Tips",
+                planGeneralTitle: "General Scan",
                 planGeneralDesc: "General AI detection for all images",
                 planFeature1: "Unlimited scans",
                 planFeature2: "Heatmap analysis",
@@ -1038,8 +974,8 @@
                 planRealestateFeature4: "Batch scan (10 images)",
                 planRealestateFeature5: "PDF report + priority support",
                 mostPopular: "MOST POPULAR",
-                                downloadPdf: "Download PDF Report",
-                                modeGeneral: "General Scan",
+                downloadPdf: "Download PDF Report",
+                modeGeneral: "General Scan",
                 modeCar: "Car",
                 modeRealestate: "Real Estate",
                 signedInAs: "Signed in as",
@@ -1055,7 +991,7 @@
                 changeText: "Değiştirmek için tıklayın", urlLabel: "Doğrudan Görsel URL'si",
                 loadBtn: "Yükle", batchTitle: "Toplu Tarama Modu",
                 batchDesc: "Birden fazla görsel tara (Pro)", batchBtn: "Etkinleştir",
-                                batchBtnSoon: "Yakında",
+                batchBtnSoon: "Yakında",
                 scanBtn: "Görseli Tara", resultTitle: "Analiz Sonucu",
                 loadingText: "Analiz ediliyor...", aiProb: "Yapay Zeka Olasılığı",
                 humanProb: "Gerçek Fotoğraf Olasılığı", historyTitle: "Son Taramalar",
@@ -1078,24 +1014,24 @@
                 modalPlan: "Pro Sınırsız Plan", modalBtn: "Hemen Yükselt",
                 modalClose: "Belki Sonra", withdrawalConsentText: "Hemen başlatılmasını onaylıyorum.",
                 fileTooLarge: "Dosya boyutu 10MB sınırını aşıyor!",
-                                howToUseTitle: "Sonuçları Nasıl Yorumlarsınız?",
+                howToUseTitle: "Sonuçları Nasıl Yorumlarsınız?",
                 resultGreenTitle: "%0-40 AI",
-                resultGreenDesc: "Yüksek ihtimalle gerçek fotoğraf. Ama emin olmak için kaynağı kontrol edin.",
+                resultGreenDesc: "Yüksek ihtimalle gerçek fotoğraf.",
                 resultYellowTitle: "%40-70 AI",
-                resultYellowDesc: "Karışık sinyaller. Görsel düzenlenmiş olabilir. Ek doğrulama yapın.",
+                resultYellowDesc: "Karışık sinyaller.",
                 resultRedTitle: "%70-100 AI",
-                resultRedDesc: "Yüksek ihtimalle yapay zeka. Ama kesin hüküm değil. Dikkatli olun.",
-                                disclaimerTitle: "⚠️ Önemli Uyarı ve Sınırlamalar",
-                disclaimerP1: "<strong>1. Olasılık Tahmini:</strong> Bu sonuç <strong>kesin hüküm değildir</strong>. Yapay zeka modelleri piksel desenlerini analiz eder ve <strong>%100 doğru değildir</strong>.",
-                disclaimerP2: "<strong>2. Model Sınırlaması:</strong> Sistemimiz <strong>yeni nesil AI görselleri</strong> (Midjourney v6, DALL-E 3, Flux) için optimize edilmiştir. <strong>Eski AI modelleriyle</strong> (2022 öncesi) üretilmiş görsellerde doğruluk düşebilir.",
-                disclaimerP3: "<strong>3. Ek Doğrulama Şart:</strong> Önemli kararlar için (emlak, araç, hukuki süreçler) mutlaka <strong>ek doğrulama</strong> yapın.",
-                disclaimerP4: "<strong>4. Sorumluluk:</strong> Bu araç <strong>yardımcı bir araçtır</strong>. Sonuçlara dayanarak alınan kararlardan <strong>kullanıcı sorumludur</strong>.",
+                resultRedDesc: "Yüksek ihtimalle yapay zeka.",
+                disclaimerTitle: "⚠️ Önemli Uyarı ve Sınırlamalar",
+                disclaimerP1: "<strong>1. Olasılık Tahmini:</strong> Bu sonuç <strong>kesin hüküm değildir</strong>.",
+                disclaimerP2: "<strong>2. Model Sınırlaması:</strong> Yeni nesil AI görselleri için optimize edilmiştir.",
+                disclaimerP3: "<strong>3. Ek Doğrulama Şart:</strong> Önemli kararlar için ek doğrulama yapın.",
+                disclaimerP4: "<strong>4. Sorumluluk:</strong> Bu araç <strong>yardımcı bir araçtır</strong>.",
                 disclaimerText: "ℹ️ <strong>Olasılıksal Analiz:</strong> Skorlar tahminidir.",
                 shareTwitter: "X'te Paylaş", shareWhatsapp: "WhatsApp",
                 inviteTitle: "Arkadaşını Davet Et", inviteDesc: "Davet bağlantını paylaş.",
                 copyBtn: "Kopyala", footerRights: "Tüm hakları saklıdır.",
-                 footerCompanyLine: "Türkiye'de hizmet vermektedir · 18+",
-                                 footerDisclaimer: "Bu araç yardımcı bir araçtır. Kesin hüküm vermez. Önemli kararlar için ek doğrulama yapın. Sistemimiz yeni nesil AI görselleri için optimize edilmiştir.",
+                footerCompanyLine: "Türkiye'de hizmet vermektedir · 18+",
+                footerDisclaimer: "Bu araç yardımcı bir araçtır. Kesin hüküm vermez.",
                 privacyLink: "Gizlilik Politikası", termsLink: "Kullanım Koşulları",
                 distanceLink: "Mesafeli Satış Sözleşmesi", refundLink: "İptal ve İade",
                 closeBtn: "Kapat", cookieText: "Çerez kullanıyoruz.", cookieBtn: "Kabul Et",
@@ -1105,9 +1041,9 @@
                 distanceTitle: "Mesafeli Satış Sözleşmesi", distanceBody: "<strong>Mesafeli Satış</strong>",
                 refundTitle: "İptal ve İade Politikası", refundBody: "<strong>İade:</strong>",
                 heroBadge: "Görselleriniz asla saklanmaz",
-                                c2paFound: "🔐 C2PA İmzası Bulundu",
+                c2paFound: "🔐 C2PA İmzası Bulundu",
                 c2paSourceLabel: "Kaynak: -",
-                                examplesTitle: "Örnek Analizler",
+                examplesTitle: "Örnek Analizler",
                 examplesDesc: "Sistemimizin nasıl çalıştığını görün",
                 exampleReal: "Gerçek Fotoğraf",
                 exampleRealDesc: "C2PA yok · 3 model analizi",
@@ -1118,26 +1054,26 @@
                 exampleAISuspicious: "AI Görsel (C2PA'sız)",
                 exampleAISuspiciousDesc: "C2PA yok · 3 model analizi",
                 exampleAISuspiciousResult: "AI",
-                                faqTitle: "Sıkça Sorulan Sorular",
+                faqTitle: "Sıkça Sorulan Sorular",
                 faqQ1: "Bu araç %100 doğru mu?",
-                faqA1: "Hayır. C2PA imzası olan görsellerde %100 doğruluk sağlıyoruz. Ancak C2PA'sız görsellerde 3 model analizine dayalı olasılık tahmini yapıyoruz (%69 doğruluk). Kesin hüküm için ek doğrulama yapın.",
+                faqA1: "Hayır. C2PA imzası olan görsellerde %100 doğruluk sağlıyoruz.",
                 faqQ2: "C2PA nedir?",
-                faqA2: "C2PA (Content Credentials), bir görselin \"kimlik kartı\" gibidir. Kim tarafından, ne zaman, hangi araçla üretildiğini gösterir. Yeni nesil AI araçları (DALL-E 3, Midjourney v6, Flux) bu imzayı otomatik ekler.",
+                faqA2: "C2PA (Content Credentials), bir görselin kimlik kartı gibidir.",
                 faqQ3: "Görsellerim saklanıyor mu?",
-                faqA3: "Hayır. Yüklediğiniz görseller anlık olarak işlenir, analiz sonrası otomatik silinir. Hiçbir görsel sunucularımızda kalıcı olarak saklanmaz.",
+                faqA3: "Hayır. Yüklediğiniz görseller anlık olarak işlenir ve otomatik silinir.",
                 faqQ4: "Sonuçlar neden bazen farklı çıkıyor?",
-                faqA4: "AI tespit modelleri olasılık tahmini yapar. Görselin kalitesi, sıkıştırma oranı ve üretim tekniği sonucu etkileyebilir. Bu yüzden kesin hüküm değil, yardımcı araç olarak kullanmanızı öneririz.",
+                faqA4: "AI tespit modelleri olasılık tahmini yapar.",
                 faqQ5: "Ücretsiz deneme var mı?",
-                faqA5: "Evet. Giriş yaptığınızda 3 ücretsiz tarama hakkınız olur. Ardından Pro plana geçerek sınırsız tarama, PDF rapor ve toplu tarama özelliklerine erişebilirsiniz.",
-                                accuracyTitle: "Doğruluk Raporumuz",
+                faqA5: "Evet. Giriş yaptığınızda 3 ücretsiz tarama hakkınız olur.",
+                accuracyTitle: "Doğruluk Raporumuz",
                 accuracyDesc: "1000+ görsel ile bağımsız test edilmiştir",
                 accuracyC2PA: "C2PA'lı Görseller",
                 accuracyC2PADesc: "Kesin tespit",
                 accuracyGeneral: "Genel Görseller",
                 accuracyGeneralDesc: "Olasılık tahmini",
-                accuracyNote: "Test verileri bağımsız olarak toplanmış ve değerlendirilmiştir.",
-                                heroBadge2: "%100 gizli · Ücretsiz deneyin",
-                                                heroBadge3: "1000+ görselle test edildi",
+                accuracyNote: "Test verileri bağımsız olarak toplanmıştır.",
+                heroBadge2: "%100 gizli · Ücretsiz deneyin",
+                heroBadge3: "1000+ görselle test edildi",
                 heroTitle: "Bir görsel gerçek mi, yapay zeka mı?",
                 heroSubtitle: "Saniyeler içinde öğrenin.",
                 trustStorage: "Görsel saklanır", trustSpeed: "Ortalama analiz süresi",
@@ -1157,8 +1093,8 @@
                 heatmapRedDesc: "Muhtemelen AI", heatmapBlue: "Mavi bölgeler:",
                 heatmapBlueDesc: "Muhtemelen gerçek",
                 heatmapDisclaimer: "Model güvenine dayalı görsel yardımcıdır.",
-                                tipsTitle: "Genel Güvenlik İpuçları",
-                                                planGeneralTitle: "Genel Tarama",
+                tipsTitle: "Genel Güvenlik İpuçları",
+                planGeneralTitle: "Genel Tarama",
                 planGeneralDesc: "Tüm görseller için genel yapay zeka tespiti",
                 planFeature1: "Sınırsız tarama",
                 planFeature2: "Isı haritası analizi",
@@ -1178,8 +1114,8 @@
                 planRealestateFeature4: "Toplu tarama (10 görsel)",
                 planRealestateFeature5: "PDF rapor + öncelikli destek",
                 mostPopular: "EN POPÜLER",
-                                downloadPdf: "PDF Rapor İndir",
-                                modeGeneral: "Genel Tarama",
+                downloadPdf: "PDF Rapor İndir",
+                modeGeneral: "Genel Tarama",
                 modeCar: "Araba",
                 modeRealestate: "Emlak",
                 signedInAs: "Giriş yapıldı",
@@ -1209,17 +1145,16 @@
             localStorage.setItem('lastResetDate', today);
         }
 
-             window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', () => {
             applyLanguage(); applyTheme(); loadHistory(); updateCreditDisplay();
             checkCookieConsent(); checkReferralParam(); initDragAndDrop(); restoreSession();
-                        renderGoogleButton();
+            renderGoogleButton();
             checkUpgradeParam();
             checkResetToken();
             if (isProUser()) {
                 document.body.classList.add('pro-user');
                 setTimeout(() => updateAuthUI(), 100);
             }
-            // Kaydedilmiş modu yükle
             if (currentMode && currentMode !== 'general') {
                 switchMode(currentMode);
             }
@@ -1252,7 +1187,7 @@
             else { root.classList.remove('dark'); themeIcon.className = "fas fa-sun"; }
         }
 
-            async function restoreSession() {
+        async function restoreSession() {
             const token = localStorage.getItem('authToken');
             if (!token) { updateAuthUI(); return; }
             try {
@@ -1260,20 +1195,15 @@
                 if (!res.ok) throw new Error();
                 const data = await res.json();
                 currentUser = data.user;
-                
-                // Pro bilgisini backend'den al
                 if (data.is_pro === true || (data.user && data.user.is_pro === true)) {
                     localStorage.setItem('isPro', 'true');
                     document.body.classList.add('pro-user');
-                    
                     const proBadge = document.getElementById('proBadgePill');
                     if (proBadge) proBadge.classList.remove('hidden');
-                    
                     const creditBadge = document.getElementById('creditBadge');
                     if (creditBadge) {
                         creditBadge.innerHTML = '<i class="fas fa-infinity"></i> <span>' + (currentLang === 'tr' ? 'Sınırsız' : 'Unlimited') + '</span>';
                     }
-                    
                     const btn = document.getElementById('buttonText');
                     if (btn) btn.innerText = currentLang === 'tr' ? 'Pro Tara' : 'Pro Scan';
                 } else {
@@ -1321,7 +1251,7 @@
             if (m) m.remove();
         }
 
-              function doLogout() {
+        function doLogout() {
             currentUser = null;
             localStorage.removeItem('authToken');
             localStorage.removeItem('isPro');
@@ -1374,7 +1304,6 @@
             }
         });
 
-        // ---------- PRO KULLANICI YÖNETİMİ ----------
         function setProUser(showToastMsg = true) {
             localStorage.setItem('isPro', 'true');
             document.body.classList.add('pro-user');
@@ -1413,36 +1342,36 @@
             return localStorage.getItem('isPro') === 'true';
         }
 
-      function checkUpgradeParam() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('upgrade') && urlParams.get('upgrade') === 'success') {
-        window.history.replaceState({}, document.title, window.location.pathname);
-        showToast(currentLang === 'tr' ? "Ödemeniz alındı, hesabınız güncelleniyor..." : "Payment received, updating your account...", 'info');
-        pollForProStatus();
-    }
-}
-
-async function pollForProStatus(attempt = 0) {
-    const token = localStorage.getItem('authToken');
-    if (!token) return;
-    try {
-        const res = await fetch(`${BACKEND_URL}/auth/me`, { headers: { 'Authorization': `Bearer ${token}` } });
-        const data = await res.json();
-        const isPro = data.is_pro === true || (data.user && data.user.is_pro === true);
-        if (isPro) {
-            setProUser(true);
-            currentUser = data.user;
-            updateAuthUI();
-            return;
+        function checkUpgradeParam() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('upgrade') && urlParams.get('upgrade') === 'success') {
+                window.history.replaceState({}, document.title, window.location.pathname);
+                showToast(currentLang === 'tr' ? "Ödemeniz alındı, hesabınız güncelleniyor..." : "Payment received, updating your account...", 'info');
+                pollForProStatus();
+            }
         }
-    } catch (e) {}
 
-    if (attempt < 10) {
-        setTimeout(() => pollForProStatus(attempt + 1), 3000);
-    } else {
-        showToast(currentLang === 'tr' ? "Güncelleme gecikti, birkaç dakika sonra sayfayı yenileyin." : "Update is delayed, please refresh in a few minutes.", 'error');
-    }
-}
+        async function pollForProStatus(attempt = 0) {
+            const token = localStorage.getItem('authToken');
+            if (!token) return;
+            try {
+                const res = await fetch(`${BACKEND_URL}/auth/me`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                const isPro = data.is_pro === true || (data.user && data.user.is_pro === true);
+                if (isPro) {
+                    setProUser(true);
+                    currentUser = data.user;
+                    updateAuthUI();
+                    return;
+                }
+            } catch (e) {}
+            if (attempt < 10) {
+                setTimeout(() => pollForProStatus(attempt + 1), 3000);
+            } else {
+                showToast(currentLang === 'tr' ? "Güncelleme gecikti, birkaç dakika sonra sayfayı yenileyin." : "Update is delayed, please refresh in a few minutes.", 'error');
+            }
+        }
+
         function switchAuthTab(mode) {
             authMode = mode;
             const loginBtn = document.getElementById('authTabLogin');
@@ -1469,6 +1398,8 @@ async function pollForProStatus(attempt = 0) {
             document.getElementById('authForm').reset();
             document.getElementById('otpSection').classList.add('hidden');
             document.getElementById('passwordSetupSection').classList.add('hidden');
+            document.getElementById('forgotPasswordSection').classList.add('hidden');
+            document.getElementById('resetPasswordSection').classList.add('hidden');
             document.getElementById('authForm').classList.remove('hidden');
             switchAuthTab(authMode);
             hideAuthMessages();
@@ -1491,23 +1422,19 @@ async function pollForProStatus(attempt = 0) {
             document.getElementById('authErrorBox').classList.add('hidden');
         }
 
-               // Google Identity Services'i SADECE BİR KERE başlat
         let googleInitialized = false;
 
-             // Google butonunu sayfa yüklendiğinde render et
         function renderGoogleButton() {
             if (!window.google || !google.accounts || !google.accounts.id) {
                 setTimeout(renderGoogleButton, 500);
                 return;
             }
-            
             google.accounts.id.initialize({
                 client_id: GOOGLE_CLIENT_ID,
                 callback: handleGoogleCredentialResponse,
                 auto_select: false,
                 cancel_on_tap_outside: true
             });
-            
             const btnContainer = document.getElementById('googleButtonContainer');
             if (btnContainer) {
                 google.accounts.id.renderButton(btnContainer, {
@@ -1519,6 +1446,7 @@ async function pollForProStatus(attempt = 0) {
                 });
             }
         }
+
         async function handleGoogleCredentialResponse(response) {
             try {
                 const res = await fetch(`${BACKEND_URL}/auth/google`, {
@@ -1570,6 +1498,8 @@ async function pollForProStatus(attempt = 0) {
         function showOtpScreen(msg) {
             document.getElementById('authForm').classList.add('hidden');
             document.getElementById('passwordSetupSection').classList.add('hidden');
+            document.getElementById('forgotPasswordSection').classList.add('hidden');
+            document.getElementById('resetPasswordSection').classList.add('hidden');
             document.getElementById('otpSection').classList.remove('hidden');
             document.getElementById('otpInfoText').innerText = msg;
             document.getElementById('otpCodeInput').value = "";
@@ -1629,193 +1559,101 @@ async function pollForProStatus(attempt = 0) {
                 showAuthSuccess("Yeni kod gönderildi.");
             } catch (err) { showAuthError(err.message); }
         }
+
         // ============ ŞİFREMİ UNUTTUM ============
-function openForgotPassword() {
-    hideAuthMessages();
-    document.getElementById('authForm').classList.add('hidden');
-    document.getElementById('otpSection').classList.add('hidden');
-    document.getElementById('passwordSetupSection').classList.add('hidden');
-    document.getElementById('forgotPasswordSection').classList.remove('hidden');
-    document.getElementById('resetPasswordSection').classList.add('hidden');
-    document.getElementById('forgotEmail').value = document.getElementById('authEmail').value || '';
-}
+        function openForgotPassword() {
+            hideAuthMessages();
+            document.getElementById('authForm').classList.add('hidden');
+            document.getElementById('otpSection').classList.add('hidden');
+            document.getElementById('passwordSetupSection').classList.add('hidden');
+            document.getElementById('forgotPasswordSection').classList.remove('hidden');
+            document.getElementById('resetPasswordSection').classList.add('hidden');
+            document.getElementById('forgotEmail').value = document.getElementById('authEmail').value || '';
+        }
 
-function backToLogin() {
-    hideAuthMessages();
-    document.getElementById('forgotPasswordSection').classList.add('hidden');
-    document.getElementById('resetPasswordSection').classList.add('hidden');
-    document.getElementById('authForm').classList.remove('hidden');
-    document.getElementById('authForm').reset();
-    switchAuthTab('login');
-}
+        function backToLogin() {
+            hideAuthMessages();
+            document.getElementById('forgotPasswordSection').classList.add('hidden');
+            document.getElementById('resetPasswordSection').classList.add('hidden');
+            document.getElementById('authForm').classList.remove('hidden');
+            document.getElementById('authForm').reset();
+            switchAuthTab('login');
+        }
 
-async function submitForgotPassword() {
-    hideAuthMessages();
-    const email = document.getElementById('forgotEmail').value.trim();
-    if (!email) { showAuthError(currentLang === 'tr' ? 'E-posta gerekli' : 'Email required'); return; }
-    
-    const btn = document.getElementById('forgotSubmitBtn');
-    btn.disabled = true;
-    
-    try {
-        const res = await fetch(`${BACKEND_URL}/auth/forgot-password`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || "Error");
-        showAuthSuccess(data.message);
-    } catch (err) {
-        showAuthError(err.message);
-    } finally {
-        btn.disabled = false;
-    }
-}
+        async function submitForgotPassword() {
+            hideAuthMessages();
+            const email = document.getElementById('forgotEmail').value.trim();
+            if (!email) { showAuthError(currentLang === 'tr' ? 'E-posta gerekli' : 'Email required'); return; }
 
-async function submitResetPassword() {
-    hideAuthMessages();
-    const pw1 = document.getElementById('resetNewPassword').value;
-    const pw2 = document.getElementById('resetConfirmPassword').value;
-    
-    if (!pw1 || pw1.length < 6) { showAuthError(currentLang === 'tr' ? 'Şifre en az 6 karakter' : 'Password min 6 chars'); return; }
-    if (pw1 !== pw2) { showAuthError(currentLang === 'tr' ? 'Şifreler eşleşmiyor' : 'Passwords do not match'); return; }
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('reset_token');
-    if (!token) { showAuthError(currentLang === 'tr' ? 'Geçersiz link' : 'Invalid link'); return; }
-    
-    const btn = document.getElementById('resetSubmitBtn');
-    btn.disabled = true;
-    
-    try {
-        const res = await fetch(`${BACKEND_URL}/auth/reset-password`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reset_token: token, new_password: pw1 })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || "Error");
-        
-        showAuthSuccess(data.message);
-        window.history.replaceState({}, document.title, window.location.pathname);
-        
-        setTimeout(() => {
-            loginSuccess(data.token, data.user, false);
-        }, 1000);
-    } catch (err) {
-        showAuthError(err.message);
-    } finally {
-        btn.disabled = false;
-    }
-}
+            const btn = document.getElementById('forgotSubmitBtn');
+            btn.disabled = true;
 
-function checkResetToken() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('reset_token')) {
-        document.getElementById('authModal').classList.remove('hidden');
-        document.getElementById('authForm').classList.add('hidden');
-        document.getElementById('otpSection').classList.add('hidden');
-        document.getElementById('passwordSetupSection').classList.add('hidden');
-        document.getElementById('forgotPasswordSection').classList.add('hidden');
-        document.getElementById('resetPasswordSection').classList.remove('hidden');
-    }
-}
-        // ============ ŞİFREMİ UNUTTUM ============
-function openForgotPassword() {
-    hideAuthMessages();
-    document.getElementById('authForm').classList.add('hidden');
-    document.getElementById('otpSection').classList.add('hidden');
-    document.getElementById('passwordSetupSection').classList.add('hidden');
-    document.getElementById('forgotPasswordSection').classList.remove('hidden');
-    document.getElementById('resetPasswordSection').classList.add('hidden');
-    document.getElementById('forgotEmail').value = document.getElementById('authEmail').value || '';
-}
+            try {
+                const res = await fetch(`${BACKEND_URL}/auth/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || "Error");
+                showAuthSuccess(data.message);
+            } catch (err) {
+                showAuthError(err.message);
+            } finally {
+                btn.disabled = false;
+            }
+        }
 
-function backToLogin() {
-    hideAuthMessages();
-    document.getElementById('forgotPasswordSection').classList.add('hidden');
-    document.getElementById('resetPasswordSection').classList.add('hidden');
-    document.getElementById('authForm').classList.remove('hidden');
-    document.getElementById('authForm').reset();
-    switchAuthTab('login');
-}
+        async function submitResetPassword() {
+            hideAuthMessages();
+            const pw1 = document.getElementById('resetNewPassword').value;
+            const pw2 = document.getElementById('resetConfirmPassword').value;
 
-async function submitForgotPassword() {
-    hideAuthMessages();
-    const email = document.getElementById('forgotEmail').value.trim();
-    if (!email) { showAuthError(currentLang === 'tr' ? 'E-posta gerekli' : 'Email required'); return; }
-    
-    const btn = document.getElementById('forgotSubmitBtn');
-    btn.disabled = true;
-    
-    try {
-        const res = await fetch(`${BACKEND_URL}/auth/forgot-password`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || "Error");
-        showAuthSuccess(data.message);
-    } catch (err) {
-        showAuthError(err.message);
-    } finally {
-        btn.disabled = false;
-    }
-}
+            if (!pw1 || pw1.length < 6) { showAuthError(currentLang === 'tr' ? 'Şifre en az 6 karakter' : 'Password min 6 chars'); return; }
+            if (pw1 !== pw2) { showAuthError(currentLang === 'tr' ? 'Şifreler eşleşmiyor' : 'Passwords do not match'); return; }
 
-async function submitResetPassword() {
-    hideAuthMessages();
-    const pw1 = document.getElementById('resetNewPassword').value;
-    const pw2 = document.getElementById('resetConfirmPassword').value;
-    
-    if (!pw1 || pw1.length < 6) { showAuthError(currentLang === 'tr' ? 'Şifre en az 6 karakter' : 'Password min 6 chars'); return; }
-    if (pw1 !== pw2) { showAuthError(currentLang === 'tr' ? 'Şifreler eşleşmiyor' : 'Passwords do not match'); return; }
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('reset_token');
-    if (!token) { showAuthError(currentLang === 'tr' ? 'Geçersiz link' : 'Invalid link'); return; }
-    
-    const btn = document.getElementById('resetSubmitBtn');
-    btn.disabled = true;
-    
-    try {
-        const res = await fetch(`${BACKEND_URL}/auth/reset-password`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reset_token: token, new_password: pw1 })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || "Error");
-        
-        showAuthSuccess(data.message);
-        window.history.replaceState({}, document.title, window.location.pathname);
-        
-        setTimeout(() => {
-            loginSuccess(data.token, data.user, false);
-        }, 1000);
-    } catch (err) {
-        showAuthError(err.message);
-    } finally {
-        btn.disabled = false;
-    }
-}
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('reset_token');
+            if (!token) { showAuthError(currentLang === 'tr' ? 'Geçersiz link' : 'Invalid link'); return; }
 
-// URL'de reset_token varsa otomatik modal aç
-function checkResetToken() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('reset_token')) {
-        document.getElementById('authModal').classList.remove('hidden');
-        document.getElementById('authForm').classList.add('hidden');
-        document.getElementById('otpSection').classList.add('hidden');
-        document.getElementById('passwordSetupSection').classList.add('hidden');
-        document.getElementById('forgotPasswordSection').classList.add('hidden');
-        document.getElementById('resetPasswordSection').classList.remove('hidden');
-    }
-}
+            const btn = document.getElementById('resetSubmitBtn');
+            btn.disabled = true;
 
-               function loginSuccess(token, user, isFirstVerification) {
+            try {
+                const res = await fetch(`${BACKEND_URL}/auth/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reset_token: token, new_password: pw1 })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || "Error");
+
+                showAuthSuccess(data.message);
+                window.history.replaceState({}, document.title, window.location.pathname);
+
+                setTimeout(() => {
+                    loginSuccess(data.token, data.user, false);
+                }, 1000);
+            } catch (err) {
+                showAuthError(err.message);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function checkResetToken() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('reset_token')) {
+                document.getElementById('authModal').classList.remove('hidden');
+                document.getElementById('authForm').classList.add('hidden');
+                document.getElementById('otpSection').classList.add('hidden');
+                document.getElementById('passwordSetupSection').classList.add('hidden');
+                document.getElementById('forgotPasswordSection').classList.add('hidden');
+                document.getElementById('resetPasswordSection').classList.remove('hidden');
+            }
+        }
+
+        function loginSuccess(token, user, isFirstVerification) {
             localStorage.setItem('authToken', token);
             currentUser = user;
             if (user && user.is_pro === true) {
@@ -1842,7 +1680,7 @@ function checkResetToken() {
             showToast(currentLang === 'tr' ? "Giriş başarılı!" : "Signed in!", 'success');
         }
 
-               function updateAuthUI() {
+        function updateAuthUI() {
             const btnText = document.getElementById('authNavText');
             const chevron = document.getElementById('userMenuChevron');
             const dropdownEmail = document.getElementById('dropdownEmail');
@@ -1871,6 +1709,7 @@ function checkResetToken() {
                 if (btn && !btn.innerText.includes('Pro')) btn.innerText = currentLang === 'tr' ? 'Pro Tara' : 'Pro Scan';
             }
         }
+
         function checkReferralParam() {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('ref')) {
@@ -1931,7 +1770,7 @@ function checkResetToken() {
             document.getElementById('imagePreview').src = "";
             document.getElementById('resultArea').classList.add('hidden');
             document.getElementById('heatmapContainer').classList.add('hidden');
-                        const pdfBtnReset = document.getElementById('pdfDownloadBtn');
+            const pdfBtnReset = document.getElementById('pdfDownloadBtn');
             if (pdfBtnReset) pdfBtnReset.classList.add('hidden');
         }
 
@@ -1967,14 +1806,12 @@ function checkResetToken() {
             }
         }
 
-               function toggleLanguage() {
+        function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'tr' : 'en';
             localStorage.setItem('lang', currentLang);
             applyLanguage(); loadHistory(); updateAuthUI();
             if (lastAnalysisStatus) updateSummaryMessage(lastAnalysisStatus.aiScore, lastAnalysisStatus.statusKey);
-            // İpuçlarını güncelle
             if (currentMode) renderModeTips(currentMode);
-            // switchMode'u tekrar çağır (başlıklar için)
             switchMode(currentMode);
         }
 
@@ -2072,13 +1909,10 @@ function checkResetToken() {
             } catch (err) { console.error("Heatmap error:", err); }
         }
 
-                    function showC2PAInfo(data) {
+        function showC2PAInfo(data) {
             const c2paBox = document.getElementById('c2paInfo');
             const c2paSource = document.getElementById('c2paSource');
-            
-            // Element yoksa hiçbir şey yapma
             if (!c2paBox || !c2paSource) return;
-            
             if (data && data.source && data.source.includes('C2PA')) {
                 c2paSource.innerText = data.source;
                 c2paBox.classList.remove('hidden');
@@ -2086,12 +1920,11 @@ function checkResetToken() {
                 c2paBox.classList.add('hidden');
             }
         }
+
         async function analyzeImage() {
-                        if (!currentUser) {
+            if (!currentUser) {
                 showToast(currentLang === 'tr' ? 'Tarama yapmak için lütfen giriş yapın.' : 'Please sign in to scan.', 'info');
-                setTimeout(() => {
-                    openAuthModal();
-                }, 800);
+                setTimeout(() => { openAuthModal(); }, 800);
                 return;
             }
             if (!currentUser && freeCredits <= 0 && !isProUser()) { document.getElementById('upgradeModal').classList.remove('hidden'); return; }
@@ -2122,7 +1955,7 @@ function checkResetToken() {
             const aiProgressBar = document.getElementById('aiProgressBar');
             const humanProgressBar = document.getElementById('humanProgressBar');
 
-                if (!isProUser()) {
+            if (!isProUser()) {
                 if (freeCredits <= 0) {
                     document.getElementById('upgradeModal').classList.remove('hidden');
                     return;
@@ -2164,16 +1997,15 @@ function checkResetToken() {
                     humanProgressBar.style.width = `${humanScore}%`;
                     let statusKey = aiScore > 75 ? "AI" : (aiScore > 45 ? "Suspicious" : "Real");
                     lastAnalysisStatus = { aiScore, statusKey };
-                                        showC2PAInfo(data);
+                    showC2PAInfo(data);
                     updateSummaryMessage(aiScore, statusKey);
-                                        if (!isProUser()) {
+                    if (!isProUser()) {
                         freeCredits--;
                         localStorage.setItem('freeCredits', freeCredits);
                         updateCreditDisplay();
                     }
                     addToHistory(currentLoadedFile.name, aiScore, statusKey);
                     generateHeatmap(currentLoadedFile);
-                                        // PDF butonunu göster (sadece Pro için)
                     const pdfBtn = document.getElementById('pdfDownloadBtn');
                     if (pdfBtn && isProUser()) {
                         pdfBtn.classList.remove('hidden');
@@ -2194,9 +2026,8 @@ function checkResetToken() {
         }
 
         function showBatchComingSoon() {
-    showToast(currentLang === 'tr' ? '🚀 Toplu tarama özelliği çok yakında!' : '🚀 Batch processing coming soon!', 'info');
-}
-       
+            showToast(currentLang === 'tr' ? '🚀 Toplu tarama özelliği çok yakında!' : '🚀 Batch processing coming soon!', 'info');
+        }
 
         function toggleCheckoutButton() {
             const checked = document.getElementById('withdrawalConsentCheckbox').checked;
@@ -2206,51 +2037,34 @@ function checkResetToken() {
             else { btn.classList.add('opacity-40', 'cursor-not-allowed'); }
         }
 
-                // ---------- PDF RAPOR İNDİRME ----------
         function downloadPDF() {
             if (!isProUser()) {
                 showToast(currentLang === 'tr' ? 'PDF raporu sadece Pro üyeler içindir.' : 'PDF report is only for Pro members.', 'info');
                 document.getElementById('upgradeModal').classList.remove('hidden');
                 return;
             }
-                        // Isı haritasının yüklenmesini bekle
             const heatmapImgCheck = document.getElementById('heatmapImage');
             if (heatmapImgCheck && (!heatmapImgCheck.complete || heatmapImgCheck.naturalWidth === 0)) {
                 showToast(currentLang === 'tr' ? '⏳ Isı haritası hazırlanıyor, lütfen bekleyin...' : '⏳ Preparing heatmap, please wait...', 'info');
-                // 3 saniye bekle ve tekrar dene
                 setTimeout(() => downloadPDF(), 3000);
                 return;
             }
-
             if (!lastAnalysisStatus) {
                 showToast(currentLang === 'tr' ? 'Önce bir görsel tarayın.' : 'Please scan an image first.', 'error');
                 return;
             }
-            
             try {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
-                
-                // Renk paleti
                 const primaryColor = [99, 102, 241];
                 const darkColor = [30, 36, 51];
                 const lightGray = [100, 116, 139];
                 const redColor = [220, 38, 38];
                 const greenColor = [16, 185, 129];
-                
-                // Türkçe karakterleri sadeleştir (PDF uyumluluğu için)
                 const trFix = (str) => {
                     if (!str) return '';
-                    return str
-                        .replace(/ı/g, 'i').replace(/İ/g, 'I')
-                        .replace(/ş/g, 's').replace(/Ş/g, 'S')
-                        .replace(/ğ/g, 'g').replace(/Ğ/g, 'G')
-                        .replace(/ç/g, 'c').replace(/Ç/g, 'C')
-                        .replace(/ö/g, 'o').replace(/Ö/g, 'O')
-                        .replace(/ü/g, 'u').replace(/Ü/g, 'U');
+                    return str.replace(/ı/g, 'i').replace(/İ/g, 'I').replace(/ş/g, 's').replace(/Ş/g, 'S').replace(/ğ/g, 'g').replace(/Ğ/g, 'G').replace(/ç/g, 'c').replace(/Ç/g, 'C').replace(/ö/g, 'o').replace(/Ö/g, 'O').replace(/ü/g, 'u').replace(/Ü/g, 'U');
                 };
-                
-                // Başlık bandı
                 doc.setFillColor(...primaryColor);
                 doc.rect(0, 0, 210, 30, 'F');
                 doc.setTextColor(255, 255, 255);
@@ -2260,40 +2074,25 @@ function checkResetToken() {
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'normal');
                 doc.text('Analiz Raporu / Analysis Report', 105, 23, { align: 'center' });
-                
-                // Tarih
                 doc.setTextColor(...lightGray);
                 doc.setFontSize(9);
                 const now = new Date();
-                const dateStr = now.toLocaleDateString('en-US', {
-                    year: 'numeric', month: 'long', day: 'numeric',
-                    hour: '2-digit', minute: '2-digit'
-                });
+                const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
                 doc.text(`${currentLang === 'tr' ? 'Rapor Tarihi' : 'Report Date'}: ${dateStr}`, 15, 40);
-                
-                // Mod bilgisi
                 const modeNames = {
                     general: currentLang === 'tr' ? 'Genel Tarama' : 'General Scan',
                     car: currentLang === 'tr' ? 'Araba Detector' : 'Car Detector',
                     realestate: currentLang === 'tr' ? 'Emlak Detector' : 'Real Estate Detector'
                 };
                 doc.text(`${currentLang === 'tr' ? 'Mod' : 'Mode'}: ${trFix(modeNames[currentMode])}`, 15, 47);
-                
-                // Dosya adı
                 const fileName = document.getElementById('fileName')?.innerText || 'image.jpg';
                 doc.text(`${currentLang === 'tr' ? 'Dosya' : 'File'}: ${trFix(fileName).substring(0, 50)}`, 15, 54);
-                
-                // Ayırıcı çizgi
                 doc.setDrawColor(...lightGray);
                 doc.line(15, 60, 195, 60);
-                
-                // Analiz sonuçları
                 doc.setFontSize(14);
                 doc.setFont('helvetica', 'bold');
                 doc.setTextColor(...darkColor);
                 doc.text(currentLang === 'tr' ? 'Analiz Sonuclari' : 'Analysis Results', 15, 72);
-                
-                // AI olasılığı
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'normal');
                 doc.setTextColor(...darkColor);
@@ -2302,14 +2101,10 @@ function checkResetToken() {
                 doc.setFont('helvetica', 'bold');
                 doc.setFontSize(16);
                 doc.text(`%${lastAnalysisStatus.aiScore}`, 170, 85);
-                
-                // AI progress bar
                 doc.setFillColor(230, 230, 240);
                 doc.rect(15, 90, 180, 8, 'F');
                 doc.setFillColor(...redColor);
                 doc.rect(15, 90, (parseFloat(lastAnalysisStatus.aiScore) / 100) * 180, 8, 'F');
-                
-                // Gerçek olasılığı
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'normal');
                 doc.setTextColor(...darkColor);
@@ -2319,14 +2114,10 @@ function checkResetToken() {
                 doc.setFontSize(16);
                 const humanScore = (100 - parseFloat(lastAnalysisStatus.aiScore)).toFixed(1);
                 doc.text(`%${humanScore}`, 170, 110);
-                
-                // Human progress bar
                 doc.setFillColor(230, 230, 240);
                 doc.rect(15, 115, 180, 8, 'F');
                 doc.setFillColor(...greenColor);
                 doc.rect(15, 115, (humanScore / 100) * 180, 8, 'F');
-                
-                // Sonuç mesajı
                 doc.setFontSize(14);
                 doc.setFont('helvetica', 'bold');
                 let resultColor, resultText;
@@ -2342,13 +2133,9 @@ function checkResetToken() {
                 }
                 doc.setTextColor(...resultColor);
                 doc.text(resultText, 105, 135, { align: 'center' });
-                
-                                // Görselleri ekle (canvas ile PNG'ye çevirerek)
                 try {
                     const originalImg = document.getElementById('imagePreview');
                     const heatmapImg = document.getElementById('heatmapImage');
-                    
-                    // Canvas yardımcı fonksiyonu - görseli PNG DataURL'e çevirir
                     const imgToPngDataUrl = (imgElement) => {
                         if (!imgElement || !imgElement.src) return null;
                         try {
@@ -2358,78 +2145,48 @@ function checkResetToken() {
                             canvas.height = imgElement.naturalHeight || imgElement.height;
                             ctx.drawImage(imgElement, 0, 0);
                             return canvas.toDataURL('image/png');
-                        } catch (e) {
-                            console.log('Canvas çevirme hatası:', e);
-                            return null;
-                        }
+                        } catch (e) { console.log('Canvas çevirme hatası:', e); return null; }
                     };
-                    
-                    // Orijinal görsel - sol
                     const originalPng = imgToPngDataUrl(originalImg);
                     if (originalPng) {
                         doc.setFontSize(11);
                         doc.setFont('helvetica', 'bold');
                         doc.setTextColor(...darkColor);
                         doc.text(trFix(currentLang === 'tr' ? 'Orijinal Gorsel' : 'Original Image'), 15, 155);
-                        try {
-                            doc.addImage(originalPng, 'PNG', 15, 160, 85, 85);
-                        } catch (e) {
-                            console.log('Orijinal görsel eklenemedi:', e);
-                        }
+                        try { doc.addImage(originalPng, 'PNG', 15, 160, 85, 85); } catch (e) { console.log('Orijinal görsel eklenemedi:', e); }
                     }
-                    
-                    // Isı haritası - sağ
                     const heatmapPng = imgToPngDataUrl(heatmapImg);
                     if (heatmapPng) {
                         doc.setFontSize(11);
                         doc.setFont('helvetica', 'bold');
                         doc.setTextColor(...darkColor);
                         doc.text(trFix(currentLang === 'tr' ? 'Isi Haritasi' : 'Heatmap'), 110, 155);
-                        try {
-                            doc.addImage(heatmapPng, 'PNG', 110, 160, 85, 85);
-                        } catch (e) {
-                            console.log('Isı haritası eklenemedi:', e);
-                        }
+                        try { doc.addImage(heatmapPng, 'PNG', 110, 160, 85, 85); } catch (e) { console.log('Isı haritası eklenemedi:', e); }
                     }
-                } catch (imgErr) {
-                    console.log('Görseller eklenemedi:', imgErr);
-                }
-
-                // Alt bilgi
+                } catch (imgErr) { console.log('Görseller eklenemedi:', imgErr); }
                 doc.setFontSize(8);
                 doc.setFont('helvetica', 'italic');
                 doc.setTextColor(...lightGray);
-                doc.text(
-                    currentLang === 'tr' 
-                        ? 'Bu rapor olasilik tahminine dayanir, kesin hukum degildir. Karar vermeden once ek dogrulama yapin.'
-                        : 'This report is based on probability estimation, not a final verdict. Verify before making decisions.',
-                    105, 260, { align: 'center', maxWidth: 180 }
-                );
-                
-                // Alt çizgi
+                doc.text(currentLang === 'tr' ? 'Bu rapor olasilik tahminine dayanir, kesin hukum degildir.' : 'This report is based on probability estimation, not a final verdict.', 105, 260, { align: 'center', maxWidth: 180 });
                 doc.setDrawColor(...lightGray);
                 doc.line(15, 268, 195, 268);
                 doc.setFontSize(8);
                 doc.setFont('helvetica', 'normal');
                 doc.text('ai-image-detector.com', 105, 275, { align: 'center' });
-                
-                // PDF'i indir
                 doc.save(`AI-Detector-Rapor-${Date.now()}.pdf`);
-                
                 showToast(currentLang === 'tr' ? '✅ PDF raporu indiriliyor...' : '✅ PDF report downloading...', 'success');
-                
             } catch (err) {
                 console.error('PDF hatası:', err);
                 showToast(currentLang === 'tr' ? 'PDF oluşturulamadı: ' + err.message : 'Could not create PDF: ' + err.message, 'error');
             }
         }
+
         function shareResult(platform) {
             if (!lastAnalysisStatus) return;
             const liveSiteUrl = window.location.origin;
             const text = currentLang === 'tr'
                 ? `🔍 Bu görselin analiz sonucu: YZ %${lastAnalysisStatus.aiScore}\n\nSen de test et:`
                 : `🔍 Analysis result: AI %${lastAnalysisStatus.aiScore}\n\nTest it yourself:`;
-
             if (platform === 'twitter') {
                 window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(liveSiteUrl)}`, '_blank');
             } else if (platform === 'whatsapp') {
@@ -2446,50 +2203,25 @@ function checkResetToken() {
             navigator.clipboard.writeText(copyText.value);
             showToast(currentLang === 'tr' ? "Kopyalandı!" : "Copied!", 'success');
         }
-        // ---------- MOD SEÇİMİ ----------
+
         let currentMode = localStorage.getItem('mode') || 'general';
 
         const modeTexts = {
             general: {
-                tr: {
-                    title: "Bir görsel gerçek mi, yapay zeka mı?",
-                    subtitle: "Saniyeler içinde öğrenin.",
-                    tip: "💡 İpucu: En iyi sonuç için net ve yüksek çözünürlüklü görsel yükleyin."
-                },
-                en: {
-                    title: "Is that image real, or AI-generated?",
-                    subtitle: "Find out in seconds.",
-                    tip: "💡 Tip: Upload a clear, high-resolution image for best results."
-                }
+                tr: { title: "Bir görsel gerçek mi, yapay zeka mı?", subtitle: "Saniyeler içinde öğrenin.", tip: "💡 İpucu: En iyi sonuç için net ve yüksek çözünürlüklü görsel yükleyin." },
+                en: { title: "Is that image real, or AI-generated?", subtitle: "Find out in seconds.", tip: "💡 Tip: Upload a clear, high-resolution image for best results." }
             },
             car: {
-        tr: {
-            title: "Bu araç fotoğrafı gerçek mi?",
-            subtitle: "İkinci el araç alım-satımında dolandırılmaktan korunun.",
-            tip: "💡 İpucu: Plaka, kilometre ve şasi numarasını da kontrol edin."
-        },
-        en: {
-            title: "Is this car photo real?",
-            subtitle: "Protect yourself from fraud in second-hand car sales.",
-            tip: "💡 Tip: Also check the license plate, mileage, and chassis number."
-        }
-    },
-    realestate: {
-        tr: {
-            title: "Bu daire fotoğrafı gerçek mi?",
-            subtitle: "Emlak alım-satımında dolandırılmaktan korunun.",
-            tip: "💡 İpucu: Tapu, imar durumu ve emlak vergisi bilgilerini kontrol edin."
-        },
-        en: {
-            title: "Is this apartment photo real?",
-            subtitle: "Protect yourself from fraud in real estate.",
-            tip: "💡 Tip: Also verify title deed, zoning status, and property tax records."
-        }
-    }
-};
-        
-        // ---------- MODA ÖZEL İPUÇLARI ----------
-               const modeTips = {
+                tr: { title: "Bu araç fotoğrafı gerçek mi?", subtitle: "İkinci el araç alım-satımında dolandırılmaktan korunun.", tip: "💡 İpucu: Plaka, kilometre ve şasi numarasını da kontrol edin." },
+                en: { title: "Is this car photo real?", subtitle: "Protect yourself from fraud in second-hand car sales.", tip: "💡 Tip: Also check the license plate, mileage, and chassis number." }
+            },
+            realestate: {
+                tr: { title: "Bu daire fotoğrafı gerçek mi?", subtitle: "Emlak alım-satımında dolandırılmaktan korunun.", tip: "💡 İpucu: Tapu, imar durumu ve emlak vergisi bilgilerini kontrol edin." },
+                en: { title: "Is this apartment photo real?", subtitle: "Protect yourself from fraud in real estate.", tip: "💡 Tip: Also verify title deed, zoning status, and property tax records." }
+            }
+        };
+
+        const modeTips = {
             general: {
                 tr: [
                     { icon: "fa-fingerprint", title: "Kaynağı Kontrol Edin", desc: "Görselin nereden geldiğini ve kim tarafından paylaşıldığını kontrol edin." },
@@ -2505,43 +2237,43 @@ function checkResetToken() {
             car: {
                 tr: [
                     { icon: "fa-id-card-clip", title: "Plaka ve Şasi Kontrolü", desc: "Plaka ve şasi numarasını E-Devlet veya TRAMER üzerinden doğrulayın." },
-                    { icon: "fa-tachometer-alt", title: "Kilometre Doğrulama", desc: "Aracın kilometre bilgisini mutlaka doğrulayın. Düşük kilometre her zaman iyi değildir." },
-                    { icon: "fa-car-side", title: "Aracı Yerinde Görün", desc: "Fotoğrafa güvenmeyin. Aracı mutlaka yerinde inceleyin ve test sürüşü yapın." },
-                    { icon: "fa-clipboard-check", title: "Ekspertiz Raporu", desc: "Bağımsız bir ekspertiz raporu isteyin. Satıcı vermek istemiyorsa şüphelenin." },
+                    { icon: "fa-tachometer-alt", title: "Kilometre Doğrulama", desc: "Aracın kilometre bilgisini mutlaka doğrulayın." },
+                    { icon: "fa-car-side", title: "Aracı Yerinde Görün", desc: "Fotoğrafa güvenmeyin. Aracı mutlaka yerinde inceleyin." },
+                    { icon: "fa-clipboard-check", title: "Ekspertiz Raporu", desc: "Bağımsız bir ekspertiz raporu isteyin." },
                     { icon: "fa-user-shield", title: "Satıcı Kimliği", desc: "Satıcının kimliğini ve ruhsat sahibi olduğunu doğrulayın." },
-                    { icon: "fa-vault", title: "Ödeme Güvenliği", desc: "Ödemeyi mutlaka resmi kanallar üzerinden yapın. Kapora için banka havalesi kullanın." }
+                    { icon: "fa-vault", title: "Ödeme Güvenliği", desc: "Ödemeyi mutlaka resmi kanallar üzerinden yapın." }
                 ],
                 en: [
                     { icon: "fa-id-card-clip", title: "Check Plate & Chassis", desc: "Verify the license plate and chassis number via official records." },
-                    { icon: "fa-tachometer-alt", title: "Verify Mileage", desc: "Always verify the mileage. Low mileage isn't always good." },
-                    { icon: "fa-car-side", title: "See It In Person", desc: "Don't trust photos. Inspect the car in person and take a test drive." },
-                    { icon: "fa-clipboard-check", title: "Inspection Report", desc: "Request an independent inspection report. Be suspicious if seller refuses." },
-                    { icon: "fa-user-shield", title: "Seller Identity", desc: "Verify the seller's identity and that they own the vehicle." },
-                    { icon: "fa-vault", title: "Payment Safety", desc: "Use official payment channels. Use bank transfers for deposits." }
+                    { icon: "fa-tachometer-alt", title: "Verify Mileage", desc: "Always verify the mileage." },
+                    { icon: "fa-car-side", title: "See It In Person", desc: "Don't trust photos. Inspect the car in person." },
+                    { icon: "fa-clipboard-check", title: "Inspection Report", desc: "Request an independent inspection report." },
+                    { icon: "fa-user-shield", title: "Seller Identity", desc: "Verify the seller's identity." },
+                    { icon: "fa-vault", title: "Payment Safety", desc: "Use official payment channels." }
                 ]
             },
-                       realestate: {
+            realestate: {
                 tr: [
-                    { icon: "fa-stamp", title: "Tapu ve İmar Kontrolü", desc: "Tapu kaydını ve imar durumunu mutlaka kontrol edin. E-Devlet üzerinden doğrulayın." },
-                    { icon: "fa-coins", title: "Vergi Borcu", desc: "Emlak vergisi ve diğer borçları olup olmadığını kontrol edin." },
-                    { icon: "fa-building-user", title: "Yerinde Ziyaret", desc: "Daireyi mutlaka yerinde görün. Fotoğraf ve gerçek farklı olabilir." },
-                    { icon: "fa-user-tie", title: "Satıcı Doğrulama", desc: "Satıcının tapu sahibi olduğunu doğrulayın. Vekilse vekaletname isteyin." },
-                    { icon: "fa-award", title: "Yetki Belgesi", desc: "Emlakçının yetki belgesini ve ruhsatını kontrol edin." },
-                    { icon: "fa-file-contract", title: "Sözleşme", desc: "Mutlaka yazılı sözleşme yapın. Sözlü anlaşmalara güvenmeyin." },
-                    { icon: "fa-house-crack", title: "Deprem Riski", desc: "Binanın deprem yönetmeliğine uygunluğunu ve zemin durumunu kontrol edin." },
+                    { icon: "fa-stamp", title: "Tapu ve İmar Kontrolü", desc: "Tapu kaydını ve imar durumunu mutlaka kontrol edin." },
+                    { icon: "fa-coins", title: "Vergi Borcu", desc: "Emlak vergisi ve diğer borçları kontrol edin." },
+                    { icon: "fa-building-user", title: "Yerinde Ziyaret", desc: "Daireyi mutlaka yerinde görün." },
+                    { icon: "fa-user-tie", title: "Satıcı Doğrulama", desc: "Satıcının tapu sahibi olduğunu doğrulayın." },
+                    { icon: "fa-award", title: "Yetki Belgesi", desc: "Emlakçının yetki belgesini kontrol edin." },
+                    { icon: "fa-file-contract", title: "Sözleşme", desc: "Mutlaka yazılı sözleşme yapın." },
+                    { icon: "fa-house-crack", title: "Deprem Riski", desc: "Binanın deprem yönetmeliğine uygunluğunu kontrol edin." },
                     { icon: "fa-building", title: "Kat Mülkiyeti", desc: "Kat mülkiyeti tapusunun olup olmadığını kontrol edin." },
                     { icon: "fa-square-parking", title: "Otopark Durumu", desc: "Otopark hakkının tapuda kayıtlı olup olmadığını kontrol edin." }
                 ],
                 en: [
-                    { icon: "fa-stamp", title: "Title & Zoning", desc: "Check the title deed and zoning status. Verify via official records." },
-                    { icon: "fa-coins", title: "Tax Debt", desc: "Check if there are any property tax or other debts." },
-                    { icon: "fa-building-user", title: "Visit in Person", desc: "Always visit the apartment in person. Photos can differ from reality." },
-                    { icon: "fa-user-tie", title: "Verify Seller", desc: "Verify the seller owns the property. Request power of attorney if needed." },
-                    { icon: "fa-award", title: "Agent License", desc: "Check the real estate agent's license and credentials." },
-                    { icon: "fa-file-contract", title: "Written Contract", desc: "Always use a written contract. Don't rely on verbal agreements." },
-                    { icon: "fa-house-crack", title: "Earthquake Risk", desc: "Check the building's earthquake compliance and ground conditions." },
+                    { icon: "fa-stamp", title: "Title & Zoning", desc: "Check the title deed and zoning status." },
+                    { icon: "fa-coins", title: "Tax Debt", desc: "Check if there are any property tax debts." },
+                    { icon: "fa-building-user", title: "Visit in Person", desc: "Always visit the apartment in person." },
+                    { icon: "fa-user-tie", title: "Verify Seller", desc: "Verify the seller owns the property." },
+                    { icon: "fa-award", title: "Agent License", desc: "Check the real estate agent's license." },
+                    { icon: "fa-file-contract", title: "Written Contract", desc: "Always use a written contract." },
+                    { icon: "fa-house-crack", title: "Earthquake Risk", desc: "Check the building's earthquake compliance." },
                     { icon: "fa-building", title: "Condominium Title", desc: "Check if there is a condominium title deed." },
-                    { icon: "fa-square-parking", title: "Parking Status", desc: "Check if parking rights are registered in the title deed." }
+                    { icon: "fa-square-parking", title: "Parking Status", desc: "Check if parking rights are registered." }
                 ]
             }
         };
@@ -2550,17 +2282,14 @@ function checkResetToken() {
             const container = document.getElementById('tipsContainer');
             const title = document.getElementById('tipsTitle');
             if (!container) return;
-            
             const tips = modeTips[mode][currentLang];
             const titles = {
                 general: { tr: "Genel Güvenlik İpuçları", en: "General Safety Tips" },
                 car: { tr: "Araç Alım-Satım İpuçları", en: "Car Buying/Selling Tips" },
                 realestate: { tr: "Emlak Alım-Satım İpuçları", en: "Real Estate Tips" }
             };
-            
             title.innerText = titles[mode][currentLang];
             container.innerHTML = '';
-            
             tips.forEach((tip, index) => {
                 const div = document.createElement('div');
                 div.className = "tip-card flex flex-col items-start text-left gap-3 p-5 bg-slate-800/40 border border-slate-700/40 rounded-2xl hover:border-slate-500/60 transition-all duration-300 hover:shadow-xl hover:-translate-y-1";
@@ -2574,28 +2303,21 @@ function checkResetToken() {
                 container.appendChild(div);
             });
         }
-              function switchMode(mode) {
+
+        function switchMode(mode) {
             currentMode = mode;
             localStorage.setItem('mode', mode);
-            
-            // Body'ye class ekle
             document.body.classList.remove('mode-car', 'mode-realestate');
             if (mode === 'car') document.body.classList.add('mode-car');
             if (mode === 'realestate') document.body.classList.add('mode-realestate');
-            
-            // Aktif sekmeyi güncelle
             document.querySelectorAll('.mode-tab').forEach(tab => tab.classList.remove('active'));
             const activeTab = document.getElementById('mode' + mode.charAt(0).toUpperCase() + mode.slice(1));
             if (activeTab) activeTab.classList.add('active');
-            
-            // Başlık ve metinleri güncelle
             const texts = modeTexts[mode][currentLang];
             const heroTitle = document.querySelector('[data-i18n="heroTitle"]');
             const heroSubtitle = document.querySelector('[data-i18n="heroSubtitle"]');
             if (heroTitle) heroTitle.innerText = texts.title;
             if (heroSubtitle) heroSubtitle.innerText = texts.subtitle;
-            
-            // Sayfa başlığını güncelle
             const pageTitle = document.querySelector('[data-i18n="title"]');
             if (pageTitle) {
                 const titles = {
@@ -2605,8 +2327,6 @@ function checkResetToken() {
                 };
                 pageTitle.innerText = titles[mode][currentLang];
             }
-            
-            // Hero ikonunu güncelle
             const heroIcon = document.querySelector('#modeHeroIcon div');
             if (heroIcon) {
                 const icons = {
@@ -2617,79 +2337,29 @@ function checkResetToken() {
                 heroIcon.className = `w-16 h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br ${icons[mode].bg} shadow-lg`;
                 heroIcon.innerHTML = `<i class="fas ${icons[mode].icon} text-white text-2xl"></i>`;
             }
-            
-            
-            // Tarayıcı sekmesi başlığını güncelle
             const pageTitles = {
                 general: "AI Image Detector - Pro",
                 car: "Araba Detector - AI Image Detector",
                 realestate: "Emlak Detector - AI Image Detector"
             };
             document.title = pageTitles[mode];
-            
-            // Fiyatı güncelle
-            const priceElement = document.querySelector('#upgradeModal .text-xl.font-extrabold');
-            if (priceElement) {
-                const prices = {
-                    general: "$14.99",
-                    car: "$19.99",
-                    realestate: "$24.99"
-                };
-                priceElement.innerHTML = prices[mode] + ' <span class="text-xs text-slate-400">/mo</span>';
-            }
-            
-            // Modal başlığını güncelle
-            const modalTitle = document.querySelector('#upgradeModal h3');
-            if (modalTitle) {
-                const modalTitles = {
-                    general: { tr: "Pro Özellikler", en: "Unlock Pro Features" },
-                    car: { tr: "Araba Detector Pro", en: "Car Detector Pro" },
-                    realestate: { tr: "Emlak Detector Pro", en: "Real Estate Detector Pro" }
-                };
-                modalTitle.innerText = modalTitles[mode][currentLang];
-            }
-            
-            // Plan adını güncelle
-            const planName = document.querySelector('#upgradeModal .text-sm.text-slate-300.font-medium');
-            if (planName) {
-                const planNames = {
-                    general: { tr: "Pro Sınırsız Plan", en: "Pro Unlimited Plan" },
-                    car: { tr: "Araba Pro Plan", en: "Car Pro Plan" },
-                    realestate: { tr: "Emlak Pro Plan", en: "Real Estate Pro Plan" }
-                };
-                planName.innerText = planNames[mode][currentLang];
-            }
-            
-            // İpuçlarını güncelle
             renderModeTips(mode);
         }
-            function closeAuthModal() {
+
+        function closeAuthModal() {
             document.getElementById('authModal').classList.add('hidden');
         }
 
-                // ---------- PLAN SEÇİMİ ----------
         let selectedPlan = null;
 
         function selectPlan(plan) {
             selectedPlan = plan;
-            
-            // Tüm kartlardan 'selected' class'ını kaldır
             document.querySelectorAll('.plan-card').forEach(card => card.classList.remove('selected'));
-            
-            // Seçili karta 'selected' class'ı ekle
-            const planMap = {
-                general: 'planGeneral',
-                car: 'planCar',
-                realestate: 'planRealestate'
-            };
+            const planMap = { general: 'planGeneral', car: 'planCar', realestate: 'planRealestate' };
             const selectedCard = document.getElementById(planMap[plan]);
             if (selectedCard) selectedCard.classList.add('selected');
-            
-            // Radio button'u işaretle
             const radio = document.querySelector(`input[name="plan"][value="${plan}"]`);
             if (radio) radio.checked = true;
-            
-            // Buton metnini güncelle
             const btnText = document.getElementById('checkoutBtnText');
             const prices = { general: '$14.99', car: '$19.99', realestate: '$24.99' };
             const planNames = {
@@ -2701,7 +2371,8 @@ function checkResetToken() {
                 btnText.innerText = `${planNames[plan]} - ${prices[plan]}/mo`;
             }
         }
-               function closeModal() {
+
+        function closeModal() {
             document.getElementById('upgradeModal').classList.add('hidden');
             document.getElementById('withdrawalConsentCheckbox').checked = false;
             document.querySelectorAll('.plan-card').forEach(card => card.classList.remove('selected'));
@@ -2710,37 +2381,33 @@ function checkResetToken() {
             if (btnText) btnText.innerText = translations[currentLang].modalBtn;
             toggleCheckoutButton();
         }
-      function parseJwt(token) {
-    try {
-        const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-        return JSON.parse(atob(base64));
-    } catch { return null; }
-}
 
-              function proceedToCheckout() {
+        function parseJwt(token) {
+            try {
+                const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+                return JSON.parse(atob(base64));
+            } catch { return null; }
+        }
+
+        function proceedToCheckout() {
             if (!currentUser) {
                 showToast(currentLang === 'tr' ? "Önce giriş yapmalısınız." : "Please sign in first.", 'error');
                 closeModal();
                 openAuthModal();
                 return;
             }
-            
             if (!selectedPlan) {
                 showToast(currentLang === 'tr' ? 'Lütfen bir plan seçin' : 'Please select a plan', 'error');
                 return;
             }
-            
             const token = localStorage.getItem('authToken');
             const payload = parseJwt(token);
             const userId = payload ? payload.user_id : '';
-            
-            // Her plan için ayrı Lemon Squeezy checkout linki
             const baseUrls = {
                 general: "https://aimagedetector.lemonsqueezy.com/checkout/buy/d06f800e-3e99-4a0e-a1f0-f2467904be52",
                 car: "https://aimagedetector.lemonsqueezy.com/checkout/buy/a0599342-8ddb-45af-a3b6-6edf469dbc28",
                 realestate: "https://aimagedetector.lemonsqueezy.com/checkout/buy/29b14a1e-0953-4dcb-bbee-25c7a9de24bb"
             };
-            
             const baseUrl = baseUrls[selectedPlan];
             const params = new URLSearchParams({
                 'checkout[email]': currentUser.email,
@@ -2750,6 +2417,7 @@ function checkResetToken() {
             });
             window.location.href = `${baseUrl}?${params.toString()}`;
         }
+
         function openModal(type) {
             const legalModal = document.getElementById('legalModal');
             const legalTitle = document.getElementById('legalTitle');
