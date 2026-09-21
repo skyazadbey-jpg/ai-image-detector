@@ -1710,6 +1710,98 @@ async function submitResetPassword() {
     }
 }
 
+function checkResetToken() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('reset_token')) {
+        document.getElementById('authModal').classList.remove('hidden');
+        document.getElementById('authForm').classList.add('hidden');
+        document.getElementById('otpSection').classList.add('hidden');
+        document.getElementById('passwordSetupSection').classList.add('hidden');
+        document.getElementById('forgotPasswordSection').classList.add('hidden');
+        document.getElementById('resetPasswordSection').classList.remove('hidden');
+    }
+}
+        // ============ ŞİFREMİ UNUTTUM ============
+function openForgotPassword() {
+    hideAuthMessages();
+    document.getElementById('authForm').classList.add('hidden');
+    document.getElementById('otpSection').classList.add('hidden');
+    document.getElementById('passwordSetupSection').classList.add('hidden');
+    document.getElementById('forgotPasswordSection').classList.remove('hidden');
+    document.getElementById('resetPasswordSection').classList.add('hidden');
+    document.getElementById('forgotEmail').value = document.getElementById('authEmail').value || '';
+}
+
+function backToLogin() {
+    hideAuthMessages();
+    document.getElementById('forgotPasswordSection').classList.add('hidden');
+    document.getElementById('resetPasswordSection').classList.add('hidden');
+    document.getElementById('authForm').classList.remove('hidden');
+    document.getElementById('authForm').reset();
+    switchAuthTab('login');
+}
+
+async function submitForgotPassword() {
+    hideAuthMessages();
+    const email = document.getElementById('forgotEmail').value.trim();
+    if (!email) { showAuthError(currentLang === 'tr' ? 'E-posta gerekli' : 'Email required'); return; }
+    
+    const btn = document.getElementById('forgotSubmitBtn');
+    btn.disabled = true;
+    
+    try {
+        const res = await fetch(`${BACKEND_URL}/auth/forgot-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Error");
+        showAuthSuccess(data.message);
+    } catch (err) {
+        showAuthError(err.message);
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+async function submitResetPassword() {
+    hideAuthMessages();
+    const pw1 = document.getElementById('resetNewPassword').value;
+    const pw2 = document.getElementById('resetConfirmPassword').value;
+    
+    if (!pw1 || pw1.length < 6) { showAuthError(currentLang === 'tr' ? 'Şifre en az 6 karakter' : 'Password min 6 chars'); return; }
+    if (pw1 !== pw2) { showAuthError(currentLang === 'tr' ? 'Şifreler eşleşmiyor' : 'Passwords do not match'); return; }
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('reset_token');
+    if (!token) { showAuthError(currentLang === 'tr' ? 'Geçersiz link' : 'Invalid link'); return; }
+    
+    const btn = document.getElementById('resetSubmitBtn');
+    btn.disabled = true;
+    
+    try {
+        const res = await fetch(`${BACKEND_URL}/auth/reset-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reset_token: token, new_password: pw1 })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Error");
+        
+        showAuthSuccess(data.message);
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        setTimeout(() => {
+            loginSuccess(data.token, data.user, false);
+        }, 1000);
+    } catch (err) {
+        showAuthError(err.message);
+    } finally {
+        btn.disabled = false;
+    }
+}
+
 // URL'de reset_token varsa otomatik modal aç
 function checkResetToken() {
     const urlParams = new URLSearchParams(window.location.search);
