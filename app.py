@@ -45,8 +45,6 @@ DB_PATH = "users.db"
 
 
 # ---------- DATABASE ----------
-
-
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -110,6 +108,15 @@ class ResendRequest(BaseModel):
     email: EmailStr
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    reset_token: str
+    new_password: str
+
+
 class GoogleAuthRequest(BaseModel):
     id_token: str
 
@@ -122,6 +129,11 @@ def make_jwt(user_id: int, email: str) -> str:
 
 def make_setup_token(user_id: int, email: str) -> str:
     payload = {"user_id": user_id, "email": email, "scope": "set_password", "exp": time.time() + 60 * 15}
+    return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
+
+
+def make_reset_token(user_id: int, email: str) -> str:
+    payload = {"user_id": user_id, "email": email, "scope": "reset_password", "exp": time.time() + 60 * 30}
     return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
 
 
@@ -296,6 +308,78 @@ def login(data: LoginRequest):
     return {"token": token, "user": user_to_public(row)}
 
 
+@app.post("/auth/forgot-password")
+def forgot_password(data: ForgotPasswordRequest):
+    conn = get_db()
+    row = conn.execute("SELECT * FROM users WHERE LOWER(TRIM(email))=?", (data.email.strip().lower(),)).fetchone()
+
+    generic_msg = "Eğer bu e-posta kayıtlıysa, sıfırlama linki gönderildi."
+
+    if not row:
+        conn.close()
+        return {"message": generic_msg}
+
+    if not row["password_hash"]:
+        conn.close()
+        return {"message": "Bu hesap Google ile oluşturulmuş. Lütfen Google ile giriş yapın."}
+
+    reset_token = make_reset_token(row["id"], row["email"])
+    conn.close()
+
+    reset_link = f"https://ai-image-detector.com/?reset_token={reset_token}"
+
+    try:
+        send_email(
+            row["email"],
+            "Şifre Sıfırlama - AI Image Detector",
+            f"""
+            <div style="font-family:sans-serif;max-width:500px;margin:auto">
+                <h2>Şifre Sıfırlama</h2>
+                <p>Merhaba,</p>
+                <p>Şifrenizi sıfırlamak için aşağıdaki butona tıklayın:</p>
+                <p style="text-align:center;margin:30px 0">
+                    <a href="{reset_link}" style="background:#6366f1;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold">
+                        Şifremi Sıfırla
+                    </a>
+                </p>
+                <p style="color:#666;font-size:14px">Bu link 30 dakika geçerlidir.</p>
+                <p style="color:#666;font-size:14px">Bu talebi siz yapmadıysanız, bu e-postayı görmezden gelebilirsiniz.</p>
+            </div>
+            """,
+        )
+    except RuntimeError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    return {"message": generic_msg}
+
+
+@app.post("/auth/reset-password")
+def reset_password(data: ResetPasswordRequest):
+    payload = decode_jwt(data.reset_token)
+    if not payload or payload.get("scope") != "reset_password":
+        raise HTTPException(status_code=401, detail="Geçersiz veya süresi dolmuş link.")
+
+    if len(data.new_password) < 6:
+        raise HTTPException(status_code=400, detail="Şifre en az 6 karakter olmalı.")
+
+    conn = get_db()
+    row = conn.execute("SELECT * FROM users WHERE id=?", (payload["user_id"],)).fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı.")
+
+    conn.execute(
+        "UPDATE users SET password_hash=? WHERE id=?",
+        (bcrypt.hash(data.new_password), payload["user_id"]),
+    )
+    conn.commit()
+    updated = conn.execute("SELECT * FROM users WHERE id=?", (payload["user_id"],)).fetchone()
+    conn.close()
+
+    token = make_jwt(updated["id"], updated["email"])
+    return {"token": token, "user": user_to_public(updated), "message": "Şifreniz başarıyla güncellendi."}
+
+
 @app.post("/auth/google")
 def google_auth(data: GoogleAuthRequest):
     if not GOOGLE_CLIENT_ID:
@@ -402,7 +486,6 @@ async def lemonsqueezy_webhook(request: Request):
         attributes = data.get("attributes", {})
         user_email = attributes.get("user_email")
 
-        # DEBUG: bu satir Render Logs'ta neyin geldigini gormeni saglar
         print(f"LEMON SQUEEZY WEBHOOK: event={event_name} email={user_email} custom_data={custom_data}")
 
         pro_events = {"order_created", "subscription_created", "subscription_updated", "subscription_resumed"}
@@ -411,7 +494,6 @@ async def lemonsqueezy_webhook(request: Request):
         matched = False
         conn = get_db()
 
-        # 1) Once custom_data icindeki user_id ile kesin eslestirme dene (en guvenilir yol)
         custom_user_id = custom_data.get("user_id")
         if custom_user_id:
             row = conn.execute("SELECT id FROM users WHERE id=?", (custom_user_id,)).fetchone()
@@ -424,7 +506,6 @@ async def lemonsqueezy_webhook(request: Request):
                 conn.commit()
                 print(f"LEMON SQUEEZY: user_id={custom_user_id} eslesti, guncellendi.")
 
-        # 2) Eslesme olmadiysa email ile dene (bosluk/buyuk-kucuk harf farkina duyarsiz)
         if not matched and user_email:
             normalized_email = user_email.strip().lower()
             row = conn.execute(
@@ -456,7 +537,7 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
     try:
         contents = None
         content_type = "application/octet-stream"
-        
+
         if file:
             contents = await file.read()
             content_type = file.content_type or "application/octet-stream"
@@ -470,15 +551,13 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
             return {"error": "Görsel bulunamadı."}
 
         headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": content_type}
-        
-        # Her model için ayrı ayrı skor al
+
         def get_score(api_url):
             try:
                 r = requests.post(api_url, headers=headers, data=contents, timeout=20)
                 if r.status_code != 200:
                     return None
                 data = r.json()
-                # Farklı formatları dene
                 items = data.get("result", data) if isinstance(data, dict) else data
                 if isinstance(items, list):
                     for item in items:
@@ -491,19 +570,18 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
                 return None
             except Exception:
                 return None
-        
-        # İki modeli çalıştır
+
         score_1 = get_score(API_URL)
         score_2 = get_score(API_URL_2)
-        
+
         scores = [s for s in [score_1, score_2] if s is not None]
-        
+
         if not scores:
             return {"error": "Modeller yanıt vermedi. Lütfen tekrar deneyin."}
-        
+
         final_ai_score = sum(scores) / len(scores)
         final_human_score = 1 - final_ai_score
-        
+
         return {
             "result": [
                 {"label": "artificial", "score": final_ai_score},
@@ -513,6 +591,7 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
         }
     except Exception as e:
         return {"error": str(e)}
+
 
 # ---------- HEATMAP ----------
 @app.post("/predict-heatmap")
@@ -585,7 +664,7 @@ async def predict_heatmap(file: UploadFile = File(None), image_url: str = Form(N
         return {"error": str(e)}
 
 
-# ---------- STATIC FILES (index.html, privacy.html) ----------
+# ---------- STATIC FILES ----------
 @app.get("/")
 def serve_index():
     return FileResponse("index.html")
