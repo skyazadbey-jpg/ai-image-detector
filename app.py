@@ -159,24 +159,34 @@ def generate_otp() -> str:
 
 
 def send_email(to_email: str, subject: str, html: str):
+    print(f"[SEND_EMAIL] Başladı → to={to_email} from={FROM_EMAIL}")
+    print(f"[SEND_EMAIL] RESEND_API_KEY mevcut mu? {bool(RESEND_API_KEY)}")
     if not RESEND_API_KEY:
+        print("[SEND_EMAIL] HATA: RESEND_API_KEY yok!")
         raise RuntimeError("RESEND_API_KEY sunucuda tanımlı değil.")
-    resp = requests.post(
-        "https://api.resend.com/emails",
-        headers={
-            "Authorization": f"Bearer {RESEND_API_KEY}",
-            "Content-Type": "application/json",
-        },
-        json={
-            "from": f"AI Image Detector <{FROM_EMAIL}>",
-            "to": [to_email],
-            "subject": subject,
-            "html": html,
-        },
-        timeout=15,
-    )
-    if resp.status_code >= 300:
-        raise RuntimeError(f"Email gönderilemedi: {resp.text}")
+    try:
+        resp = requests.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {RESEND_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "from": f"AI Image Detector <{FROM_EMAIL}>",
+                "to": [to_email],
+                "subject": subject,
+                "html": html,
+            },
+            timeout=15,
+        )
+        print(f"[SEND_EMAIL] Resend yanıtı: status={resp.status_code}")
+        print(f"[SEND_EMAIL] Resend cevabı: {resp.text[:500]}")
+        if resp.status_code >= 300:
+            raise RuntimeError(f"Email gönderilemedi: {resp.text}")
+        print(f"[SEND_EMAIL] ✅ Başarılı!")
+    except Exception as e:
+        print(f"[SEND_EMAIL] ❌ Exception: {type(e).__name__} - {str(e)}")
+        raise
 
 
 def user_to_public(row) -> dict:
@@ -318,6 +328,9 @@ def forgot_password(data: ForgotPasswordRequest):
     if not row:
         conn.close()
         return {"message": generic_msg}
+    
+    print(f"[FORGOT] Kullanıcı bulundu: {row['email']} (id={row['id']})")
+    print(f"[FORGOT] password_hash var mı? {bool(row['password_hash'])}")
 
     if not row["password_hash"]:
         conn.close()
