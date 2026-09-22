@@ -172,7 +172,7 @@ def send_email(to_email: str, subject: str, html: str):
                 "Content-Type": "application/json",
             },
             json={
-                "from": f"AI Image Detector <{FROM_EMAIL}>",
+                "from": "Destek <destek@ai-image-detector.com>",
                 "to": [to_email],
                 "subject": subject,
                 "html": html,
@@ -319,7 +319,7 @@ def login(data: LoginRequest):
 
 
 @app.post("/auth/forgot-password")
-def forgot_password(data: ForgotPasswordRequest):
+def forgot_password(data: ForgotPasswordRequest, request: Request):
     conn = get_db()
     row = conn.execute("SELECT * FROM users WHERE LOWER(TRIM(email))=?", (data.email.strip().lower(),)).fetchone()
 
@@ -339,7 +339,8 @@ def forgot_password(data: ForgotPasswordRequest):
     reset_token = make_reset_token(row["id"], row["email"])
     conn.close()
 
-    reset_link = f"https://ai-image-detector.com/?reset_token={reset_token}"
+    base_url = str(request.base_url).rstrip("/")
+    reset_link = f"{base_url}/?reset_token={reset_token}"
 
     try:
         send_email(

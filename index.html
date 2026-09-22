@@ -2464,5 +2464,98 @@
             loadHistory();
         }
     </script>
+    <script>
+// 1. Sayfa açıldığında tarayıcı adres çubuğuna bakar
+window.addEventListener("DOMContentLoaded", () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const resetToken = urlParams.get("reset_token");
+
+    // 2. Eğer linkin içinde "reset_token" varsa demek ki kullanıcı mailden şifre sıfırlamak için gelmiş
+    if (resetToken) {
+        // Kullanıcıya yeni şifre gireceği kutuyu ekranda açıyoruz
+        const sifreKutusu = document.getElementById("sifreSifirlamaAlani");
+        if (sifreKutusu) {
+            sifreKutusu.style.display = "block"; // Kutuyu görünür yap
+        }
+        
+        // Token'ı arka planda saklıyoruz
+        window.gizliToken = resetToken;
+    }
+});
+
+// 3. Kullanıcı yeni şifresini yazıp butonuna bastığında bu çalışır
+async function yeniSifreyiKaydet() {
+    const yeniSifre = document.getElementById("yeniSifreInput").value;
+
+    if (!yeniSifre) {
+        alert("Lütfen yeni şifrenizi yazın!");
+        return;
+    }
+
+    // Python (Backend) tarafına yeni şifreyi ve token'ı gönderiyoruz
+    const cevap = await fetch("/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            token: window.gizliToken,
+            new_password: yeniSifre
+        })
+    });
+
+    if (cevap.ok) {
+        alert("Şifreniz başarıyla değiştirildi! Giriş yapabilirsiniz.");
+        window.location.href = "/"; // Ana sayfaya yönlendir
+    } else {
+        alert("Şifre değiştirilemedi, linkin süresi dolmuş olabilir.");
+    }
+}
+</script>
+<!-- Şifre Sıfırlama Alanı -->
+    <div id="sifreSifirlamaAlani" style="display: none; padding: 20px; background: #fff; border: 1px solid #ccc; margin-top: 20px;">
+        <h3>Yeni Şifre Belirleme</h3>
+        <p>Lütfen yeni şifrenizi aşağıya yazın:</p>
+        <input type="password" id="yeniSifreInput" placeholder="Yeni şifreniz" style="padding: 8px; margin-right: 10px;">
+        <button onclick="yeniSifreyiKaydet()" style="padding: 8px 15px; background: #4F46E5; color: #fff; border: none; cursor: pointer;">Şifremi Değiştir</button>
+    </div>
+
+    <script>
+    window.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const resetToken = urlParams.get("reset_token");
+
+        if (resetToken) {
+            const sifreKutusu = document.getElementById("sifreSifirlamaAlani");
+            if (sifreKutusu) {
+                sifreKutusu.style.display = "block";
+            }
+            window.gizliToken = resetToken;
+        }
+    });
+
+    async function yeniSifreyiKaydet() {
+        const yeniSifre = document.getElementById("yeniSifreInput").value;
+
+        if (!yeniSifre) {
+            alert("Lütfen yeni şifrenizi yazın!");
+            return;
+        }
+
+        const cevap = await fetch("/auth/reset-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                token: window.gizliToken,
+                new_password: yeniSifre
+            })
+        });
+
+        if (cevap.ok) {
+            alert("Şifreniz başarıyla değiştirildi! Giriş yapabilirsiniz.");
+            window.location.href = "/";
+        } else {
+            alert("Şifre değiştirilemedi, linkin süresi dolmuş olabilir.");
+        }
+    }
+    </script>
 </body>
 </html>
