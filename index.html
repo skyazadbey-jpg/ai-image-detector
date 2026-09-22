@@ -770,7 +770,7 @@
                     <ul class="space-y-2 text-xs text-slate-300 mb-4">
                         <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Genel planın tüm özellikleri</span></li>
                         <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Araba güvenlik rehberi</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Plaka ve şasi kontrol ipuçları</span></li>
+                        <li class="flex items-start gap-2 pro-locked-item"><i class="fas fa-lock text-yellow-400 mt-0.5"></i><span class="blur-xs select-none text-slate-500">Plaka ve şasi kontrol ipuçları (Pro)</span></li>
                         <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>PDF rapor indirme</span></li>
                     </ul>
                 </div>
@@ -793,7 +793,7 @@
                     <ul class="space-y-2 text-xs text-slate-300 mb-4">
                         <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Genel planın tüm özellikleri</span></li>
                         <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Emlak güvenlik rehberi</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Tapu ve imar kontrol ipuçları</span></li>
+                        <li class="flex items-start gap-2 pro-locked-item"><i class="fas fa-lock text-yellow-400 mt-0.5"></i><span class="blur-xs select-none text-slate-500">Tapu ve imar kontrol ipuçları (Pro)</span></li>
                         <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Toplu tarama (10 görsel)</span></li>
                         <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>PDF rapor + öncelikli destek</span></li>
                     </ul>
@@ -845,34 +845,58 @@
 
         const translations = {
             en: {
-                title: "AI Image Detector Pro", subtitle: "Analyze image patterns.",
-                tabFile: "Upload File", tabUrl: "Image URL",
-                dropText: "Drag & drop your image here, or", browseText: "browse",
-                changeText: "Click or drop to change", urlLabel: "Enter Image Direct URL",
-                loadBtn: "Load", batchTitle: "Batch Processing Mode",
-                batchDesc: "Scan multiple images (Pro)", batchBtn: "Enable",
+                title: "AI Image Detector Pro",
+                subtitle: "Analyze image patterns.",
+                tabFile: "Upload File",
+                tabUrl: "Image URL",
+                dropText: "Drag & drop your image here, or",
+                browseText: "browse",
+                changeText: "Click or drop to change",
+                urlLabel: "Enter Image Direct URL",
+                loadBtn: "Load",
+                batchTitle: "Batch Processing Mode",
+                batchDesc: "Scan multiple images (Pro)",
+                batchBtn: "Enable",
                 batchBtnSoon: "Coming Soon",
-                scanBtn: "Scan Image", resultTitle: "Analysis Result",
-                loadingText: "Analyzing...", aiProb: "AI Generated Probability",
-                humanProb: "Real Photo Probability", historyTitle: "Recent Scans",
+                scanBtn: "Scan Image",
+                resultTitle: "Analysis Result",
+                loadingText: "Analyzing...",
+                aiProb: "AI Generated Probability",
+                humanProb: "Real Photo Probability",
+                historyTitle: "Recent Scans",
                 clearHistory: "Clear History",
                 aiMsg: "🚨 High probability of being AI-GENERATED.",
                 suspiciousMsg: "⚠️ Mixed indicators.",
                 realMsg: "✅ High probability of being a REAL PHOTO.",
-                errorMsg: "Analysis error:", connError: "Could not connect.",
-                selectFirst: "Please select an image first!", noHistory: "No recent scans.",
-                realLabel: "Real", aiLabel: "AI", creditsText: "Free Scans",
-                loginBtn: "Sign In", logoutBtn: "Sign Out",
-                authTitle: "Secure Account Access", googleBtnText: "Continue with Google",
-                orDivider: "or email", loginTab: "Sign In", registerTab: "Create Account",
-                emailLabel: "Email Address", passLabel: "Password (Min. 6)",
-                authActionBtn: "Sign In to Account", authActionBtnRegister: "Send Verification Code",
-                verifyBtn: "Verify Code", emailVerifiedMsg: "Email verified!",
-                newPasswordLabel: "New Password", confirmPasswordLabel: "Confirm Password",
-                createPasswordBtn: "Create Password", modalTitle: "Unlock Pro Features",
+                errorMsg: "Analysis error:",
+                connError: "Could not connect.",
+                selectFirst: "Please select an image first!",
+                noHistory: "No recent scans.",
+                realLabel: "Real",
+                aiLabel: "AI",
+                creditsText: "Free Scans",
+                loginBtn: "Sign In",
+                logoutBtn: "Sign Out",
+                authTitle: "Secure Account Access",
+                googleBtnText: "Continue with Google",
+                orDivider: "or email",
+                loginTab: "Sign In",
+                registerTab: "Create Account",
+                emailLabel: "Email Address",
+                passLabel: "Password (Min. 6)",
+                authActionBtn: "Sign In to Account",
+                authActionBtnRegister: "Send Verification Code",
+                verifyBtn: "Verify Code",
+                emailVerifiedMsg: "Email verified!",
+                newPasswordLabel: "New Password",
+                confirmPasswordLabel: "Confirm Password",
+                createPasswordBtn: "Create Password",
+                modalTitle: "Unlock Pro Features",
                 modalDesc: "You have reached your daily free limit.",
-                modalPlan: "Pro Unlimited Plan", modalBtn: "Upgrade Now",
-                modalClose: "Maybe Later", withdrawalConsentText: "I confirm immediate performance.",
+                modalPlan: "Pro Unlimited Plan",
+                modalBtn: "Upgrade Now",
+                modalClose: "Maybe Later",
+                withdrawalConsentText: "I confirm immediate performance.",
                 fileTooLarge: "File size exceeds 10MB limit!",
                 howToUseTitle: "How to Interpret Results?",
                 resultGreenTitle: "0-40% AI",
@@ -887,19 +911,29 @@
                 disclaimerP3: "<strong>3. Additional Verification Required:</strong> For important decisions, always do <strong>additional verification</strong>.",
                 disclaimerP4: "<strong>4. Liability:</strong> This is a <strong>helper tool</strong>.",
                 disclaimerText: "ℹ️ <strong>Probabilistic Analysis:</strong> Scores are estimates.",
-                shareTwitter: "Share on X", shareWhatsapp: "WhatsApp",
-                inviteTitle: "Invite Friends", inviteDesc: "Share your referral link.",
-                copyBtn: "Copy", footerRights: "All rights reserved.",
+                shareTwitter: "Share on X",
+                shareWhatsapp: "WhatsApp",
+                inviteTitle: "Invite Friends",
+                inviteDesc: "Share your referral link.",
+                copyBtn: "Copy",
+                footerRights: "All rights reserved.",
                 footerCompanyLine: "Serving in Turkey · 18+",
                 footerDisclaimer: "This is a helper tool. Not a definitive verdict.",
-                privacyLink: "Privacy Policy", termsLink: "Terms of Service",
-                distanceLink: "Distance Sales Agreement", refundLink: "Refund Policy",
-                closeBtn: "Close", cookieText: "We use cookies.", cookieBtn: "Accept & Close",
+                privacyLink: "Privacy Policy",
+                termsLink: "Terms of Service",
+                distanceLink: "Distance Sales Agreement",
+                refundLink: "Refund Policy",
+                closeBtn: "Close",
+                cookieText: "We use cookies.",
+                cookieBtn: "Accept & Close",
                 privacyTitle: "Privacy Policy",
                 privacyBody: "<strong>Privacy:</strong> Images are never stored.",
-                termsTitle: "Terms of Service", termsBody: "<strong>Terms:</strong> 18+ only.",
-                distanceTitle: "Distance Sales Agreement", distanceBody: "<strong>Distance Contract</strong>",
-                refundTitle: "Refund Policy", refundBody: "<strong>Refund:</strong>",
+                termsTitle: "Terms of Service",
+                termsBody: "<strong>Terms:</strong> 18+ only.",
+                distanceTitle: "Distance Sales Agreement",
+                distanceBody: "<strong>Distance Contract</strong>",
+                refundTitle: "Refund Policy",
+                refundBody: "<strong>Refund:</strong>",
                 heroBadge: "Your images are never stored",
                 c2paFound: "🔐 C2PA Signature Found",
                 c2paSourceLabel: "Source: -",
@@ -918,7 +952,7 @@
                 faqQ1: "Is this tool 100% accurate?",
                 faqA1: "No. We achieve 100% accuracy for images with C2PA signatures.",
                 faqQ2: "What is C2PA?",
-                faqA2: "C2PA (Content Credentials) is like an ID card for an image.",
+                faqA2: "C2PA (Content Credentials) is like an id card for an image.",
                 faqQ3: "Are my images stored?",
                 faqA3: "No. Uploaded images are processed instantly and automatically deleted after analysis.",
                 faqQ4: "Why do results sometimes differ?",
@@ -936,21 +970,30 @@
                 heroBadge3: "Tested with 1000+ images",
                 heroTitle: "Is that image real, or AI-generated?",
                 heroSubtitle: "Find out in seconds.",
-                trustStorage: "Images stored", trustSpeed: "Average analysis time",
-                trustModelLabel: "Neural Net", trustModel: "Analysis engine",
-                howTitle: "How it works", howStep1Title: "Upload",
+                trustStorage: "Images stored",
+                trustSpeed: "Average analysis time",
+                trustModelLabel: "Neural Net",
+                trustModel: "Analysis engine",
+                howTitle: "How it works",
+                howStep1Title: "Upload",
                 howStep1Desc: "Drag an image or paste a link.",
-                howStep2Title: "It gets analyzed", howStep2Desc: "Scans for artificial traces.",
-                howStep3Title: "See the result", howStep3Desc: "Get the probability instantly.",
-                trustTitle: "Why you can trust this", trustCard1Title: "Privacy first",
+                howStep2Title: "It gets analyzed",
+                howStep2Desc: "Scans for artificial traces.",
+                howStep3Title: "See the result",
+                howStep3Desc: "Get the probability instantly.",
+                trustTitle: "Why you can trust this",
+                trustCard1Title: "Privacy first",
                 trustCard1Desc: "Images are never kept.",
                 trustCard2Title: "Transparent results",
                 trustCard2Desc: "Probability estimates, not verdicts.",
                 trustCard3Title: "Encrypted connection",
                 trustCard3Desc: "All data is encrypted.",
-                heatmapTitle: "AI Detection Heatmap", heatmapOriginal: "Original",
-                heatmapAnalyzed: "Analysis", heatmapRed: "Red areas:",
-                heatmapRedDesc: "Likely AI-generated", heatmapBlue: "Blue areas:",
+                heatmapTitle: "AI Detection Heatmap",
+                heatmapOriginal: "Original",
+                heatmapAnalyzed: "Analysis",
+                heatmapRed: "Red areas:",
+                heatmapRedDesc: "Likely AI-generated",
+                heatmapBlue: "Blue areas:",
                 heatmapBlueDesc: "Likely authentic",
                 heatmapDisclaimer: "Visual aid based on model confidence.",
                 tipsTitle: "General Safety Tips",
@@ -983,6 +1026,7 @@
                 inviteMenuBtn: "Invite Friends",
                 historyMenuBtn: "My Scan History",
                 logoutMenuBtn: "Sign Out"
+    
             },
             tr: {
                 title: "Yapay Zeka Görsel Dedektörü", subtitle: "Görsel desenlerini analiz edin.",
@@ -1360,6 +1404,7 @@
                 const isPro = data.is_pro === true || (data.user && data.user.is_pro === true);
                 if (isPro) {
                     setProUser(true);
+                    updateProLockUI();
                     currentUser = data.user;
                     updateAuthUI();
                     return;
@@ -2556,6 +2601,32 @@ async function yeniSifreyiKaydet() {
             alert("Şifre değiştirilemedi, linkin süresi dolmuş olabilir.");
         }
     }
+    // Pro kilitlerini kontrol eden fonksiyon
+function updateProLockUI() {
+    const isPro = isProUser();
+    document.querySelectorAll('.pro-locked-item').forEach(el => {
+        const span = el.querySelector('span');
+        const icon = el.querySelector('i');
+        if (isPro) {
+            if(icon) icon.className = "fas fa-check text-emerald-400 mt-0.5";
+            if(span) {
+                span.classList.remove('blur-xs', 'select-none', 'text-slate-500');
+                span.classList.add('text-slate-300');
+            }
+        } else {
+            if(icon) icon.className = "fas fa-lock text-yellow-400 mt-0.5";
+            if(span) {
+                span.classList.add('blur-xs', 'select-none', 'text-slate-500');
+                span.classList.remove('text-slate-300');
+            }
+        }
+    });
+}
+
+// Sayfa açıldığında kilitleri uygula
+window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(updateProLockUI, 200);
+});
     </script>
 </body>
 </html>
