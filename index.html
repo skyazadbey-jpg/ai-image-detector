@@ -769,8 +769,7 @@
                     </div>
                     <ul class="space-y-2 text-xs text-slate-300 mb-4">
                         <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Genel planın tüm özellikleri</span></li>
-                        <li class="flex items-start gap-2 pro-locked-item"><i class="fas fa-lock text-yellow-400 mt-0.5"></i><span data-i18n="planCarFeature3" class="blur-xs select-none text-slate-500">Plaka ve şasi kontrol ipuçları (Pro)</span></li>
-                        <li class="flex items-start gap-2 pro-locked-item"><i class="fas fa-lock text-yellow-400 mt-0.5"></i><span class="blur-xs select-none text-slate-500">Plaka ve şasi kontrol ipuçları (Pro)</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planCarFeature3">Plaka ve şasi kontrol ipuçları</span></li>
                         <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>PDF rapor indirme</span></li>
                     </ul>
                 </div>
@@ -792,8 +791,7 @@
                     </div>
                     <ul class="space-y-2 text-xs text-slate-300 mb-4">
                         <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Genel planın tüm özellikleri</span></li>
-                        <li class="flex items-start gap-2 pro-locked-item"><i class="fas fa-lock text-yellow-400 mt-0.5"></i><span data-i18n="planRealestateFeature3" class="blur-xs select-none text-slate-500">Tapu ve imar kontrol ipuçları (Pro)</span></li>
-                        <li class="flex items-start gap-2 pro-locked-item"><i class="fas fa-lock text-yellow-400 mt-0.5"></i><span class="blur-xs select-none text-slate-500">Tapu ve imar kontrol ipuçları (Pro)</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planRealestateFeature3">Tapu ve imar kontrol ipuçları</span></li>
                         <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Toplu tarama (10 görsel)</span></li>
                         <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>PDF rapor + öncelikli destek</span></li>
                     </ul>
@@ -845,6 +843,8 @@
 
         const translations = {
             en: {
+                planCarFeature3: "Plate & chassis check tips",
+                planRealestateFeature3: "Title & zoning check tips",
                 title: "AI Image Detector Pro",
                 subtitle: "Analyze image patterns.",
                 tabFile: "Upload File",
@@ -1031,6 +1031,8 @@
     
             },
             tr: {
+                planCarFeature3: "Plaka ve şasi kontrol ipuçları",
+                planRealestateFeature3: "Tapu ve imar kontrol ipuçları",
                 title: "Yapay Zeka Görsel Dedektörü", subtitle: "Görsel desenlerini analiz edin.",
                 tabFile: "Dosya Yükle", tabUrl: "Görsel URL'si",
                 dropText: "Görseli buraya sürükleyin ya da", browseText: "dosya seçin",
@@ -1865,6 +1867,8 @@
         }
 
         function applyLanguage() {
+            document.querySelectorAll('[data-i18n="planCarFeature3"]').forEach(el => { el.innerText = translations[currentLang].planCarFeature3; });
+            document.querySelectorAll('[data-i18n="planRealestateFeature3"]').forEach(el => { el.innerText = translations[currentLang].planRealestateFeature3; });
             document.getElementById('langText').innerText = currentLang.toUpperCase();
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
