@@ -720,7 +720,7 @@
         </div>
     </div>
 
-    <!-- UPGRADE MODAL -->
+    <!<!-- UPGRADE MODAL -->
     <div id="upgradeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-slate-800 border border-indigo-500/50 rounded-2xl max-w-5xl w-full p-6 shadow-2xl relative my-8">
             <div class="flex justify-between items-center border-b border-slate-700 pb-4 mb-6">
@@ -741,17 +741,17 @@
                         </div>
                         <input type="radio" name="plan" value="general" class="w-5 h-5 accent-indigo-600">
                     </div>
-                    <h4 class="text-lg font-bold text-white mb-1">Genel Tarama</h4>
-                    <p class="text-xs text-slate-400 mb-3">Tüm görseller için genel yapay zeka tespiti</p>
+                    <h4 class="text-lg font-bold text-white mb-1" data-i18n="planGeneralTitle">Genel Tarama</h4>
+                    <p class="text-xs text-slate-400 mb-3" data-i18n="planGeneralDesc">Tüm görseller için genel yapay zeka tespiti</p>
                     <div class="mb-4">
                         <span class="text-3xl font-extrabold text-white">$14.99</span>
                         <span class="text-sm text-slate-400">/mo</span>
                     </div>
                     <ul class="space-y-2 text-xs text-slate-300 mb-4">
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Sınırsız tarama</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Isı haritası analizi</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Tarama geçmişi</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>3 cihaz desteği</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planFeature1">Sınırsız tarama</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planFeature2">Isı haritası analizi</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planFeature3">Tarama geçmişi</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planFeature4">3 cihaz desteği</span></li>
                     </ul>
                 </div>
                 <div class="plan-card bg-slate-900/60 border-2 border-slate-700 hover:border-red-500 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:-translate-y-1" onclick="selectPlan('car')" id="planCar">
@@ -761,21 +761,22 @@
                         </div>
                         <input type="radio" name="plan" value="car" class="w-5 h-5 accent-red-600">
                     </div>
-                    <h4 class="text-lg font-bold text-white mb-1">Araba Detector</h4>
-                    <p class="text-xs text-slate-400 mb-3">İkinci el araç alım-satımı için özel koruma</p>
+                    <h4 class="text-lg font-bold text-white mb-1" data-i18n="planCarTitle">Araba Detector</h4>
+                    <p class="text-xs text-slate-400 mb-3" data-i18n="planCarDesc">İkinci el araç alım-satımı için özel koruma</p>
                     <div class="mb-4">
                         <span class="text-3xl font-extrabold text-white">$19.99</span>
                         <span class="text-sm text-slate-400">/mo</span>
                     </div>
                     <ul class="space-y-2 text-xs text-slate-300 mb-4">
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Genel planın tüm özellikleri</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planCarFeature1">Genel planın tüm özellikleri</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planCarFeature2">Araba güvenlik rehberi</span></li>
                         <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planCarFeature3">Plaka ve şasi kontrol ipuçları</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>PDF rapor indirme</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planCarFeature4">PDF rapor indirme</span></li>
                     </ul>
                 </div>
                 <div class="plan-card bg-gradient-to-br from-slate-900/80 to-cyan-950/30 border-2 border-cyan-500 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:-translate-y-1 relative" onclick="selectPlan('realestate')" id="planRealestate">
                     <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">
-                        ⭐ EN POPÜLER
+                        ⭐ <span data-i18n="mostPopular">EN POPÜLER</span>
                     </div>
                     <div class="flex items-center justify-between mb-3 mt-2">
                         <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center">
@@ -783,31 +784,32 @@
                         </div>
                         <input type="radio" name="plan" value="realestate" class="w-5 h-5 accent-cyan-600">
                     </div>
-                    <h4 class="text-lg font-bold text-white mb-1">Emlak Detector</h4>
-                    <p class="text-xs text-slate-400 mb-3">Emlak alım-satımı için tam koruma paketi</p>
+                    <h4 class="text-lg font-bold text-white mb-1" data-i18n="planRealestateTitle">Emlak Detector</h4>
+                    <p class="text-xs text-slate-400 mb-3" data-i18n="planRealestateDesc">Emlak alım-satımı için tam koruma paketi</p>
                     <div class="mb-4">
                         <span class="text-3xl font-extrabold text-white">$24.99</span>
                         <span class="text-sm text-slate-400">/mo</span>
                     </div>
                     <ul class="space-y-2 text-xs text-slate-300 mb-4">
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Genel planın tüm özellikleri</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planRealestateFeature1">Genel planın tüm özellikleri</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planRealestateFeature2">Emlak güvenlik rehberi</span></li>
                         <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planRealestateFeature3">Tapu ve imar kontrol ipuçları</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>Toplu tarama (10 görsel)</span></li>
-                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span>PDF rapor + öncelikli destek</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planRealestateFeature4">Toplu tarama (10 görsel)</span></li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5"></i><span data-i18n="planRealestateFeature5">PDF rapor + öncelikli destek</span></li>
                     </ul>
                 </div>
             </div>
             <div class="bg-slate-900/60 border border-slate-700 rounded-xl p-4 mb-4">
                 <label class="flex items-start gap-3 cursor-pointer">
                     <input type="checkbox" id="withdrawalConsentCheckbox" onchange="toggleCheckoutButton()" class="mt-0.5 w-4 h-4 accent-indigo-600 flex-shrink-0">
-                    <span class="text-xs text-slate-400 leading-relaxed">Hizmetin hemen başlatılmasını onaylıyorum, bu nedenle 14 günlük cayma hakkımdan feragat ediyorum.</span>
+                    <span class="text-xs text-slate-400 leading-relaxed" data-i18n="withdrawalConsentText">Hizmetin hemen başlatılmasını onaylıyorum, bu nedenle 14 günlük cayma hakkımdan feragat ediyorum.</span>
                 </label>
             </div>
             <button onclick="proceedToCheckout()" id="checkoutBtn" disabled class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold py-4 rounded-xl shadow-lg transition opacity-40 cursor-not-allowed text-lg">
                 <i class="fas fa-lock mr-2"></i>
                 <span id="checkoutBtnText" data-i18n="modalBtn">Plan Seçin ve Ödeyin</span>
             </button>
-            <button onclick="closeModal()" class="w-full text-xs text-slate-400 hover:text-white transition mt-3">Belki Sonra</button>
+            <button onclick="closeModal()" class="w-full text-xs text-slate-400 hover:text-white transition mt-3" data-i18n="modalClose">Belki Sonra</button>
         </div>
     </div>
 
@@ -816,13 +818,13 @@
             <div class="w-16 h-16 bg-indigo-600/20 text-indigo-400 rounded-2xl mx-auto flex items-center justify-center text-3xl border border-indigo-500/30">
                 <i class="fas fa-user-plus"></i>
             </div>
-            <h3 class="text-2xl font-bold text-white">Arkadaşını Davet Et</h3>
-            <p class="text-slate-300 text-sm">Davet bağlantını paylaş.</p>
+            <h3 class="text-2xl font-bold text-white" data-i18n="inviteTitle">Arkadaşını Davet Et</h3>
+            <p class="text-slate-300 text-sm" data-i18n="inviteDesc">Davet bağlantını paylaş.</p>
             <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex items-center justify-between gap-2">
                 <input type="text" id="referralLink" readonly value="https://ai-image-detector-9lg1.onrender.com/?ref=pro2026" class="bg-transparent text-xs text-indigo-300 flex-1 px-2 focus:outline-none truncate">
-                <button onclick="copyReferralLink()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition">Copy</button>
+                <button onclick="copyReferralLink()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition" data-i18n="copyBtn">Copy</button>
             </div>
-            <button onclick="closeInviteModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl transition text-sm">Close</button>
+            <button onclick="closeInviteModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl transition text-sm" data-i18n="closeBtn">Close</button>
         </div>
     </div>
 
@@ -833,14 +835,13 @@
                 <button onclick="closeLegalModal()" class="text-slate-400 hover:text-white text-lg"><i class="fas fa-xmark"></i></button>
             </div>
             <div id="legalContent" class="text-sm text-slate-300 overflow-y-auto space-y-3 pr-2 flex-grow"></div>
-            <button onclick="closeLegalModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl transition text-sm">Close</button>
+            <button onclick="closeLegalModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl transition text-sm" data-i18n="closeBtn">Close</button>
         </div>
     </div>
 
     <script>
         const BACKEND_URL = window.location.origin;
         const GOOGLE_CLIENT_ID = "231913863443-oos54itr9jsirb8sv6705hqr00kchvr4.apps.googleusercontent.com";
-
         const translations = {
             en: {
                 planCarFeature3: "Plate & chassis check tips",
