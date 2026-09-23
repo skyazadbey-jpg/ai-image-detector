@@ -1367,14 +1367,10 @@
             if (creditBadge) {
                 creditBadge.innerHTML = '<i class="fas fa-infinity"></i> <span>' + (currentLang === 'tr' ? 'Sınırsız' : 'Unlimited') + '</span>';
             }
-            const btnText = document.getElementById('buttonText');
-            if (btnText) btnText.innerText = currentLang === 'tr' ? 'Pro Tara' : 'Pro Scan';
-            const authNavText = document.getElementById('authNavText');
-            if (authNavText && !authNavText.querySelector('.pro-crown')) {
-                authNavText.innerHTML += ' <i class="fas fa-crown pro-crown"></i>';
-            }
+            const btn = document.getElementById('buttonText');
+            if (btn) btn.innerText = currentLang === 'tr' ? 'Pro Tara' : 'Pro Scan';
             if (showToastMsg) {
-                showToast(currentLang === 'tr' ? '👑 Pro üyeliğiniz aktif!' : '👑 Pro membership activated!', 'success');
+                showToast(currentLang === 'tr' ? 'Pro plana geçildi!' : 'Upgraded to Pro!', 'success');
             }
         }
 
