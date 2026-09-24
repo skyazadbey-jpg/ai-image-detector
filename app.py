@@ -39,7 +39,7 @@ RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 FROM_EMAIL = os.getenv("FROM_EMAIL", "onboarding@resend.dev")
-LEMONSQUEEZY_WEBHOOK_SECRET = os.getenv("LEMONSQUEEZY_WEBHOOK_SECRET", "")
+
 
 DB_PATH = "users.db"
 
