@@ -475,6 +475,49 @@ def me(current=Depends(get_current_user)):
 def api_home():
     return {"status": "AI Image Detector API is running"}
 
+
+# ---------- GUMROAD WEBHOOK ----------
+@app.post("/webhooks/gumroad")
+async def gumroad_webhook(request: Request):
+    try:
+        # Gumroad form verilerini veya JSON verisini alır
+        form_data = await request.form()
+        data = dict(form_data)
+        
+        # Gumroad'dan gelen temel alanlar
+        event_name = data.get("event_name", "sale") # satılık / abonelik durumu
+        user_email = data.get("email")
+        
+        print(f"GUMROAD WEBHOOK: event={event_name} email={user_email} data={data}")
+
+        # Pro durumunu güncelleyecek veritabanı bağlantısı
+        conn = get_db()
+        matched = False
+
+        if user_email:
+            normalized_email = user_email.strip().lower()
+            row = conn.execute(
+                "SELECT id FROM users WHERE LOWER(TRIM(email))=?", (normalized_email,)
+            ).fetchone()
+            
+            if row:
+                matched = True
+                # Satış gerçekleştiğinde veya abonelik başladığında is_pro = 1 yapılır
+                conn.execute("UPDATE users SET is_pro=1 WHERE id=?", (row["id"],))
+                conn.commit()
+                print(f"GUMROAD: email={normalized_email} eslesti, Pro yapildi.")
+
+        conn.close()
+
+        if not matched:
+            print(f"GUMROAD UYARI: Hicbir kullanici eslesmedi. email={user_email}")
+
+        return {"status": "ok", "matched": matched}
+    except Exception as e:
+        print(f"Gumroad Webhook Hatasi: {e}")
+        return {"status": "error", "message": str(e)}
+
+
 # ---------- PREDICT ----------
 @app.post("/predict")
 async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
