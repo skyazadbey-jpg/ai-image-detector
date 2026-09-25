@@ -668,6 +668,34 @@
                     <button onclick="resetAuthForm()" class="text-indigo-400 hover:underline">E-postayı değiştir</button>
                 </div>
             </div>
+            <!-- Destek Kumbarası Alanı -->
+<div class="max-w-md mx-auto my-8 p-6 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl text-white">
+    <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-3">
+            <span class="text-3xl">🏺</span>
+            <div>
+                <h3 class="font-bold text-lg">Topluluk Kumbarası</h3>
+                <p class="text-xs text-slate-400">Sunucu ve geliştirme masrafları için</p>
+            </div>
+        </div>
+        <span id="donated-amount" class="text-emerald-400 font-mono font-bold text-lg">₺1,450 / ₺2,000</span>
+    </div>
+
+    <!-- İlerleme Çubuğu (Progress Bar) -->
+    <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden mb-4">
+        <div id="progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-1000" style="width: 72.5%;"></div>
+    </div>
+
+    <p class="text-xs text-slate-300 mb-5 leading-relaxed">
+        Bu araç tamamen ücretsizdir ve asla paralı olmayacak. Sistemi ayakta tutmak ve bağımsız kalmasını sağlamak tamamen sizin desteğinizle dönüyor.
+    </p>
+
+    <!-- Destek Ol Butonu -->
+    <a href="https://buymeacoffee.com/skyazad" target="_blank"
+       class="block w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-center font-semibold rounded-xl transition-colors shadow-lg shadow-emerald-900/30">
+        ☕ Bir Kahve Ismarla / Destek Ol
+    </a>
+</div>
 
             <!-- PASSWORD SETUP SECTION -->
             <div id="passwordSetupSection" class="hidden space-y-4 pt-2 border-t border-slate-700">
@@ -2646,5 +2674,16 @@ window.addEventListener('DOMContentLoaded', () => {
     setTimeout(updateProLockUI, 200);
 });
     </script>
+    </script>
+    document.addEventListener("DOMContentLoaded", () => {
+    const progressBar = document.getElementById("progress-bar");
+    
+    // Sayfa açıldıktan yarım saniye sonra çubuğun dolma efektini tetikler
+    setTimeout(() => {
+        if (progressBar) {
+            progressBar.style.width = "72.5%";
+        }
+    }, 300);
+});
 </body>
 </html>
