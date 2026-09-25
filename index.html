@@ -765,10 +765,16 @@
             <i class="fas fa-times text-lg"></i>
         </button>
         
-        <!-- Kumbara İkonu -->
-        <div class="w-14 h-14 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-            <i class="fas fa-piggy-bank"></i>
-        </div>
+        <!-- Üst Menü Kumbarası -->
+<a href="#" onclick="openModal(); return false;" class="hidden sm:flex items-center gap-2.5 bg-slate-800/90 hover:bg-slate-800 border border-emerald-500/40 px-3.5 py-1.5 rounded-full transition-all group shadow-md">
+    <div class="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs group-hover:scale-110 transition-transform">
+        <i class="fas fa-piggy-bank"></i>
+    </div>
+    <div class="flex flex-col text-left">
+        <span class="text-[11px] font-medium text-slate-200 leading-tight" data-i18n="navPiggyTitle">Topluluk Kumbarası</span>
+        <span class="text-[9px] text-emerald-400 font-semibold leading-tight" data-i18n="navPiggySub">%75 Desteklendi</span>
+    </div>
+</a>
         
         <!-- Başlık ve Açıklama -->
         <h3 class="text-xl font-bold text-slate-100 mb-2" data-i18n="piggyBankTitle">Topluluk Kumbarası</h3>
@@ -783,13 +789,17 @@
             <span id="piggyStats" class="text-emerald-400 font-semibold">%75 Tamamlandı</span>
         </div>
         
-        <!-- Kapat Butonu -->
-        <button onclick="closeModal()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-xl transition-colors text-sm" data-i18n="thanksBtn">
-            Harika, Teşekkürler!
-        </button>
+        <!-- Bağış Yap / Destek Ol Butonu -->
+        <div class="flex gap-3">
+            <a href="https://buymeacoffee.com/skyazad" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-xl transition-colors text-sm flex items-center justify-center gap-2" data-i18n="donateBtn">
+                <i class="fas fa-heart text-xs"></i> Destek Ol
+            </a>
+            <button onclick="closeModal()" class="px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium py-2.5 rounded-xl transition-colors text-sm" data-i18n="closeBtn">
+                Kapat
+            </button>
+        </div>
     </div>
-</div> 
-    </div>
+</div>
 
     <div id="inviteModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-800 border border-indigo-500/50 rounded-2xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
@@ -822,6 +832,10 @@
         const GOOGLE_CLIENT_ID = "231913863443-oos54itr9jsirb8sv6705hqr00kchvr4.apps.googleusercontent.com";
         const translations = {
             en: {
+                navPiggyTitle: "Community Piggy Bank",
+                navPiggySub: "75% Supported",
+                donateBtn: "Support",
+                closeBtn: "Close",
                 piggyBankTitle: "Community Piggy Bank",
                 piggyDesc: "This project is 100% free and sustained entirely by voluntary community support.",
                 targetSupport: "Target Support",
@@ -1014,6 +1028,10 @@
     
             },
             tr: {
+                navPiggyTitle: "Topluluk Kumbarası",
+                navPiggySub: "%75 Desteklendi",
+                donateBtn: "Destek Ol",
+                closeBtn: "Kapat",
                 piggyBankTitle: "Topluluk Kumbarası",
                 piggyDesc: "Bu proje tamamen gönüllü topluluk desteğiyle ve %100 ücretsiz olarak yaşatılmaktadır.",
                 targetSupport: "Hedef Destek",
