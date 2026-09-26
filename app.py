@@ -547,25 +547,22 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
             
             if obj_response.status_code == 200:
                 predictions = obj_response.json()
-                # predictions genellikle [{"label": "sports car, sport car", "score": 0.85}, ...] şeklinde döner
                 detected_labels = [str(item.get("label", "")).lower() for item in predictions] if isinstance(predictions, list) else []
                 
-                print(f"Tespit edilen nesneler: {detected_labels[:3]}")
+                print(f"Tespit edilen nesneler: {detected_labels}")
 
                 if mode == "car":
-                    # Araba ile ilgili anahtar kelimeler
-                    car_keywords = ["car", "sport car", "minivan", "convertible", "jeep", "suv", "taxi", "cab", "limousine", "vehicle"]
+                    car_keywords = ["car", "sport car", "minivan", "convertible", "jeep", "suv", "taxi", "cab", "limousine", "vehicle", "coupe", "hatchback", "sedan", "wheel"]
                     is_match = any(any(kw in label for kw in car_keywords) for label in detected_labels)
                     
-                    if not is_match and detected_labels:
+                    if not is_match:
                         return {"error": "Seçilen mod 'Araba' ancak yüklenen görsel bir araca ait görünmüyor. Lütfen uygun bir araba görseli yükleyin."}
 
                 elif mode == "realestate":
-                    # Emlak / Bina / Ev ile ilgili anahtar kelimeler
-                    estate_keywords = ["house", "building", "apartment", "home", "villa", "skyscraper", "palace", "room", "hall"]
+                    estate_keywords = ["house", "building", "apartment", "home", "villa", "skyscraper", "palace", "room", "hall", "architecture", "window", "door", "roof"]
                     is_match = any(any(kw in label for kw in estate_keywords) for label in detected_labels)
                     
-                    if not is_match and detected_labels:
+                    if not is_match:
                         return {"error": "Seçilen mod 'Emlak' ancak yüklenen görsel bir bina veya konuta ait görünmüyor. Lütfen uygun bir emlak görseli yükleyin."}
         headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": content_type}
 
