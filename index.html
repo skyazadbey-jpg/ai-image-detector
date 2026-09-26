@@ -764,13 +764,14 @@
                 neonBadgeText: "⚡ KEEP IT ALIVE",
                 sidePiggyTitle: "Community Piggy Bank",
                 sidePiggyDesc: "Support us to keep this project 100% free and ad-free!",
-                sidePiggyStats: "75% Supported",
+                sidePiggyStats: "45% Supported",
                 donateBadgeBtn: "Support Us",
                 sidePiggyTitle: "Community Piggy Bank",
                 sidePiggyDesc: "This project is 100% free and sustained by your support.",
-                sidePiggyStats: "75% Supported",
+                piggyDescHtml: "I am developing this project from scratch, using my own resources.<br><br>I am not a big company yet—just a 19-year-old Turkish entrepreneur who believes an idea can truly turn into a product.<br><br>Any small support you provide will help this project take another step forward. ❤️",
                 navPiggyTitle: "Community Piggy Bank",
-                navPiggySub: "75% Supported",
+                piggyStatsComplete: "45% Completed",
+                navPiggySub: "45% Supported",
                 donateBtn: "Support",
                 closeBtn: "Close",
                 piggyBankTitle: "Community Piggy Bank",
@@ -968,13 +969,12 @@
                 neonBadgeText: "⚡ PROJEYİ YAŞAT",
                 sidePiggyTitle: "Topluluk Kumbarası",
                 sidePiggyDesc: "Reklamsız ve %100 ücretsiz kalması için bize destek ol!",
-                sidePiggyStats: "%75 Desteklendi",
+                sidePiggyStats: "%45 Desteklendi",
                 donateBadgeBtn: "Destek Ol",
-                sidePiggyTitle: "Topluluk Kumbarası",
-                sidePiggyDesc: "Bu proje %100 ücretsizdir ve desteğinizle yaşar.",
-                sidePiggyStats: "%75 Desteklendi",
-                navPiggyTitle: "Topluluk Kumbarası",
-                navPiggySub: "%75 Desteklendi",
+                piggyBankTitle: "Topluluk Kumbarası",
+                piggyDescHtml: "Bu projeyi sıfırdan, kendi imkânlarımla geliştiriyorum.<br><br>Henüz büyük bir şirket değilim. Sadece bir fikrin gerçekten ürüne dönüşebileceğine inanan 19 yaşında bir Türk girişimciyim.<br><br>Bana yapacağınız küçük bir destek, bu projenin bir adım daha ileri gitmesini sağlayacak. ❤️",
+                targetSupport: "Hedef Destek",
+                piggyStatsComplete: "%45 Tamamlandı",
                 donateBtn: "Destek Ol",
                 closeBtn: "Kapat",
                 piggyBankTitle: "Topluluk Kumbarası",
@@ -2429,7 +2429,7 @@ async function yeniSifreyiKaydet() {
   
 
 </script>
-<!-- ================= 1. SAĞ TARAFTAKİ NEON KUMBARA KARTI (%45) ================= -->
+<!-- ================= 1. SAĞ TARAFTAKİ NEON KUMBARA KARTI ================= -->
 <div class="fixed right-6 top-1/2 -translate-y-1/2 z-45 hidden 2xl:block">
     <div class="flex flex-col items-center">
         <!-- Üstteki Neon Işıklı Yazı -->
@@ -2450,8 +2450,8 @@ async function yeniSifreyiKaydet() {
                     <i class="fas fa-piggy-bank"></i>
                 </div>
                 
-                <h4 class="text-sm font-extrabold text-slate-100 mb-1">Topluluk Kumbarası</h4>
-                <p class="text-[11px] text-slate-300 mb-4 leading-relaxed font-medium">Reklamsız ve %100 ücretsiz kalması için bize destek ol!</p>
+                <h4 class="text-sm font-extrabold text-slate-100 mb-1" data-i18n="sidePiggyTitle">Topluluk Kumbarası</h4>
+                <p class="text-[11px] text-slate-300 mb-4 leading-relaxed font-medium" data-i18n="sidePiggyDesc">Reklamsız ve %100 ücretsiz kalması için bize destek ol!</p>
 
                 <!-- İlerleme Çubuğu (%45) -->
                 <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden mb-2 border border-slate-700/60 p-0.5 shadow-inner">
@@ -2459,20 +2459,20 @@ async function yeniSifreyiKaydet() {
                 </div>
                 
                 <div class="flex justify-between items-center text-[11px] w-full px-1 mb-3">
-                    <span class="text-slate-400 font-medium">Hedef</span>
-                    <span class="text-emerald-400 font-bold drop-shadow-[0_0_6px_rgba(52,211,153,0.6)]">%45 Desteklendi</span>
+                    <span class="text-slate-400 font-medium" data-i18n="targetSupport">Hedef</span>
+                    <span class="text-emerald-400 font-bold drop-shadow-[0_0_6px_rgba(52,211,153,0.6)]" data-i18n="sidePiggyStats">%45 Desteklendi</span>
                 </div>
 
                 <!-- Destek Ol Buton Hissi -->
                 <div class="w-full bg-emerald-600/20 hover:bg-emerald-600/40 border border-emerald-500/40 text-emerald-300 text-xs font-semibold py-2 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm">
-                    <i class="fas fa-heart text-[10px] text-emerald-400"></i> <span>Destek Ol</span>
+                    <i class="fas fa-heart text-[10px] text-emerald-400"></i> <span data-i18n="donateBadgeBtn">Destek Ol</span>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ================= 2. TIKLANINCA AÇILACAK SAMİMİ MODAL ================= -->
+<!-- ================= 2. TIKLANINCA AÇILACAK ÇEVİRİLEBİLİR MODAL ================= -->
 <div id="upgradeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
     <div class="bg-slate-900 border border-emerald-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl relative text-center">
         <!-- Kapatma Butonu -->
@@ -2485,9 +2485,9 @@ async function yeniSifreyiKaydet() {
             <i class="fas fa-piggy-bank"></i>
         </div>
         
-        <!-- Başlık ve Samimi Açıklama Metni -->
-        <h3 class="text-xl font-bold text-slate-100 mb-3">Topluluk Kumbarası</h3>
-        <p class="text-xs text-slate-300 mb-4 leading-relaxed text-left bg-slate-800/50 p-3.5 rounded-xl border border-slate-700/50">
+        <!-- Başlık ve Metin -->
+        <h3 class="text-xl font-bold text-slate-100 mb-3" data-i18n="piggyBankTitle">Topluluk Kumbarası</h3>
+        <p class="text-xs text-slate-300 mb-4 leading-relaxed text-left bg-slate-800/50 p-3.5 rounded-xl border border-slate-700/50" data-i18n="piggyDescHtml">
             Bu projeyi sıfırdan, kendi imkânlarımla geliştiriyorum.<br><br>
             Henüz büyük bir şirket değilim. Sadece bir fikrin gerçekten ürüne dönüşebileceğine inanan 19 yaşında bir Türk girişimciyim.<br><br>
             Bana yapacağınız küçük bir destek, bu projenin bir adım daha ileri gitmesini sağlayacak. ❤️
@@ -2498,23 +2498,23 @@ async function yeniSifreyiKaydet() {
             <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full shadow-[0_0_8px_rgba(52,211,153,0.8)]" style="width: 45%"></div>
         </div>
         <div class="flex justify-between items-center text-xs text-slate-400 mb-6 px-1">
-            <span>Hedef Destek</span>
-            <span class="text-emerald-400 font-semibold">%45 Tamamlandı</span>
+            <span data-i18n="targetSupport">Hedef Destek</span>
+            <span class="text-emerald-400 font-semibold" data-i18n="piggyStatsComplete">%45 Tamamlandı</span>
         </div>
         
         <!-- Bağış Yap / Destek Ol Butonu -->
         <div class="flex gap-3">
-            <a href="https://buymeacoffee.com/skyazad" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-xl transition-colors text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/40">
+            <a href="https://buymeacoffee.com/skyazad" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-xl transition-colors text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/40" data-i18n="donateBtn">
                 <i class="fas fa-heart text-xs"></i> Destek Ol
             </a>
-            <button onclick="closeModal()" class="px-5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium py-2.5 rounded-xl transition-colors text-sm">
+            <button onclick="closeModal()" class="px-5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium py-2.5 rounded-xl transition-colors text-sm" data-i18n="closeBtn">
                 Kapat
             </button>
         </div>
     </div>
 </div>
 
-<!-- ================= 3. TEMİZ JAVASCRIPT ================= -->
+<!-- ================= 3. JAVASCRIPT ================= -->
 <script>
     function openModal() {
         const modal = document.getElementById('upgradeModal');
