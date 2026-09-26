@@ -282,7 +282,7 @@
 
         <div id="fileSection" class="mb-6">
             <div id="dropZone" class="border-2 border-dashed border-slate-600 hover:border-indigo-500 rounded-2xl p-6 text-center cursor-pointer bg-slate-900/40 transition flex flex-col items-center justify-center gap-3 relative overflow-hidden">
-                <input type="file" id="imageInput" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10">
+                <input type="file" id="imageInput" accept="image/*" onchange="handleImageValidation(event)" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10">
                 <div id="uploadPrompt" class="flex flex-col items-center space-y-2">
                     <i class="fas fa-cloud-arrow-up text-4xl text-indigo-400"></i>
                     <p class="text-sm text-slate-300 font-medium"><span data-i18n="dropText">Drag & drop your image here, or</span> <span class="text-indigo-400 underline" data-i18n="browseText">browse</span></p>
@@ -2234,6 +2234,24 @@ if (piggyProgressBar) setTimeout(() => piggyProgressBar.style.width = '75%', 300
             renderModeTips(mode);
         }
 
+            // Aktif modu saklayan global değişken
+currentMode = 'general';
+
+// Görselin doğru modda olup olmadığını denetleyen fonksiyon
+function handleImageValidation(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Dosya adını küçük harfe çevirip içinde araba veya bina/ev ile ilgili ipuçları arayabiliriz
+    const fileName = file.name.toLowerCase();
+
+    if (currentMode === 'car') {
+        console.log("Araba modu aktif. Seçilen dosya:", fileName);
+        // İsteğe bağlı: Eğer dosya adında araba ile ilgili terimler yoksa uyarı verebilirsin
+    } else if (currentMode === 'realestate') {
+        console.log("Emlak modu aktif. Seçilen dosya:", fileName);
+    }
+}
         function closeAuthModal() {
             document.getElementById('authModal').classList.add('hidden');
         }
