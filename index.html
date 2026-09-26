@@ -668,34 +668,7 @@
                     <button onclick="resetAuthForm()" class="text-indigo-400 hover:underline">E-postayı değiştir</button>
                 </div>
             </div>
-            <!-- Destek Kumbarası Alanı -->
-<div class="max-w-md mx-auto my-8 p-6 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl text-white">
-    <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center space-x-3">
-            <span class="text-3xl">🏺</span>
-            <div>
-                <h3 class="font-bold text-lg">Topluluk Kumbarası</h3>
-                <p class="text-xs text-slate-400">Sunucu ve geliştirme masrafları için</p>
-            </div>
-        </div>
-        <span id="donated-amount" class="text-emerald-400 font-mono font-bold text-lg">₺1,450 / ₺2,000</span>
-    </div>
-
-    <!-- İlerleme Çubuğu (Progress Bar) -->
-    <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden mb-4">
-        <div id="progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-1000" style="width: 72.5%;"></div>
-    </div>
-
-    <p class="text-xs text-slate-300 mb-5 leading-relaxed">
-        Bu araç tamamen ücretsizdir ve asla paralı olmayacak. Sistemi ayakta tutmak ve bağımsız kalmasını sağlamak tamamen sizin desteğinizle dönüyor.
-    </p>
-
-    <!-- Destek Ol Butonu -->
-    <a href="https://buymeacoffee.com/skyazad" target="_blank"
-       class="block w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-center font-semibold rounded-xl transition-colors shadow-lg shadow-emerald-900/30">
-        ☕ Bir Kahve Ismarla / Destek Ol
-    </a>
-</div>
+        
 
             <!-- PASSWORD SETUP SECTION -->
             <div id="passwordSetupSection" class="hidden space-y-4 pt-2 border-t border-slate-700">
@@ -2516,11 +2489,11 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <!-- Büyük ve İddialı Kumbara Kartı -->
-        <div class="relative group">
+        <div class="relative group cursor-pointer" onclick="openModal();">
             <!-- Arka Plan Neon Parlama Efekti -->
             <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 rounded-3xl blur-md opacity-40 group-hover:opacity-80 transition duration-500 animate-pulse"></div>
 
-            <a href="#" onclick="openModal(); return false;" class="relative bg-slate-900/95 backdrop-blur-xl border border-emerald-500/50 p-5 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.2)] flex flex-col items-center text-center w-56 block hover:border-emerald-400 transition-all duration-300">
+            <div class="relative bg-slate-900/95 backdrop-blur-xl border border-emerald-500/50 p-5 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.2)] flex flex-col items-center text-center w-56 hover:border-emerald-400 transition-all duration-300">
                 
                 <!-- Büyük Canlı İkon -->
                 <div class="w-14 h-14 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform text-2xl border border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.4)]">
@@ -2541,10 +2514,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
 
                 <!-- Hızlı Destek Ol Buton Hissi -->
-                <span class="w-full bg-emerald-600/20 hover:bg-emerald-600/40 border border-emerald-500/40 text-emerald-300 text-xs font-semibold py-2 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm">
+                <div class="w-full bg-emerald-600/20 hover:bg-emerald-600/40 border border-emerald-500/40 text-emerald-300 text-xs font-semibold py-2 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm">
                     <i class="fas fa-heart text-[10px] text-emerald-400"></i> <span data-i18n="donateBadgeBtn">Destek Ol</span>
-                </span>
-            </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
