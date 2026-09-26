@@ -759,32 +759,36 @@
 
   <!-- Topluluk Kumbarası Modalı -->
 <div id="upgradeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-700/50 rounded-2xl max-w-md w-full p-6 shadow-2xl relative text-center">
+    <div class="bg-slate-900 border border-emerald-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl relative text-center">
         <!-- Kapatma Butonu -->
-        <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-100">
+        <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-100 transition-colors">
             <i class="fas fa-times text-lg"></i>
         </button>
-       
-          
+        
+        <!-- Kumbara İkonu -->
+        <div class="w-14 h-14 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+            <i class="fas fa-piggy-bank"></i>
+        </div>
+        
         <!-- Başlık ve Açıklama -->
         <h3 class="text-xl font-bold text-slate-100 mb-2" data-i18n="piggyBankTitle">Topluluk Kumbarası</h3>
-        <p class="text-xs text-slate-400 mb-6" data-i18n="piggyDesc">Bu proje tamamen gönüllü topluluk desteğiyle ve %100 ücretsiz olarak yaşatılmaktadır.</p>
+        <p class="text-xs text-slate-300 mb-6 leading-relaxed" data-i18n="piggyDesc">Bu proje tamamen gönüllü topluluk desteğiyle ve %100 ücretsiz olarak yaşatılmaktadır.</p>
         
         <!-- İlerleme Çubuğu -->
-        <div class="w-full bg-slate-800/80 h-3 rounded-full overflow-hidden p-0.5 mb-2 border border-slate-700/50">
-            <div id="piggyProgressBar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-1000" style="width: 75%"></div>
+        <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden mb-2 border border-slate-700/60 p-0.5">
+            <div id="piggyProgressBar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full shadow-[0_0_8px_rgba(52,211,153,0.8)]" style="width: 75%"></div>
         </div>
-        <div class="flex justify-between items-center text-xs text-slate-400 mb-6">
+        <div class="flex justify-between items-center text-xs text-slate-400 mb-6 px-1">
             <span data-i18n="targetSupport">Hedef Destek</span>
             <span id="piggyStats" class="text-emerald-400 font-semibold">%75 Tamamlandı</span>
         </div>
         
         <!-- Bağış Yap / Destek Ol Butonu -->
         <div class="flex gap-3">
-            <a href="https://buymeacoffee.com/skyazad" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-xl transition-colors text-sm flex items-center justify-center gap-2" data-i18n="donateBtn">
+            <a href="https://buymeacoffee.com/skyazad" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-xl transition-colors text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/40" data-i18n="donateBtn">
                 <i class="fas fa-heart text-xs"></i> Destek Ol
             </a>
-            <button onclick="closeModal()" class="px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium py-2.5 rounded-xl transition-colors text-sm" data-i18n="closeBtn">
+            <button onclick="closeModal()" class="px-5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium py-2.5 rounded-xl transition-colors text-sm" data-i18n="closeBtn">
                 Kapat
             </button>
         </div>
