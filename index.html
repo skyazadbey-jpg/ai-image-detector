@@ -1869,6 +1869,8 @@ if (piggyProgressBar) setTimeout(() => piggyProgressBar.style.width = '75%', 300
 
             const formData = new FormData();
             formData.append("file", currentLoadedFile);
+            formData.append("file", currentLoadedFile);
+            formData.append("mode", currentMode); // <--- BU SATIRI EKLE
 
             try {
                 const response = await fetch(`${BACKEND_URL}/predict`, { method: 'POST', body: formData });

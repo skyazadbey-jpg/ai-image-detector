@@ -35,6 +35,7 @@ HF_TOKEN = os.getenv("HF_TOKEN")
 API_URL = "https://router.huggingface.co/hf-inference/models/prithivMLmods/deepfake-detector-model-v1"
 API_URL_2 = "https://router.huggingface.co/hf-inference/models/umm-maybe/AI-image-detector"
 API_URL_3 = "https://router.huggingface.co/hf-inference/models/Vontra/detectra-v1"
+API_URL_OBJECT = "https://router.huggingface.co/hf-inference/models/google/vit-base-patch16-224"
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
@@ -520,8 +521,9 @@ async def gumroad_webhook(request: Request):
 
 # ---------- PREDICT ----------
 @app.post("/predict")
-async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
+async def predict(file: UploadFile = File(None), image_url: str = Form(None), mode: str = Form("general")):
     try:
+        print(f"Gelen mod: {mode}")
         contents = None
         content_type = "application/octet-stream"
 
@@ -536,7 +538,35 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None)):
             content_type = img_response.headers.get("content-type", "image/jpeg")
         else:
             return {"error": "Görsel bulunamadı."}
+# MOD KONTROLÜ VE DOĞRULAMA
+        print(f"Gelen mod: {mode}")
 
+        if mode in ["car", "realestate"]:
+            obj_headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": content_type}
+            obj_response = requests.post(API_URL_OBJECT, headers=obj_headers, data=contents, timeout=20)
+            
+            if obj_response.status_code == 200:
+                predictions = obj_response.json()
+                # predictions genellikle [{"label": "sports car, sport car", "score": 0.85}, ...] şeklinde döner
+                detected_labels = [str(item.get("label", "")).lower() for item in predictions] if isinstance(predictions, list) else []
+                
+                print(f"Tespit edilen nesneler: {detected_labels[:3]}")
+
+                if mode == "car":
+                    # Araba ile ilgili anahtar kelimeler
+                    car_keywords = ["car", "sport car", "minivan", "convertible", "jeep", "suv", "taxi", "cab", "limousine", "vehicle"]
+                    is_match = any(any(kw in label for kw in car_keywords) for label in detected_labels)
+                    
+                    if not is_match and detected_labels:
+                        return {"error": "Seçilen mod 'Araba' ancak yüklenen görsel bir araca ait görünmüyor. Lütfen uygun bir araba görseli yükleyin."}
+
+                elif mode == "realestate":
+                    # Emlak / Bina / Ev ile ilgili anahtar kelimeler
+                    estate_keywords = ["house", "building", "apartment", "home", "villa", "skyscraper", "palace", "room", "hall"]
+                    is_match = any(any(kw in label for kw in estate_keywords) for label in detected_labels)
+                    
+                    if not is_match and detected_labels:
+                        return {"error": "Seçilen mod 'Emlak' ancak yüklenen görsel bir bina veya konuta ait görünmüyor. Lütfen uygun bir emlak görseli yükleyin."}
         headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": content_type}
 
         def get_score(api_url):
