@@ -548,40 +548,52 @@ def normalize_image_bytes(contents: bytes):
         return contents, "application/octet-stream"
 
 
-CATEGORY_CHECK_MODEL = "openai/clip-vit-base-patch32"
+CATEGORY_CHECK_MODEL = "google/vit-base-patch16-224"
+
+# ImageNet-1k etiketlerinden arabayla ilgili olanlar
+CAR_KEYWORDS = [
+    "car", "convertible", "cab", "jeep", "limousine", "minivan", "pickup",
+    "racer", "beach wagon", "police van", "sports car", "go-kart", "golfcart",
+    "moving van", "recreational vehicle", "wagon",
+]
+# ImageNet-1k etiketlerinden bina/emlakla ilgili olanlar
+BUILDING_KEYWORDS = [
+    "house", "home", "building", "boathouse", "barn", "castle", "church",
+    "dam", "dome", "greenhouse", "lighthouse", "mobile home", "monastery",
+    "mosque", "palace", "patio", "picket fence", "planetarium", "stupa",
+    "yurt", "residential", "estate", "cottage", "mansion", "villa",
+]
 
 
-def classify_image_category(contents: bytes) -> str:
+def classify_image_category(contents: bytes, content_type: str = "image/jpeg") -> str:
     """Görselin genel olarak ne olduğunu (araba / emlak-bina / diğer) tahmin eder.
     'Araba' ve 'Emlak' moduna özel sayfalarda, o kategoriyle alakasız bir görsel
-    yüklenip analiz edilmesini engellemek için kullanılır. API'den cevap alınamazsa
-    veya emin olunamazsa "unknown" döner - bu durumda kullanıcıyı YANLIŞLIKLA
+    yüklenip analiz edilmesini engellemek için kullanılır.
+
+    Zero-shot modeller (CLIP vb.) HuggingFace'in ücretsiz altyapısında artık
+    desteklenmiyor, o yüzden standart bir ImageNet siniflandiricisi kullanip
+    en olası 5 tahminin arabayla/binayla alakalı bir anahtar kelime içerip
+    içermediğine bakıyoruz. Üst 5 tahminin HİÇBİRİ eşleşmezse "other" döner.
+    API'ye ulaşılamazsa "unknown" döner - bu durumda kullanıcıyı YANLIŞLIKLA
     engellememek için analiz normal şekilde devam eder."""
     try:
-        b64 = base64.b64encode(contents).decode("utf-8")
-        payload = {
-            "inputs": b64,
-            "parameters": {
-                "candidate_labels": [
-                    "a photo of a car or vehicle",
-                    "a photo of a house, building, or real estate property",
-                    "something else, not a car and not a building",
-                ]
-            },
-        }
-        headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": "application/json"}
+        headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": content_type}
         url = f"https://router.huggingface.co/hf-inference/models/{CATEGORY_CHECK_MODEL}"
-        response = requests.post(url, headers=headers, json=payload, timeout=20)
+        response = requests.post(url, headers=headers, data=contents, timeout=20)
         if response.status_code != 200:
             print(f"[kategori kontrolü] HF API hatası: {response.status_code} - {response.text[:200]}")
             return "unknown"
+
         result = response.json()
         if isinstance(result, list) and result:
-            top = max(result, key=lambda r: r.get("score", 0))
-            label = str(top.get("label", "")).lower()
-            if "car" in label or "vehicle" in label:
+            if isinstance(result[0], list):
+                result = result[0]
+            top5 = sorted(result, key=lambda r: r.get("score", 0), reverse=True)[:5]
+            labels_combined = " | ".join(str(r.get("label", "")).lower() for r in top5)
+
+            if any(kw in labels_combined for kw in CAR_KEYWORDS):
                 return "car"
-            if "house" in label or "building" in label or "real estate" in label or "property" in label:
+            if any(kw in labels_combined for kw in BUILDING_KEYWORDS):
                 return "realestate"
             return "other"
     except Exception as e:
@@ -678,7 +690,7 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
         # kullaniciya bunu bildirip analiz yapmadan durduruyoruz - bu da
         # sitenin guvenilirligini korur.
         if mode in ("car", "realestate"):
-            category = classify_image_category(contents)
+            category = classify_image_category(contents, content_type)
             if category == "other":
                 if mode == "car":
                     return {"error": "Bu görsel bir araba fotoğrafına benzemiyor. Lütfen incelemek istediğiniz aracın net bir fotoğrafını yükleyin."}
