@@ -12,14 +12,12 @@ import requests
 import io
 import base64
 import random
-import hmac
-import hashlib
-import json
+import asyncio
+import concurrent.futures
 from PIL import Image, ImageFilter, ImageDraw
 from passlib.hash import bcrypt
 from google.oauth2 import id_token as google_id_token
 from google.auth.transport import requests as google_requests
-import tempfile
 
 app = FastAPI()
 app.add_middleware(
@@ -31,16 +29,53 @@ app.add_middleware(
 )
 
 # ---------- CONFIG ----------
+# ONEMLI: Butun gizli anahtarlar SADECE environment variable'dan okunur, koda asla sabit yazilmaz.
 HF_TOKEN = os.getenv("HF_TOKEN")
-API_URL = "https://router.huggingface.co/hf-inference/models/prithivMLmods/deepfake-detector-model-v1"
-API_URL_2 = "https://router.huggingface.co/hf-inference/models/umm-maybe/AI-image-detector"
-API_URL_3 = "https://router.huggingface.co/hf-inference/models/Vontra/detectra-v1"
-API_URL_OBJECT = "https://router.huggingface.co/hf-inference/models/google/vit-base-patch16-224"
+
+# ---------- ENSEMBLE MODEL AYARLARI ----------
+# Birden fazla modeli aynı anda calistirip sonuclari agirlikli olarak birlestiriyoruz.
+# Format: "model_id:agirlik,model_id:agirlik,..."  (agirlik verilmezse 1.0 kabul edilir)
+# Render'da AI_MODELS environment variable'ini degistirerek model listesini
+# kod dokunmadan guncelleyebilirsiniz. Yeni bir model eklemeden once o modelin
+# huggingface.co uzerinde "image-classification" gorevini destekledigini ve
+# router.huggingface.co uzerinden erisilebilir oldugunu dogrulayin.
+_DEFAULT_MODELS = "SKYazad/ai-image-detector-finetuned:1.0"
+
+
+def _parse_model_configs(raw: str):
+    configs = []
+    for part in raw.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        if ":" in part:
+            model_id, weight_str = part.rsplit(":", 1)
+            try:
+                weight = float(weight_str)
+            except ValueError:
+                model_id, weight = part, 1.0
+        else:
+            model_id, weight = part, 1.0
+        model_id = model_id.strip()
+        if model_id:
+            configs.append({
+                "model_id": model_id,
+                "url": f"https://router.huggingface.co/hf-inference/models/{model_id}",
+                "weight": weight,
+            })
+    return configs
+
+
+MODEL_CONFIGS = _parse_model_configs(os.getenv("AI_MODELS", _DEFAULT_MODELS))
+
+# Karar esigi: ai_probability bu degerin ustundeyse "AI/FAKE" olarak isaretlenir.
+# test_elsa setinizle calibrate_threshold.py calistirarak en iyi degeri bulabilirsiniz.
+DECISION_THRESHOLD = float(os.getenv("DECISION_THRESHOLD", "40"))
+
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 FROM_EMAIL = os.getenv("FROM_EMAIL", "onboarding@resend.dev")
-
 
 DB_PATH = "users.db"
 
@@ -160,34 +195,24 @@ def generate_otp() -> str:
 
 
 def send_email(to_email: str, subject: str, html: str):
-    print(f"[SEND_EMAIL] Başladı → to={to_email} from={FROM_EMAIL}")
-    print(f"[SEND_EMAIL] RESEND_API_KEY mevcut mu? {bool(RESEND_API_KEY)}")
     if not RESEND_API_KEY:
-        print("[SEND_EMAIL] HATA: RESEND_API_KEY yok!")
         raise RuntimeError("RESEND_API_KEY sunucuda tanımlı değil.")
-    try:
-        resp = requests.post(
-            "https://api.resend.com/emails",
-            headers={
-                "Authorization": f"Bearer {RESEND_API_KEY}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "from": "Destek <destek@ai-image-detector.com>",
-                "to": [to_email],
-                "subject": subject,
-                "html": html,
-            },
-            timeout=15,
-        )
-        print(f"[SEND_EMAIL] Resend yanıtı: status={resp.status_code}")
-        print(f"[SEND_EMAIL] Resend cevabı: {resp.text[:500]}")
-        if resp.status_code >= 300:
-            raise RuntimeError(f"Email gönderilemedi: {resp.text}")
-        print(f"[SEND_EMAIL] ✅ Başarılı!")
-    except Exception as e:
-        print(f"[SEND_EMAIL] ❌ Exception: {type(e).__name__} - {str(e)}")
-        raise
+    resp = requests.post(
+        "https://api.resend.com/emails",
+        headers={
+            "Authorization": f"Bearer {RESEND_API_KEY}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "from": f"AI Image Detector <{FROM_EMAIL}>",
+            "to": [to_email],
+            "subject": subject,
+            "html": html,
+        },
+        timeout=15,
+    )
+    if resp.status_code >= 300:
+        raise RuntimeError(f"Email gönderilemedi: {resp.text}")
 
 
 def user_to_public(row) -> dict:
@@ -329,9 +354,6 @@ def forgot_password(data: ForgotPasswordRequest, request: Request):
     if not row:
         conn.close()
         return {"message": generic_msg}
-    
-    print(f"[FORGOT] Kullanıcı bulundu: {row['email']} (id={row['id']})")
-    print(f"[FORGOT] password_hash var mı? {bool(row['password_hash'])}")
 
     if not row["password_hash"]:
         conn.close()
@@ -481,17 +503,13 @@ def api_home():
 @app.post("/webhooks/gumroad")
 async def gumroad_webhook(request: Request):
     try:
-        # Gumroad form verilerini veya JSON verisini alır
         form_data = await request.form()
         data = dict(form_data)
-        
-        # Gumroad'dan gelen temel alanlar
-        event_name = data.get("event_name", "sale") # satılık / abonelik durumu
+        event_name = data.get("event_name", "sale")
         user_email = data.get("email")
-        
-        print(f"GUMROAD WEBHOOK: event={event_name} email={user_email} data={data}")
 
-        # Pro durumunu güncelleyecek veritabanı bağlantısı
+        print(f"GUMROAD WEBHOOK: event={event_name} email={user_email}")
+
         conn = get_db()
         matched = False
 
@@ -500,16 +518,13 @@ async def gumroad_webhook(request: Request):
             row = conn.execute(
                 "SELECT id FROM users WHERE LOWER(TRIM(email))=?", (normalized_email,)
             ).fetchone()
-            
             if row:
                 matched = True
-                # Satış gerçekleştiğinde veya abonelik başladığında is_pro = 1 yapılır
                 conn.execute("UPDATE users SET is_pro=1 WHERE id=?", (row["id"],))
                 conn.commit()
                 print(f"GUMROAD: email={normalized_email} eslesti, Pro yapildi.")
 
         conn.close()
-
         if not matched:
             print(f"GUMROAD UYARI: Hicbir kullanici eslesmedi. email={user_email}")
 
@@ -519,17 +534,93 @@ async def gumroad_webhook(request: Request):
         return {"status": "error", "message": str(e)}
 
 
-# ---------- PREDICT ----------
+# ---------- PREDICT (tek ve doğru versiyon) ----------
+def normalize_image_bytes(contents: bytes):
+    """Gelen görseli her zaman JPEG'e çevirir, model bazı formatlarda hata verebiliyor."""
+    try:
+        image = Image.open(io.BytesIO(contents))
+        if image.mode in ("RGBA", "P"):
+            image = image.convert("RGB")
+        output_buffer = io.BytesIO()
+        image.save(output_buffer, format="JPEG")
+        return output_buffer.getvalue(), "image/jpeg"
+    except Exception:
+        return contents, "application/octet-stream"
+
+
+def _call_single_model(model_config: dict, contents: bytes, content_type: str):
+    """Tek bir Hugging Face modelini çağırır. Başarısız olursa None döner
+    (None dönmesi ensemble ortalamasını bozmasın diye önemli - modelin
+    "bilmiyorum" demesi 50 puan olarak sayılmamalı)."""
+    headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": content_type}
+    try:
+        response = requests.post(model_config["url"], headers=headers, data=contents, timeout=30)
+    except Exception as e:
+        print(f"[{model_config['model_id']}] Bağlantı hatası: {e}")
+        return None
+
+    if response.status_code != 200:
+        print(f"[{model_config['model_id']}] HF API hatası: {response.status_code} - {response.text[:200]}")
+        return None
+
+    try:
+        result = response.json()
+        if isinstance(result, list) and len(result) > 0:
+            if isinstance(result[0], list):
+                result = result[0]
+            for item in result:
+                label = str(item.get("label", "")).lower()
+                score = float(item.get("score", 0.5))
+                if any(k in label for k in ["artificial", "fake", "ai", "generated", "deepfake", "label_1"]):
+                    return score * 100
+                elif any(k in label for k in ["human", "real", "authentic", "natural", "label_0"]):
+                    return (1.0 - score) * 100
+    except Exception as e:
+        print(f"[{model_config['model_id']}] Cevap çözümlenemedi: {e}")
+
+    return None
+
+
+async def call_ai_model_ensemble(contents: bytes, content_type: str):
+    """Tüm modelleri PARALEL çağırır, sonuçları ağırlıklı ortalamayla birleştirir.
+    Dönüş: (final_ai_score, model_breakdown_listesi)
+    """
+    loop = asyncio.get_event_loop()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max(len(MODEL_CONFIGS), 1)) as executor:
+        futures = [
+            loop.run_in_executor(executor, _call_single_model, cfg, contents, content_type)
+            for cfg in MODEL_CONFIGS
+        ]
+        raw_scores = await asyncio.gather(*futures)
+
+    breakdown = []
+    weighted_sum = 0.0
+    weight_total = 0.0
+    for cfg, score in zip(MODEL_CONFIGS, raw_scores):
+        if score is None:
+            breakdown.append({"model": cfg["model_id"], "ai_score": None, "status": "failed"})
+            continue
+        breakdown.append({"model": cfg["model_id"], "ai_score": round(score, 1), "weight": cfg["weight"]})
+        weighted_sum += score * cfg["weight"]
+        weight_total += cfg["weight"]
+
+    if weight_total == 0:
+        # Hiçbir model cevap vermediyse en güvenli varsayım: kararsız (50)
+        return 50.0, breakdown
+
+    final_ai_score = weighted_sum / weight_total
+    return final_ai_score, breakdown
+
+
 @app.post("/predict")
 async def predict(file: UploadFile = File(None), image_url: str = Form(None), mode: str = Form("general")):
     try:
-        print(f"Gelen mod: {mode}")
         contents = None
         content_type = "application/octet-stream"
 
         if file:
             contents = await file.read()
-            content_type = file.content_type or "application/octet-stream"
+            contents, content_type = normalize_image_bytes(contents)
         elif image_url:
             img_response = requests.get(image_url, timeout=20)
             if img_response.status_code != 200:
@@ -538,76 +629,29 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
             content_type = img_response.headers.get("content-type", "image/jpeg")
         else:
             return {"error": "Görsel bulunamadı."}
-# MOD KONTROLÜ VE DOĞRULAMA
-        print(f"Gelen mod: {mode}")
 
-        if mode in ["car", "realestate"]:
-            obj_headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": content_type}
-            obj_response = requests.post(API_URL_OBJECT, headers=obj_headers, data=contents, timeout=20)
-            
-            if obj_response.status_code == 200:
-                predictions = obj_response.json()
-                detected_labels = [str(item.get("label", "")).lower() for item in predictions] if isinstance(predictions, list) else []
-                
-                print(f"Tespit edilen nesneler: {detected_labels}")
+        final_ai_score, breakdown = await call_ai_model_ensemble(contents, content_type)
+        final_real_score = 100.0 - final_ai_score
+        verdict = "AI" if final_ai_score > DECISION_THRESHOLD else "REAL"
 
-                if mode == "car":
-                    car_keywords = ["car", "sport car", "minivan", "convertible", "jeep", "suv", "taxi", "cab", "limousine", "vehicle", "coupe", "hatchback", "sedan", "wheel"]
-                    is_match = any(any(kw in label for kw in car_keywords) for label in detected_labels)
-                    
-                    if not is_match:
-                        return {"error": "Seçilen mod 'Araba' ancak yüklenen görsel bir araca ait görünmüyor. Lütfen uygun bir araba görseli yükleyin."}
-
-                elif mode == "realestate":
-                    estate_keywords = ["house", "building", "apartment", "home", "villa", "skyscraper", "palace", "room", "hall", "architecture", "window", "door", "roof"]
-                    is_match = any(any(kw in label for kw in estate_keywords) for label in detected_labels)
-                    
-                    if not is_match:
-                        return {"error": "Seçilen mod 'Emlak' ancak yüklenen görsel bir bina veya konuta ait görünmüyor. Lütfen uygun bir emlak görseli yükleyin."}
-        headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": content_type}
-
-        def get_score(api_url):
-            try:
-                r = requests.post(api_url, headers=headers, data=contents, timeout=20)
-                if r.status_code != 200:
-                    return None
-                data = r.json()
-                items = data.get("result", data) if isinstance(data, dict) else data
-                if isinstance(items, list):
-                    for item in items:
-                        if isinstance(item, dict):
-                            label = str(item.get("label", "")).lower()
-                            if label in ["ai", "fake", "artificial", "generated", "label_1"]:
-                                return float(item.get("score", 0))
-                            elif label in ["hum", "human", "real", "label_0"]:
-                                return 1 - float(item.get("score", 0))
-                return None
-            except Exception:
-                return None
-
-        score_1 = get_score(API_URL)
-        score_2 = get_score(API_URL_2)
-
-        scores = [s for s in [score_1, score_2] if s is not None]
-
-        if not scores:
-            return {"error": "Modeller yanıt vermedi. Lütfen tekrar deneyin."}
-
-        final_ai_score = sum(scores) / len(scores)
-        final_human_score = 1 - final_ai_score
-
+        # Not: hem yeni (ai_probability) hem eski (result dizisi) formatı birlikte
+        # döndürüyoruz ki frontend hangi sürümde olursa olsun doğru okuyabilsin.
         return {
+            "ai_probability": round(final_ai_score, 1),
+            "real_probability": round(final_real_score, 1),
+            "verdict": verdict,
+            "status": "success",
             "result": [
-                {"label": "artificial", "score": final_ai_score},
-                {"label": "human", "score": final_human_score}
+                {"label": "artificial", "score": final_ai_score / 100},
+                {"label": "human", "score": final_real_score / 100},
             ],
-            "models_used": len(scores)
+            "model_breakdown": breakdown,
         }
     except Exception as e:
         return {"error": str(e)}
 
 
-# ---------- HEATMAP ----------
+# ---------- HEATMAP (eksik olan endpoint geri eklendi) ----------
 @app.post("/predict-heatmap")
 async def predict_heatmap(file: UploadFile = File(None), image_url: str = Form(None)):
     try:
@@ -615,29 +659,16 @@ async def predict_heatmap(file: UploadFile = File(None), image_url: str = Form(N
         if file:
             contents = await file.read()
         elif image_url:
-            img_response = requests.get(image_url)
+            img_response = requests.get(image_url, timeout=20)
             if img_response.status_code != 200:
                 return {"error": "Görsel indirilemedi."}
             contents = img_response.content
         else:
             return {"error": "Görsel bulunamadı."}
 
-        headers = {
-            "Authorization": f"Bearer {HF_TOKEN}",
-            "Content-Type": "application/octet-stream",
-        }
-        response = requests.post(API_URL, headers=headers, data=contents)
-        if response.status_code != 200:
-            return {"error": f"Model hatası: {response.text}"}
-
-        result = response.json()
-        ai_score = 0.5
-        if isinstance(result, list) and result:
-            for item in result:
-                if item.get("label") in ["artificial", "fake", "ai"]:
-                    ai_score = item.get("score", 0.5)
-        elif isinstance(result, dict) and "score" in result:
-            ai_score = result["score"]
+        normalized_contents, content_type = normalize_image_bytes(contents)
+        ai_score_pct, _breakdown = await call_ai_model_ensemble(normalized_contents, content_type)
+        ai_score = ai_score_pct / 100.0
 
         img = Image.open(io.BytesIO(contents)).convert("RGB")
         img = img.resize((512, 512))
@@ -671,8 +702,8 @@ async def predict_heatmap(file: UploadFile = File(None), image_url: str = Form(N
 
         return {
             "heatmap_base64": f"data:image/png;base64,{img_base64}",
-            "ai_score": round(ai_score * 100, 1),
-            "human_score": round((1 - ai_score) * 100, 1),
+            "ai_score": round(ai_score_pct, 1),
+            "human_score": round(100 - ai_score_pct, 1),
         }
     except Exception as e:
         return {"error": str(e)}
@@ -692,3 +723,8 @@ def serve_privacy():
 @app.get("/privacy.html")
 def serve_privacy_html():
     return FileResponse("privacy.html")
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
