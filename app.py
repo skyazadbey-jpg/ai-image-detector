@@ -39,7 +39,7 @@ HF_TOKEN = os.getenv("HF_TOKEN")
 # kod dokunmadan guncelleyebilirsiniz. Yeni bir model eklemeden once o modelin
 # huggingface.co uzerinde "image-classification" gorevini destekledigini ve
 # router.huggingface.co uzerinden erisilebilir oldugunu dogrulayin.
-_DEFAULT_MODELS = "SKYazad/ai-image-detector-finetuned:1.0"
+_DEFAULT_MODELS = "umm-maybe/AI-image-detector:1.0"
 
 
 def _parse_model_configs(raw: str):
@@ -70,7 +70,7 @@ MODEL_CONFIGS = _parse_model_configs(os.getenv("AI_MODELS", _DEFAULT_MODELS))
 
 # Karar esigi: ai_probability bu degerin ustundeyse "AI/FAKE" olarak isaretlenir.
 # test_elsa setinizle calibrate_threshold.py calistirarak en iyi degeri bulabilirsiniz.
-DECISION_THRESHOLD = float(os.getenv("DECISION_THRESHOLD", "40"))
+DECISION_THRESHOLD = float(os.getenv("DECISION_THRESHOLD", "16"))
 
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production")
@@ -548,6 +548,47 @@ def normalize_image_bytes(contents: bytes):
         return contents, "application/octet-stream"
 
 
+CATEGORY_CHECK_MODEL = "openai/clip-vit-base-patch32"
+
+
+def classify_image_category(contents: bytes) -> str:
+    """Görselin genel olarak ne olduğunu (araba / emlak-bina / diğer) tahmin eder.
+    'Araba' ve 'Emlak' moduna özel sayfalarda, o kategoriyle alakasız bir görsel
+    yüklenip analiz edilmesini engellemek için kullanılır. API'den cevap alınamazsa
+    veya emin olunamazsa "unknown" döner - bu durumda kullanıcıyı YANLIŞLIKLA
+    engellememek için analiz normal şekilde devam eder."""
+    try:
+        b64 = base64.b64encode(contents).decode("utf-8")
+        payload = {
+            "inputs": b64,
+            "parameters": {
+                "candidate_labels": [
+                    "a photo of a car or vehicle",
+                    "a photo of a house, building, or real estate property",
+                    "something else, not a car and not a building",
+                ]
+            },
+        }
+        headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": "application/json"}
+        url = f"https://router.huggingface.co/hf-inference/models/{CATEGORY_CHECK_MODEL}"
+        response = requests.post(url, headers=headers, json=payload, timeout=20)
+        if response.status_code != 200:
+            print(f"[kategori kontrolü] HF API hatası: {response.status_code} - {response.text[:200]}")
+            return "unknown"
+        result = response.json()
+        if isinstance(result, list) and result:
+            top = max(result, key=lambda r: r.get("score", 0))
+            label = str(top.get("label", "")).lower()
+            if "car" in label or "vehicle" in label:
+                return "car"
+            if "house" in label or "building" in label or "real estate" in label or "property" in label:
+                return "realestate"
+            return "other"
+    except Exception as e:
+        print(f"[kategori kontrolü] hata: {e}")
+    return "unknown"
+
+
 def _call_single_model(model_config: dict, contents: bytes, content_type: str):
     """Tek bir Hugging Face modelini çağırır. Başarısız olursa None döner
     (None dönmesi ensemble ortalamasını bozmasın diye önemli - modelin
@@ -630,6 +671,22 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
         else:
             return {"error": "Görsel bulunamadı."}
 
+        # ---------- KATEGORI DOGRULAMASI (araba / emlak modlarinda) ----------
+        # "Araba" veya "Emlak" sekmesinden yuklenen gorselin gercekten o
+        # kategoriyle ilgili olup olmadigini kontrol ediyoruz. Alakasiz bir
+        # gorsel (ornegin araba sekmesine manzara fotografi) yuklenirse
+        # kullaniciya bunu bildirip analiz yapmadan durduruyoruz - bu da
+        # sitenin guvenilirligini korur.
+        if mode in ("car", "realestate"):
+            category = classify_image_category(contents)
+            if category == "other":
+                if mode == "car":
+                    return {"error": "Bu görsel bir araba fotoğrafına benzemiyor. Lütfen incelemek istediğiniz aracın net bir fotoğrafını yükleyin."}
+                else:
+                    return {"error": "Bu görsel bir emlak/bina fotoğrafına benzemiyor. Lütfen incelemek istediğiniz mülkün net bir fotoğrafını yükleyin."}
+            # category == "unknown" ise (API'ye ulasilamadi vb.) kullaniciyi
+            # yanlislikla engellememek icin analiz normal sekilde devam eder.
+
         final_ai_score, breakdown = await call_ai_model_ensemble(contents, content_type)
         final_real_score = 100.0 - final_ai_score
         verdict = "AI" if final_ai_score > DECISION_THRESHOLD else "REAL"
@@ -674,26 +731,42 @@ async def predict_heatmap(file: UploadFile = File(None), image_url: str = Form(N
         img = img.resize((512, 512))
         width, height = img.size
 
+        # ---------- GERCEK IZGARA TABANLI ANALIZ ----------
+        # Gorseli bir izgaraya bolup HER PARCAYI gercekten modele gonderiyoruz.
+        # Boylece renklendirme rastgele degil, modelin o bolge icin verdigi
+        # gercek AI-olma skoruna dayanir. Izgara boyutunu buyutmek daha
+        # detayli ama daha yavas/maliyetli bir analiz anlamina gelir.
+        grid_size = int(os.getenv("HEATMAP_GRID_SIZE", "3"))
+        tile_w = width // grid_size
+        tile_h = height // grid_size
+
+        async def score_tile(row, col):
+            box = (col * tile_w, row * tile_h, (col + 1) * tile_w, (row + 1) * tile_h)
+            tile = img.crop(box)
+            tile_buffer = io.BytesIO()
+            tile.save(tile_buffer, format="JPEG")
+            tile_score, _ = await call_ai_model_ensemble(tile_buffer.getvalue(), "image/jpeg")
+            return row, col, tile_score
+
+        tile_tasks = [score_tile(r, c) for r in range(grid_size) for c in range(grid_size)]
+        tile_results = await asyncio.gather(*tile_tasks)
+
         overlay = Image.new("RGBA", img.size, (0, 0, 0, 0))
         draw = ImageDraw.Draw(overlay)
 
-        num_red_blobs = int(ai_score * 15) + 3
-        num_blue_blobs = int((1 - ai_score) * 10) + 2
-        random.seed(int(ai_score * 1000))
+        for row, col, tile_score in tile_results:
+            # tile_score 0-100 arasi: yuksek = AI supheli (kirmizi), dusuk = gercek (mavi)
+            red = int(min(255, tile_score * 2.55))
+            blue = int(min(255, (100 - tile_score) * 2.55))
+            # modelin ne kadar "emin" oldugu (50'den uzaklik) opakligi belirler -
+            # kararsiz (50'ye yakin) bolgeler daha soluk gorunur
+            confidence = abs(tile_score - 50) / 50
+            alpha = int(50 + confidence * 130)
 
-        for _ in range(num_red_blobs):
-            x = random.randint(0, width)
-            y = random.randint(0, height)
-            r = random.randint(40, 120)
-            draw.ellipse([x - r, y - r, x + r, y + r], fill=(255, 50, 50, 60))
+            box = (col * tile_w, row * tile_h, (col + 1) * tile_w, (row + 1) * tile_h)
+            draw.rectangle(box, fill=(red, 40, blue, alpha))
 
-        for _ in range(num_blue_blobs):
-            x = random.randint(0, width)
-            y = random.randint(0, height)
-            r = random.randint(30, 90)
-            draw.ellipse([x - r, y - r, x + r, y + r], fill=(50, 150, 255, 50))
-
-        overlay = overlay.filter(ImageFilter.GaussianBlur(radius=25))
+        overlay = overlay.filter(ImageFilter.GaussianBlur(radius=20))
         combined = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
 
         buffered = io.BytesIO()
