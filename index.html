@@ -12,7 +12,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Image Detector</title>
+    <title>AI Görsel Tespit | Araba ve Emlak İlanlarında Sahte Fotoğraf Kontrolü</title>
+    <meta name="description" content="İkinci el araç ve emlak ilanlarındaki fotoğrafların gerçek mi yapay zeka ile üretilmiş mi olduğunu saniyeler içinde kontrol edin. Dolandırıcılıktan korunun, sonuçlarımızı şeffafça paylaşıyoruz.">
+    <meta property="og:title" content="AI Görsel Tespit - Araba ve Emlak İlanlarında Sahte Fotoğraf Kontrolü">
+    <meta property="og:description" content="İkinci el araç ve emlak ilanlarındaki fotoğrafların gerçek mi yapay zeka üretimi mi olduğunu saniyeler içinde kontrol edin.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="AI Görsel Tespit - Sahte Fotoğraf Kontrolü">
+    <meta name="twitter:description" content="Araba ve emlak ilanlarındaki fotoğrafların AI üretimi olup olmadığını saniyeler içinde öğrenin.">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%236366f1'/><stop offset='100%' style='stop-color:%23a855f7'/></linearGradient></defs><rect width='100' height='100' rx='22' fill='url(%23g)'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>AI</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -584,6 +591,8 @@
         <p class="text-slate-600 text-[10px]" data-i18n="footerCompanyLine">Türkiye'de hizmet vermektedir · 18+</p>
         <p class="text-[10px] text-slate-500 italic mt-1" data-i18n="footerDisclaimer">Bu araç yardımcı bir araçtır. Kesin hüküm vermez. Önemli kararlar için ek doğrulama yapın.</p>
         <div class="flex flex-wrap justify-center gap-3 text-slate-400">
+            <a href="methodology.html" target="_blank" rel="noopener" class="hover:underline" data-i18n="methodologyLink">Nasıl Çalışır?</a>
+            <span>•</span>
             <a href="privacy.html" target="_blank" rel="noopener" class="hover:underline" data-i18n="privacyLink">Privacy Policy</a>
             <span>•</span>
             <button onclick="openModal('terms')" class="hover:underline" data-i18n="termsLink">Terms of Service</button>
@@ -856,6 +865,7 @@
                 footerCompanyLine: "Serving in Turkey · 18+",
                 footerDisclaimer: "This is a helper tool. Not a definitive verdict.",
                 privacyLink: "Privacy Policy",
+                methodologyLink: "How It Works",
                 termsLink: "Terms of Service",
                 distanceLink: "Distance Sales Agreement",
                 refundLink: "Refund Policy",
@@ -1032,6 +1042,7 @@
                 footerCompanyLine: "Türkiye'de hizmet vermektedir · 18+",
                 footerDisclaimer: "Bu araç yardımcı bir araçtır. Kesin hüküm vermez.",
                 privacyLink: "Gizlilik Politikası", termsLink: "Kullanım Koşulları",
+                methodologyLink: "Nasıl Çalışır?",
                 distanceLink: "Mesafeli Satış Sözleşmesi", refundLink: "İptal ve İade",
                 closeBtn: "Kapat", cookieText: "Çerez kullanıyoruz.", cookieBtn: "Kabul Et",
                 privacyTitle: "Gizlilik Politikası",

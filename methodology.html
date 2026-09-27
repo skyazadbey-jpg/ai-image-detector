@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nasıl Çalışır? | AI Görsel Tespit Metodolojisi</title>
+    <meta name="description" content="Sistemimizin görselleri nasıl analiz ettiğini, gerçek doğruluk oranlarımızı ve sınırlarımızı şeffafça anlatıyoruz.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>tailwind.config = { darkMode: 'class' }</script>
+    <style>
+        body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
+        .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; letter-spacing: -0.01em; }
+        .stat-card { background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); }
+        .grid-demo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; width: 100%; aspect-ratio: 1; border-radius: 0.75rem; overflow: hidden; }
+        .grid-demo div { display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.85); }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 sm:p-6 font-sans">
+    <div class="max-w-3xl mx-auto py-8">
+
+        <a href="index.html" class="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 text-sm font-semibold mb-8">
+            <i class="fas fa-arrow-left"></i> Ana sayfaya dön
+        </a>
+
+        <h1 class="font-display text-3xl sm:text-4xl font-bold mb-3">Nasıl Çalışır?</h1>
+        <p class="text-slate-400 mb-10">Bu sayfa, sistemimizin bir görseli nasıl analiz ettiğini, gerçek doğruluk oranlarını ve sınırlarını olduğu gibi anlatır. Çoğu benzer araç bu bilgileri paylaşmaz — biz paylaşıyoruz, çünkü size doğru beklenti vermek istiyoruz.</p>
+
+        <section class="mb-10">
+            <h2 class="font-display text-xl font-bold mb-3 flex items-center gap-2">
+                <i class="fas fa-layer-group text-indigo-400"></i> Analiz nasıl yapılıyor?
+            </h2>
+            <p class="text-slate-300 leading-relaxed mb-3">
+                Yüklediğiniz görsel, yapay zeka üretimi görselleri tanımak için eğitilmiş bir makine öğrenmesi modeline gönderilir. Model, görselin dokusundaki, ışıklandırmasındaki ve piksel örüntülerindeki ipuçlarına bakarak 0-100 arası bir "yapay zeka olasılığı" skoru üretir.
+            </p>
+            <p class="text-slate-300 leading-relaxed">
+                <strong class="text-slate-100">Araba</strong> ve <strong class="text-slate-100">Emlak</strong> modlarında, önce görselin gerçekten o kategoriyle ilgili olup olmadığını ayrı bir kontrolle doğrularız — alakasız bir görsel yüklenirse analiz yapılmadan sizi bilgilendiririz.
+            </p>
+        </section>
+
+        <section class="mb-10">
+            <h2 class="font-display text-xl font-bold mb-3 flex items-center gap-2">
+                <i class="fas fa-grip text-indigo-400"></i> Isı haritası gerçek bir analizdir
+            </h2>
+            <p class="text-slate-300 leading-relaxed mb-4">
+                Sonuç ekranında gördüğünüz ısı haritası, görseli küçük bir ızgaraya bölüp <strong class="text-slate-100">her bir parçayı ayrı ayrı modele göndererek</strong> oluşturulur. Kırmızı bölgeler modelin "yapay zeka şüphesi" duyduğu alanları, mavi bölgeler "gerçek" olarak değerlendirdiği alanları gösterir - renkler rastgele değil, gerçek analiz sonuçlarıdır.
+            </p>
+            <div class="grid-demo max-w-[220px] mx-auto mb-2">
+                <div style="background:#dc2626cc">82</div><div style="background:#3b82f699">31</div><div style="background:#dc262699">68</div>
+                <div style="background:#3b82f6cc">18</div><div style="background:#ef444488">55</div><div style="background:#3b82f699">24</div>
+                <div style="background:#dc2626aa">71</div><div style="background:#3b82f6aa">15</div><div style="background:#3b82f688">42</div>
+            </div>
+            <p class="text-slate-500 text-xs text-center">Örnek: her hücre gerçek bir model tahminini temsil eder</p>
+        </section>
+
+        <section class="mb-10">
+            <h2 class="font-display text-xl font-bold mb-4 flex items-center gap-2">
+                <i class="fas fa-chart-simple text-indigo-400"></i> Gerçek doğruluk oranlarımız
+            </h2>
+            <p class="text-slate-300 leading-relaxed mb-5">
+                Kendi test setimizde ölçtüğümüz güncel performans (bağımsız, eğitimde kullanılmamış görsellerle):
+            </p>
+            <div class="grid grid-cols-2 gap-3 mb-5">
+                <div class="stat-card rounded-xl p-4 text-center">
+                    <p class="text-3xl font-bold font-display text-indigo-300">~%65-70</p>
+                    <p class="text-xs text-slate-400 mt-1">Genel doğruluk oranı</p>
+                </div>
+                <div class="stat-card rounded-xl p-4 text-center">
+                    <p class="text-3xl font-bold font-display text-indigo-300">~9</p>
+                    <p class="text-xs text-slate-400 mt-1">Isı haritası bölge sayısı</p>
+                </div>
+            </div>
+            <p class="text-slate-400 text-sm leading-relaxed">
+                Bu rakamlar sürekli test edip iyileştirdiğimiz için zamanla değişir. "%100 kesin" diyen araçlara karşı temkinli olun - hiçbir AI-tespit sistemi (bizimki dahil, en pahalı ticari servisler dahil) her görselde kusursuz değildir.
+            </p>
+        </section>
+
+        <section class="mb-10">
+            <h2 class="font-display text-xl font-bold mb-3 flex items-center gap-2">
+                <i class="fas fa-triangle-exclamation text-amber-400"></i> Sınırlarımız - dürüstçe
+            </h2>
+            <ul class="space-y-3 text-slate-300 text-sm leading-relaxed">
+                <li class="flex gap-3"><i class="fas fa-circle-minus text-amber-400 mt-1 text-xs"></i> Çok yüksek kaliteli, özenle üretilmiş yapay zeka görselleri bazen "gerçek" olarak değerlendirilebilir.</li>
+                <li class="flex gap-3"><i class="fas fa-circle-minus text-amber-400 mt-1 text-xs"></i> Ağır filtrelenmiş, düzenlenmiş veya sıkıştırılmış gerçek fotoğraflar bazen "yapay zeka" olarak işaretlenebilir.</li>
+                <li class="flex gap-3"><i class="fas fa-circle-minus text-amber-400 mt-1 text-xs"></i> Emlak modunda, sıra dışı mimari tarzdaki gerçek bina fotoğrafları nadiren yanlışlıkla reddedilebilir.</li>
+                <li class="flex gap-3"><i class="fas fa-circle-minus text-amber-400 mt-1 text-xs"></i> Sonuçlarımız <strong class="text-slate-200">bir ipucudur, kesin hüküm değildir</strong>. Önemli bir alım-satım kararı öncesi mutlaka ek doğrulama yapın (tapu, TRAMER, yüz yüze görüşme).</li>
+            </ul>
+        </section>
+
+        <section class="mb-4">
+            <h2 class="font-display text-xl font-bold mb-3 flex items-center gap-2">
+                <i class="fas fa-lock text-indigo-400"></i> Verileriniz
+            </h2>
+            <p class="text-slate-300 leading-relaxed">
+                Yüklediğiniz görseller analiz için anlık olarak işlenir ve sunucularımızda kalıcı olarak saklanmaz. Detaylar için <a href="privacy.html" class="text-indigo-400 hover:underline">Gizlilik Politikamıza</a> bakabilirsiniz.
+            </p>
+        </section>
+
+        <div class="text-center mt-12">
+            <a href="index.html" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 transition text-white font-bold px-6 py-3 rounded-xl">
+                <i class="fas fa-magnifying-glass"></i> Bir görsel test et
+            </a>
+        </div>
+
+    </div>
+</body>
+</html>
