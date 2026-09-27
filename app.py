@@ -10,6 +10,7 @@ import time
 import jwt
 import requests
 import io
+import re
 import base64
 import random
 import asyncio
@@ -591,9 +592,15 @@ def classify_image_category(contents: bytes, content_type: str = "image/jpeg") -
             top5 = sorted(result, key=lambda r: r.get("score", 0), reverse=True)[:5]
             labels_combined = " | ".join(str(r.get("label", "")).lower() for r in top5)
 
-            if any(kw in labels_combined for kw in CAR_KEYWORDS):
+            def has_keyword(keywords, text):
+                # Tam kelime eslesmesi ariyoruz - basit "in" kontrolu "car"
+                # kelimesini "cardigan" gibi alakasiz kelimelerin icinde de
+                # buluyordu, bu yuzden kelime sinirlarina (\b) dikkat ediyoruz.
+                return any(re.search(rf"\b{re.escape(kw)}\b", text) for kw in keywords)
+
+            if has_keyword(CAR_KEYWORDS, labels_combined):
                 return "car"
-            if any(kw in labels_combined for kw in BUILDING_KEYWORDS):
+            if has_keyword(BUILDING_KEYWORDS, labels_combined):
                 return "realestate"
             return "other"
     except Exception as e:
