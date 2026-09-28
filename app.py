@@ -40,8 +40,7 @@ HF_TOKEN = os.getenv("HF_TOKEN")
 # kod dokunmadan guncelleyebilirsiniz. Yeni bir model eklemeden once o modelin
 # huggingface.co uzerinde "image-classification" gorevini destekledigini ve
 # router.huggingface.co uzerinden erisilebilir oldugunu dogrulayin.
-_DEFAULT_MODELS = "umm-maybe/AI-image-detector:1.0"
-
+_DEFAULT_MODELS = "Vontra/detectra-v1:0.55,prithivMLmods/deepfake-detector-model-v1:0.30,umm-maybe/AI-image-detector:0.15"
 
 def _parse_model_configs(raw: str):
     configs = []
@@ -71,7 +70,7 @@ MODEL_CONFIGS = _parse_model_configs(os.getenv("AI_MODELS", _DEFAULT_MODELS))
 
 # Karar esigi: ai_probability bu degerin ustundeyse "AI/FAKE" olarak isaretlenir.
 # test_elsa setinizle calibrate_threshold.py calistirarak en iyi degeri bulabilirsiniz.
-DECISION_THRESHOLD = float(os.getenv("DECISION_THRESHOLD", "16"))
+DECISION_THRESHOLD = float(os.getenv("DECISION_THRESHOLD", "50"))
 
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production")
