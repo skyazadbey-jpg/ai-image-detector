@@ -660,9 +660,9 @@ def _call_single_model(model_config: dict, contents: bytes, content_type: str):
                 label = str(item.get("label", "")).lower()
                 score = float(item.get("score", 0.5))
                 if any(k in label for k in ["artificial", "fake", "ai", "generated", "deepfake", "label_1"]):
-                    return score * 100
+                                        return score * 100 * 0.95
                 elif any(k in label for k in ["hum", "human", "real", "authentic", "natural", "label_0"]):
-                    return (1.0 - score) * 100
+                                        return (1.0 - score) * 100 * 1.02
     except Exception as e:
         print(f"[{model_config['model_id']}] Cevap çözümlenemedi: {e}")
 
