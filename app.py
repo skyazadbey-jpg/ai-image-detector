@@ -499,16 +499,23 @@ def api_home():
     return {"status": "AI Image Detector API is running"}
 @app.get("/test-ateeqq-raw")
 def test_ateeqq_raw():
-    """GEÇİCİ TEST: Ateeqq modelinin ham cevabını gösterir. İş bitince silinecek."""
-    import requests, os, json
+    """GEÇİCİ TEST: Ateeqq modelinin ham cevabını gösterir."""
+    import requests, os, json, io
+    from PIL import Image
     try:
-        # Test görseli indir
-        img_resp = requests.get("https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png", timeout=15)
+        # Test görseli indir (JPEG - HF API uyumlu)
+        img_resp = requests.get("https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/640px-Cat03.jpg", timeout=15)
         img_bytes = img_resp.content
+        
+        # Normalize et (JPEG olarak tekrar kaydet)
+        img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
+        buffered = io.BytesIO()
+        img.save(buffered, format="JPEG")
+        img_bytes = buffered.getvalue()
         
         # Ateeqq modeline gönder
         url = "https://router.huggingface.co/hf-inference/models/Ateeqq/ai-vs-human-image-detector"
-        headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": "image/png"}
+        headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": "image/jpeg"}
         r = requests.post(url, headers=headers, data=img_bytes, timeout=30)
         
         return {
