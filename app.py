@@ -503,24 +503,26 @@ def test_ateeqq_raw():
     import requests, os, json, io
     from PIL import Image
     try:
-        # Test görseli indir (JPEG - HF API uyumlu)
-        img_resp = requests.get("https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/640px-Cat03.jpg", timeout=15)
-        img_bytes = img_resp.content
-        
-        # Normalize et (JPEG olarak tekrar kaydet)
-        img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
+        # Kod içinde basit bir görsel oluştur (kırmızı kare)
+        img = Image.new("RGB", (384, 384), color=(200, 100, 150))
         buffered = io.BytesIO()
-        img.save(buffered, format="JPEG")
+        img.save(buffered, format="JPEG", quality=90)
         img_bytes = buffered.getvalue()
+        
+        print(f"[TEST] Görsel boyutu: {len(img_bytes)} bytes")
         
         # Ateeqq modeline gönder
         url = "https://router.huggingface.co/hf-inference/models/Ateeqq/ai-vs-human-image-detector"
         headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": "image/jpeg"}
         r = requests.post(url, headers=headers, data=img_bytes, timeout=30)
         
+        print(f"[TEST] HF cevabı: {r.status_code}")
+        print(f"[TEST] HF body: {r.text[:500]}")
+        
         return {
             "status_code": r.status_code,
-            "raw_response": r.json() if r.status_code == 200 else r.text
+            "raw_response": r.json() if r.status_code == 200 else r.text,
+            "image_size_bytes": len(img_bytes)
         }
     except Exception as e:
         return {"error": f"{type(e).__name__}: {str(e)}"}
