@@ -809,22 +809,21 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
             # category == "unknown" ise (API'ye ulasilamadi vb.) kullaniciyi
             # yanlislikla engellememek icin analiz normal sekilde devam eder.
 
-        # EXIF analizi
+                # 1. ÖNCE AI modellerini çağır
+        final_ai_score, breakdown = await call_ai_model_ensemble(contents, content_type)
+        
+        # 2. SONRA EXIF analizi yap
         exif_score, exif_reason = check_exif(contents)
         print(f"[EXIF] skor={exif_score} sebep={exif_reason}")
-                # EXIF skorunu AI skoruna dönüştür (tersine çevir)
-        exif_ai_score = 100.0 - exif_score  # EXIF iyiyse AI skoru düşük
+        exif_ai_score = 100.0 - exif_score
         
-        # Ağırlıklı birleştir
+        # 3. EN SONDA birleştir
         final_ai_score = (
-            final_ai_score * 0.70 +      # AI modeller: %70
-            exif_ai_score * 0.30         # EXIF: %30
+            final_ai_score * 0.70 +
+            exif_ai_score * 0.30
         )
-        
-        final_ai_score, breakdown = await call_ai_model_ensemble(contents, content_type)
         final_real_score = 100.0 - final_ai_score
         verdict = "AI" if final_ai_score > DECISION_THRESHOLD else "REAL"
-
         # Not: hem yeni (ai_probability) hem eski (result dizisi) formatı birlikte
         # döndürüyoruz ki frontend hangi sürümde olursa olsun doğru okuyabilsin.
         return {
