@@ -705,6 +705,91 @@ def check_exif(contents: bytes) -> tuple:
     except Exception as e:
         return 15.0, f"EXIF okunamadı: {str(e)[:50]}"
 
+def check_jpeg_blocks(contents: bytes) -> tuple:
+    """
+    JPEG 8x8 blok kalıntı analizi.
+    
+    Gerçek fotoğraflar: Kameradan gelen JPEG → düzgün blok pattern.
+    AI görselleri: Yapay üretilmiş → düzensiz blok pattern veya çok pürüzsüz.
+    
+    Dönüş: (gerçek_olma_skoru 0-100, sebep)
+    """
+    try:
+        import numpy as np
+        from PIL import Image
+        import io
+        
+        img = Image.open(io.BytesIO(contents)).convert("L")  # Gri tonlama
+        img = img.resize((256, 256), Image.LANCZOS)
+        arr = np.array(img, dtype=np.float32)
+        
+        # 8x8 blokların sınırlarındaki farklılıkları ölç
+        # JPEG sıkıştırması 8x8 bloklarda "blocking artifacts" yaratır
+        # Gerçek JPEG'lerde bu belirgin, AI görsellerinde zayıf
+        
+        h, w = arr.shape
+        
+        # Yatay blok sınırları (her 8. sütun)
+        vertical_diffs = []
+        for x in range(8, w, 8):
+            diff = np.abs(arr[:, x-1] - arr[:, x]).mean()
+            vertical_diffs.append(diff)
+        
+        # Dikey blok sınırları (her 8. satır)
+        horizontal_diffs = []
+        for y in range(8, h, 8):
+            diff = np.abs(arr[y-1, :] - arr[y, :]).mean()
+            horizontal_diffs.append(diff)
+        
+        # Blok sınırlarının ortalaması
+        block_energy = np.mean(vertical_diffs + horizontal_diffs)
+        
+        # Blok içi (blok sınırı olmayan yerler) enerjisi
+        non_block_x = [x for x in range(4, w, 8)]
+        non_block_y = [y for y in range(4, h, 8)]
+        
+        non_block_energy = 0
+        count = 0
+        for x in non_block_x:
+            if x < w - 1:
+                non_block_energy += np.abs(arr[:, x] - arr[:, x+1]).mean()
+                count += 1
+        for y in non_block_y:
+            if y < h - 1:
+                non_block_energy += np.abs(arr[y, :] - arr[y+1, :]).mean()
+                count += 1
+        
+        if count > 0:
+            non_block_energy /= count
+        
+        # Oran: blok sınırları, blok içinden ne kadar farklı?
+        # Gerçek JPEG → yüksek oran (belirgin blok sınırları)
+        # AI görsel → düşük oran (her yer aynı)
+        if non_block_energy > 0:
+            ratio = block_energy / non_block_energy
+        else:
+            ratio = 1.0
+        
+        # Puanlama
+        if ratio > 1.5:
+            score = 85.0
+            reason = f"Belirgin JPEG blok yapısı (ratio={ratio:.2f}) - gerçek fotoğraf"
+        elif ratio > 1.2:
+            score = 70.0
+            reason = f"Orta JPEG blok yapısı (ratio={ratio:.2f})"
+        elif ratio > 1.0:
+            score = 55.0
+            reason = f"Zayıf JPEG blok yapısı (ratio={ratio:.2f})"
+        elif ratio > 0.9:
+            score = 40.0
+            reason = f"Çok zayıf blok yapısı (ratio={ratio:.2f}) - AI olabilir"
+        else:
+            score = 20.0
+            reason = f"Blok yapısı yok (ratio={ratio:.2f}) - AI olma ihtimali yüksek"
+        
+        return score, reason
+    except Exception as e:
+        return 50.0, f"JPEG blok analizi hatası: {str(e)[:50]}"
 
 def check_noise(contents: bytes) -> tuple:
     """
@@ -845,21 +930,27 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
                 # 1. ÖNCE AI modellerini çağır
         final_ai_score, breakdown = await call_ai_model_ensemble(contents, content_type)
         
-               # 2. SONRA EXIF analizi yap
+                   # 2. SONRA EXIF analizi yap
         exif_score, exif_reason = check_exif(contents)
         print(f"[EXIF] skor={exif_score} sebep={exif_reason}")
         exif_ai_score = 100.0 - exif_score
         
-        # 3. SONRA Noise analizi yap
+        # 3. JPEG blok analizi yap
+        jpeg_score, jpeg_reason = check_jpeg_blocks(contents)
+        print(f"[JPEG] skor={jpeg_score} sebep={jpeg_reason}")
+        jpeg_ai_score = 100.0 - jpeg_score
+        
+        # 4. Noise analizi yap
         noise_score, noise_reason = check_noise(contents)
         print(f"[NOISE] skor={noise_score} sebep={noise_reason}")
         noise_ai_score = 100.0 - noise_score
         
-        # 4. EN SONDA 3 katmanı birleştir
+        # 5. EN SONDA 4 katmanı birleştir
         final_ai_score = (
-            final_ai_score * 0.30 +
-            exif_ai_score * 0.45 +
-            noise_ai_score * 0.25
+            final_ai_score * 0.50 +      # Model: %50 (ana motor)
+            exif_ai_score * 0.20 +        # EXIF: %20
+            jpeg_ai_score * 0.20 +        # JPEG Blok: %20 (YENİ)
+            noise_ai_score * 0.10         # Noise: %10
         )
         final_real_score = 100.0 - final_ai_score
         verdict = "AI" if final_ai_score > DECISION_THRESHOLD else "REAL"

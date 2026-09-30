@@ -1914,7 +1914,7 @@ if (piggyProgressBar) setTimeout(() => piggyProgressBar.style.width = '75%', 300
                     humanPercentageText.innerText = `%${humanScore}`;
                     aiProgressBar.style.width = `${aiScore}%`;
                     humanProgressBar.style.width = `${humanScore}%`;
-                    let statusKey = aiScore > 75 ? "AI" : (aiScore > 45 ? "Suspicious" : "Real");
+                    let statusKey = data.verdict === "AI" ? "AI" : "Real";
                     lastAnalysisStatus = { aiScore, statusKey };
                     showC2PAInfo(data);
                     updateSummaryMessage(aiScore, statusKey);
