@@ -638,36 +638,32 @@ def classify_image_category(contents: bytes, content_type: str = "image/jpeg") -
 def check_exif(contents: bytes) -> tuple:
     """
     EXIF (kamera meta verisi) analizi.
-    
     Gerçek fotoğraflar: Telefon/kamera modeli, ISO, diyafram bilgisi içerir.
     AI görselleri: Genellikle EXIF yoktur veya çok azdır.
-    
     Dönüş: (gerçek_olma_skoru 0-100, sebep)
     """
     try:
         from PIL import Image
         from PIL.ExifTags import TAGS
         import io
-        
+
         img = Image.open(io.BytesIO(contents))
         exif_data = img.getexif()
-        
-        # EXIF verisi var mı?
+
         if not exif_data:
             return 15.0, "EXIF verisi YOK (AI olma ihtimali yüksek)"
-        
-        # EXIF içinde hangi bilgiler var?
+
         tag_names = []
         has_camera_make = False
         has_camera_model = False
         has_iso = False
         has_datetime = False
         has_lens = False
-        
+
         for tag_id, value in exif_data.items():
             tag_name = TAGS.get(tag_id, tag_id)
             tag_names.append(str(tag_name))
-            
+
             if tag_name == "Make":
                 has_camera_make = True
             elif tag_name == "Model":
@@ -678,11 +674,10 @@ def check_exif(contents: bytes) -> tuple:
                 has_datetime = True
             elif tag_name in ("LensModel", "LensMake"):
                 has_lens = True
-        
-        # Puanlama
-        score = 20.0  # Baz puan
+
+        score = 20.0
         reasons = []
-        
+
         if has_camera_make:
             score += 25
             reasons.append("kamera markası var")
@@ -698,19 +693,57 @@ def check_exif(contents: bytes) -> tuple:
         if has_lens:
             score += 10
             reasons.append("lens bilgisi var")
-        
-        # Çok zengin EXIF = gerçek fotoğraf
+
         if len(tag_names) >= 15:
             score += 5
             reasons.append("zengin metadata")
-        
-        score = min(score, 100)  # 100'ü geçmesin
+
+        score = min(score, 100)
         reason = " | ".join(reasons) if reasons else "sadece temel EXIF"
-        
+
         return score, reason
     except Exception as e:
         return 15.0, f"EXIF okunamadı: {str(e)[:50]}"
 
+
+def check_noise(contents: bytes) -> tuple:
+    """
+    Noise (piksel gürültüsü) analizi.
+    Gerçek fotoğraflar: Sensör gürültüsü içerir (yüksek Laplacian varyansı).
+    AI görselleri: Pürüzsüz, temiz pikseller (düşük varyans).
+    Dönüş: (gerçek_olma_skoru 0-100, sebep)
+    """
+    try:
+        import numpy as np
+        from PIL import Image, ImageFilter
+        import io
+
+        img = Image.open(io.BytesIO(contents)).convert("L")
+        img = img.resize((512, 512), Image.LANCZOS)
+
+        laplacian = img.filter(ImageFilter.FIND_EDGES)
+        lap_array = np.array(laplacian, dtype=np.float32)
+        variance = float(lap_array.var())
+
+        if variance > 1000:
+            score = 90.0
+            reason = f"Çok yüksek sensör gürültüsü (variance={variance:.0f}) - gerçek fotoğraf"
+        elif variance > 500:
+            score = 75.0
+            reason = f"Yüksek gürültü (variance={variance:.0f}) - gerçek fotoğraf"
+        elif variance > 300:
+            score = 55.0
+            reason = f"Orta gürültü (variance={variance:.0f}) - kararsız"
+        elif variance > 150:
+            score = 35.0
+            reason = f"Düşük gürültü (variance={variance:.0f}) - AI olabilir"
+        else:
+            score = 15.0
+            reason = f"Çok pürüzsüz (variance={variance:.0f}) - AI olma ihtimali yüksek"
+
+        return score, reason
+    except Exception as e:
+        return 50.0, f"Noise analizi hatası: {str(e)[:50]}"
 def _call_single_model(model_config: dict, contents: bytes, content_type: str):
     """Tek bir Hugging Face modelini çağırır. Başarısız olursa None döner
     (None dönmesi ensemble ortalamasını bozmasın diye önemli - modelin
@@ -812,15 +845,21 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
                 # 1. ÖNCE AI modellerini çağır
         final_ai_score, breakdown = await call_ai_model_ensemble(contents, content_type)
         
-        # 2. SONRA EXIF analizi yap
+               # 2. SONRA EXIF analizi yap
         exif_score, exif_reason = check_exif(contents)
         print(f"[EXIF] skor={exif_score} sebep={exif_reason}")
         exif_ai_score = 100.0 - exif_score
         
-        # 3. EN SONDA birleştir
+        # 3. SONRA Noise analizi yap
+        noise_score, noise_reason = check_noise(contents)
+        print(f"[NOISE] skor={noise_score} sebep={noise_reason}")
+        noise_ai_score = 100.0 - noise_score
+        
+        # 4. EN SONDA 3 katmanı birleştir
         final_ai_score = (
-            final_ai_score * 0.40 +
-            exif_ai_score * 0.60
+            final_ai_score * 0.30 +
+            exif_ai_score * 0.45 +
+            noise_ai_score * 0.25
         )
         final_real_score = 100.0 - final_ai_score
         verdict = "AI" if final_ai_score > DECISION_THRESHOLD else "REAL"
