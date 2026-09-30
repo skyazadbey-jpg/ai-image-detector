@@ -635,6 +635,81 @@ def classify_image_category(contents: bytes, content_type: str = "image/jpeg") -
         print(f"[kategori kontrolü] hata: {e}")
     return "unknown"
 
+def check_exif(contents: bytes) -> tuple:
+    """
+    EXIF (kamera meta verisi) analizi.
+    
+    Gerçek fotoğraflar: Telefon/kamera modeli, ISO, diyafram bilgisi içerir.
+    AI görselleri: Genellikle EXIF yoktur veya çok azdır.
+    
+    Dönüş: (gerçek_olma_skoru 0-100, sebep)
+    """
+    try:
+        from PIL import Image
+        from PIL.ExifTags import TAGS
+        import io
+        
+        img = Image.open(io.BytesIO(contents))
+        exif_data = img.getexif()
+        
+        # EXIF verisi var mı?
+        if not exif_data:
+            return 15.0, "EXIF verisi YOK (AI olma ihtimali yüksek)"
+        
+        # EXIF içinde hangi bilgiler var?
+        tag_names = []
+        has_camera_make = False
+        has_camera_model = False
+        has_iso = False
+        has_datetime = False
+        has_lens = False
+        
+        for tag_id, value in exif_data.items():
+            tag_name = TAGS.get(tag_id, tag_id)
+            tag_names.append(str(tag_name))
+            
+            if tag_name == "Make":
+                has_camera_make = True
+            elif tag_name == "Model":
+                has_camera_model = True
+            elif tag_name == "ISOSpeedRatings":
+                has_iso = True
+            elif tag_name in ("DateTime", "DateTimeOriginal"):
+                has_datetime = True
+            elif tag_name in ("LensModel", "LensMake"):
+                has_lens = True
+        
+        # Puanlama
+        score = 20.0  # Baz puan
+        reasons = []
+        
+        if has_camera_make:
+            score += 25
+            reasons.append("kamera markası var")
+        if has_camera_model:
+            score += 20
+            reasons.append("kamera modeli var")
+        if has_iso:
+            score += 10
+            reasons.append("ISO var")
+        if has_datetime:
+            score += 10
+            reasons.append("tarih var")
+        if has_lens:
+            score += 10
+            reasons.append("lens bilgisi var")
+        
+        # Çok zengin EXIF = gerçek fotoğraf
+        if len(tag_names) >= 15:
+            score += 5
+            reasons.append("zengin metadata")
+        
+        score = min(score, 100)  # 100'ü geçmesin
+        reason = " | ".join(reasons) if reasons else "sadece temel EXIF"
+        
+        return score, reason
+    except Exception as e:
+        return 15.0, f"EXIF okunamadı: {str(e)[:50]}"
 
 def _call_single_model(model_config: dict, contents: bytes, content_type: str):
     """Tek bir Hugging Face modelini çağırır. Başarısız olursa None döner
@@ -734,6 +809,18 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
             # category == "unknown" ise (API'ye ulasilamadi vb.) kullaniciyi
             # yanlislikla engellememek icin analiz normal sekilde devam eder.
 
+        # EXIF analizi
+        exif_score, exif_reason = check_exif(contents)
+        print(f"[EXIF] skor={exif_score} sebep={exif_reason}")
+                # EXIF skorunu AI skoruna dönüştür (tersine çevir)
+        exif_ai_score = 100.0 - exif_score  # EXIF iyiyse AI skoru düşük
+        
+        # Ağırlıklı birleştir
+        final_ai_score = (
+            final_ai_score * 0.70 +      # AI modeller: %70
+            exif_ai_score * 0.30         # EXIF: %30
+        )
+        
         final_ai_score, breakdown = await call_ai_model_ensemble(contents, content_type)
         final_real_score = 100.0 - final_ai_score
         verdict = "AI" if final_ai_score > DECISION_THRESHOLD else "REAL"
