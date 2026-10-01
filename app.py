@@ -947,10 +947,10 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
         
         # 5. EN SONDA 4 katmanı birleştir
         final_ai_score = (
-            final_ai_score * 0.30 +
-            exif_ai_score * 0.10 +
-            jpeg_ai_score * 0.40 +
-            noise_ai_score * 0.20
+            final_ai_score * 0.35 +      
+            exif_ai_score * 0.05 +        
+            jpeg_ai_score * 0.40 +        
+            noise_ai_score * 0.20         
         )
         final_real_score = 100.0 - final_ai_score
         verdict = "AI" if final_ai_score > DECISION_THRESHOLD else "REAL"
