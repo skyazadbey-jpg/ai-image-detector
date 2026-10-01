@@ -777,6 +777,106 @@ def check_exif(contents: bytes) -> tuple:
     except Exception as e:
         return 15.0, f"EXIF okunamadı: {str(e)[:50]}"
 
+def check_plate_region(contents: bytes) -> tuple:
+    """
+    Araba fotoğraflarında plaka bölgesi kontrolü.
+    
+    Basit yaklaşım: Arabanın alt-orta bölgesini kes, 
+    oradaki piksel yoğunluğunu ve deseni analiz et.
+    
+    AI üretimi plakalar: genellikle bulanık veya anlamsız desen.
+    Gerçek plakalar: net, düzgün dikdörtgen, yazı var.
+    
+    Dönüş: (gerçek_olma_skoru 0-100, sebep)
+    """
+    try:
+        import numpy as np
+        from PIL import Image, ImageFilter
+        import io
+        
+        img = Image.open(io.BytesIO(contents)).convert("L")
+        w, h = img.size
+        img = img.resize((512, 512), Image.LANCZOS)
+        
+        # Plaka genellikle alt-orta bölgede (%60-90 yükseklik, %30-70 genişlik)
+        top = int(512 * 0.60)
+        bottom = int(512 * 0.90)
+        left = int(512 * 0.30)
+        right = int(512 * 0.70)
+        
+        plate_region = img.crop((left, top, right, bottom))
+        
+        # Kenar yoğunluğu (yazı varsa yüksek olur)
+        edges = plate_region.filter(ImageFilter.FIND_EDGES)
+        edge_array = np.array(edges, dtype=np.float32)
+        edge_variance = float(edge_array.var())
+        
+        # Kontrast (plaka beyaz, yazı siyah)
+        region_array = np.array(plate_region, dtype=np.float32)
+        contrast = float(region_array.std())
+        
+        # Puanlama
+        # Gerçek plaka: yüksek kontrast + yüksek kenar yoğunluğu
+        if edge_variance > 400 and contrast > 50:
+            score = 80.0
+            reason = f"Belirgin plaka bölgesi (edge={edge_variance:.0f}, contrast={contrast:.0f})"
+        elif edge_variance > 200 and contrast > 35:
+            score = 65.0
+            reason = f"Muhtemel plaka (edge={edge_variance:.0f}, contrast={contrast:.0f})"
+        elif edge_variance > 100:
+            score = 50.0
+            reason = f"Zayıf plaka bölgesi (edge={edge_variance:.0f})"
+        else:
+            score = 30.0
+            reason = f"Plaka yok/bulanık (edge={edge_variance:.0f}) - AI olabilir"
+        
+        return score, reason
+    except Exception as e:
+        return 50.0, f"Plaka analizi hatası: {str(e)[:50]}"
+    
+def check_blur(contents: bytes) -> tuple:
+    """
+    Bulanıklık/keskinlik analizi.
+    
+    Dolandırıcılar genellikle bulanık screenshot kullanır.
+    Ayrıca AI görselleri bazen aşırı pürüzsüz/bulanık olur.
+    
+    Dönüş: (gerçek_olma_skoru 0-100, sebep)
+    """
+    try:
+        import numpy as np
+        from PIL import Image, ImageFilter
+        import io
+        
+        img = Image.open(io.BytesIO(contents)).convert("L")
+        img = img.resize((512, 512), Image.LANCZOS)
+        
+        # Laplacian varyansı = keskinlik ölçüsü
+        laplacian = img.filter(ImageFilter.FIND_EDGES)
+        lap_array = np.array(laplacian, dtype=np.float32)
+        variance = float(lap_array.var())
+        
+        # Puanlama
+        if variance > 800:
+            score = 85.0
+            reason = f"Çok keskin görsel (variance={variance:.0f}) - gerçek fotoğraf"
+        elif variance > 400:
+            score = 70.0
+            reason = f"Keskin görsel (variance={variance:.0f})"
+        elif variance > 200:
+            score = 50.0
+            reason = f"Normal keskinlik (variance={variance:.0f})"
+        elif variance > 100:
+            score = 35.0
+            reason = f"Bulanık görsel (variance={variance:.0f}) - şüpheli"
+        else:
+            score = 20.0
+            reason = f"Çok bulanık (variance={variance:.0f}) - screenshot olabilir"
+        
+        return score, reason
+    except Exception as e:
+        return 50.0, f"Bulanıklık analizi hatası: {str(e)[:50]}"
+    
 def check_jpeg_blocks(contents: bytes) -> tuple:
     """
     JPEG 8x8 blok kalıntı analizi.
@@ -1012,20 +1112,57 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
         print(f"[JPEG] skor={jpeg_score} sebep={jpeg_reason}")
         jpeg_ai_score = 100.0 - jpeg_score
         
-        # 4. Noise analizi yap
+               # 4. Noise analizi yap
         noise_score, noise_reason = check_noise(contents)
         print(f"[NOISE] skor={noise_score} sebep={noise_reason}")
         noise_ai_score = 100.0 - noise_score
         
-        # 5. EN SONDA 4 katmanı birleştir
-        final_ai_score = (
-            final_ai_score * 0.40 +      
-            exif_ai_score * 0.05 +        
-            jpeg_ai_score * 0.35 +       
-            noise_ai_score * 0.20         
-        )
+        # 5. Bulanıklık analizi yap (YENİ)
+        blur_score, blur_reason = check_blur(contents)
+        print(f"[BLUR] skor={blur_score} sebep={blur_reason}")
+        blur_ai_score = 100.0 - blur_score
+
+                # 6. Araba modu ise plaka kontrolü yap (YENİ)
+        if mode == "car":
+            plate_score, plate_reason = check_plate_region(contents)
+            print(f"[PLATE] skor={plate_score} sebep={plate_reason}")
+            plate_ai_score = 100.0 - plate_score
+        else:
+            plate_score = 50.0
+            plate_ai_score = 50.0
+                # 7. EN SONDA katmanları birleştir
+        if mode == "car":
+            # Araba modu: plaka daha önemli
+            final_ai_score = (
+                final_ai_score * 0.30 +
+                exif_ai_score * 0.05 +
+                jpeg_ai_score * 0.25 +
+                noise_ai_score * 0.10 +
+                blur_ai_score * 0.10 +
+                plate_ai_score * 0.20  # Plaka %20
+            )
+        else:
+            # Diğer modlar: plaka yok
+            final_ai_score = (
+                final_ai_score * 0.35 +
+                exif_ai_score * 0.05 +
+                jpeg_ai_score * 0.30 +
+                noise_ai_score * 0.15 +
+                blur_ai_score * 0.15
+            )
         final_real_score = 100.0 - final_ai_score
-        verdict = "AI" if final_ai_score > DECISION_THRESHOLD else "REAL"
+                # Moda göre threshold
+        if mode == "car":
+            mode_threshold = DECISION_THRESHOLD - 10  # Araba modunda daha katı
+        elif mode == "realestate":
+            mode_threshold = DECISION_THRESHOLD - 5   # Emlak modunda orta
+        else:
+            mode_threshold = DECISION_THRESHOLD       # Genel modda normal
+        
+        verdict = "AI" if final_ai_score > mode_threshold else "REAL"
+        print(f"[VERDICT] mode={mode} score={final_ai_score:.1f} threshold={mode_threshold} verdict={verdict}")
+        if mode == "car":
+           print(f"[CAR-MODE] Model={final_ai_score:.1f} EXIF={exif_ai_score:.1f} JPEG={jpeg_ai_score:.1f} Noise={noise_ai_score:.1f} Blur={blur_ai_score:.1f} Plate={plate_ai_score:.1f} → FINAL={final_ai_score:.1f}")
         image_hash = compute_image_hash(contents)
         return {
             "ai_probability": round(final_ai_score, 1),
