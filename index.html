@@ -1667,7 +1667,6 @@ function resetFeedbackUI() {
         document.getElementById('wrongFeedbackOptions').classList.add('hidden');
         document.getElementById('feedbackThanks').classList.add('hidden');
     }
-    currentImageHash = null;
 }
 
 // ============ UPGRADE PARAM KONTROLÜ ============
@@ -2034,13 +2033,10 @@ async function pollForProStatus(attempt = 0) {
                     addToHistory(currentLoadedFile.name, aiScore, statusKey);
                     generateHeatmap(currentLoadedFile);
                                         // Feedback için
+                                       resetFeedbackUI();
                     currentImageHash = data.image_hash || null;
                     currentAiScore = parseFloat(aiScore);
-                    resetFeedbackUI();
                     console.log('[FEEDBACK] hash:', currentImageHash);
-                    currentImageHash = data.image_hash || null;
-                    currentAiScore = parseFloat(aiScore);
-                    resetFeedbackUI();
                    const pdfBtn = document.getElementById('pdfdownloadBtn');
                     if (pdfBtn) {
                     pdfBtn.classList.remove('hidden');
