@@ -360,6 +360,32 @@
                     </div>
                 </div>
                 <p id="summaryMessage" class="text-lg font-bold pt-2"></p>
+                <!-- FEEDBACK BÖLÜMÜ -->
+<div id="feedbackSection" class="mt-4 pt-4 border-t border-slate-700">
+    <p class="text-xs text-slate-400 mb-2 text-center">Bu sonuç doğru mu?</p>
+    <div id="feedbackButtons" class="flex justify-center gap-2">
+        <button onclick="submitFeedback(true)" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-1.5">
+            <i class="fas fa-check"></i> Doğru
+        </button>
+        <button onclick="showWrongFeedback()" class="bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-1.5">
+            <i class="fas fa-times"></i> Yanlış
+        </button>
+    </div>
+    <div id="wrongFeedbackOptions" class="hidden mt-2">
+        <p class="text-xs text-slate-400 mb-2 text-center">Gerçekte ne olmalıydı?</p>
+        <div class="flex justify-center gap-2">
+            <button onclick="submitFeedback(false, 'AI')" class="bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition">
+                Aslında AI
+            </button>
+            <button onclick="submitFeedback(false, 'REAL')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition">
+                Aslında Gerçek
+            </button>
+        </div>
+    </div>
+    <p id="feedbackThanks" class="hidden text-xs text-emerald-400 text-center mt-2">
+        <i class="fas fa-check-circle"></i> Geri bildiriminiz için teşekkürler!
+    </p>
+</div>
                 <div class="pt-2 flex justify-center gap-2">
                     <button onclick="shareResult('twitter')" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5">
                         <i class="fab fa-twitter"></i> <span data-i18n="shareTwitter">Share on X</span>
@@ -1591,6 +1617,59 @@ if (piggyProgressBar) setTimeout(() => piggyProgressBar.style.width = '75%', 300
             }
         }
 
+        // ============ FEEDBACK SİSTEMİ ============
+let currentImageHash = null;
+let currentAiScore = 0;
+
+function submitFeedback(isCorrect, actualOverride = null) {
+    if (!currentImageHash) {
+        showToast(currentLang === 'tr' ? 'Önce bir görsel tarayın' : 'Scan an image first', 'error');
+        return;
+    }
+    
+    const predicted = lastAnalysisStatus?.statusKey === 'AI' ? 'AI' : 'REAL';
+    const actual = isCorrect ? predicted : actualOverride;
+    
+    if (!actual) return;
+    
+    // Backend'e gönder
+    fetch(`${BACKEND_URL}/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            image_hash: currentImageHash,
+            ai_score: currentAiScore,
+            predicted: predicted,
+            actual: actual,
+            mode: currentMode || 'general'
+        })
+    }).then(r => r.json()).then(data => {
+        document.getElementById('feedbackButtons').classList.add('hidden');
+        document.getElementById('wrongFeedbackOptions').classList.add('hidden');
+        document.getElementById('feedbackThanks').classList.remove('hidden');
+        showToast(currentLang === 'tr' ? 'Teşekkürler!' : 'Thank you!', 'success');
+    }).catch(err => {
+        console.error('Feedback error:', err);
+        showToast(currentLang === 'tr' ? 'Hata oluştu' : 'Error', 'error');
+    });
+}
+
+function showWrongFeedback() {
+    document.getElementById('feedbackButtons').classList.add('hidden');
+    document.getElementById('wrongFeedbackOptions').classList.remove('hidden');
+}
+
+function resetFeedbackUI() {
+    const fb = document.getElementById('feedbackSection');
+    if (fb) {
+        fb.classList.remove('hidden');
+        document.getElementById('feedbackButtons').classList.remove('hidden');
+        document.getElementById('wrongFeedbackOptions').classList.add('hidden');
+        document.getElementById('feedbackThanks').classList.add('hidden');
+    }
+    currentImageHash = null;
+}
+
       function loginSuccess(token, user) {
     localStorage.setItem('authToken', token);
     currentUser = user;
@@ -1921,6 +2000,9 @@ if (piggyProgressBar) setTimeout(() => piggyProgressBar.style.width = '75%', 300
                  
                     addToHistory(currentLoadedFile.name, aiScore, statusKey);
                     generateHeatmap(currentLoadedFile);
+                    currentImageHash = data.image_hash || null;
+                    currentAiScore = parseFloat(aiScore);
+                    resetFeedbackUI();
                    const pdfBtn = document.getElementById('pdfdownloadBtn');
                     if (pdfBtn) {
                     pdfBtn.classList.remove('hidden');

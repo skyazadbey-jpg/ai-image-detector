@@ -14,6 +14,7 @@ import re
 import base64
 import random
 import asyncio
+import hashlib
 import concurrent.futures
 from PIL import Image, ImageFilter, ImageDraw
 from passlib.hash import bcrypt
@@ -119,6 +120,27 @@ def init_db():
 
 init_db()
 
+def init_feedback_table():
+    """Feedback (kullanıcı geri bildirimi) tablosu."""
+    conn = get_db()
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS feedback (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            image_hash TEXT NOT NULL,
+            ai_score REAL NOT NULL,
+            predicted TEXT NOT NULL,
+            actual TEXT NOT NULL,
+            mode TEXT DEFAULT 'general',
+            created_at REAL NOT NULL
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_feedback_hash ON feedback(image_hash)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_feedback_created ON feedback(created_at)")
+    conn.commit()
+    conn.close()
+
+
+init_feedback_table()
 
 # ---------- MODELS ----------
 class RegisterRequest(BaseModel):
@@ -491,8 +513,54 @@ def me(current=Depends(get_current_user)):
     if not row:
         raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı.")
     return {"user": user_to_public(row), "is_pro": bool(row["is_pro"]) if "is_pro" in row.keys() else False}
+# ---------- FEEDBACK ----------
+class FeedbackRequest(BaseModel):
+    image_hash: str
+    ai_score: float
+    predicted: str
+    actual: str
+    mode: str = "general"
 
 
+@app.post("/feedback")
+def submit_feedback(data: FeedbackRequest):
+    """Kullanıcı geri bildirimini kaydeder."""
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO feedback (image_hash, ai_score, predicted, actual, mode, created_at) VALUES (?,?,?,?,?,?)",
+        (data.image_hash, data.ai_score, data.predicted, data.actual, data.mode, time.time())
+    )
+    conn.commit()
+    conn.close()
+    print(f"[FEEDBACK] hash={data.image_hash} predicted={data.predicted} actual={data.actual} score={data.ai_score}")
+    return {"status": "ok", "message": "Geri bildiriminiz kaydedildi, teşekkürler!"}
+
+
+@app.get("/feedback/stats")
+def feedback_stats():
+    """Feedback istatistikleri (haftalık analiz için)."""
+    conn = get_db()
+    total = conn.execute("SELECT COUNT(*) FROM feedback").fetchone()[0]
+    if total == 0:
+        conn.close()
+        return {"total": 0, "accuracy": 0, "by_mode": []}
+    
+    correct = conn.execute(
+        "SELECT COUNT(*) FROM feedback WHERE predicted = actual"
+    ).fetchone()[0]
+    
+    modes = conn.execute(
+        "SELECT mode, COUNT(*) as total, SUM(CASE WHEN predicted = actual THEN 1 ELSE 0 END) as correct FROM feedback GROUP BY mode"
+    ).fetchall()
+    
+    conn.close()
+    return {
+        "total": total,
+        "correct": correct,
+        "wrong": total - correct,
+        "accuracy": round(correct / total * 100, 1),
+        "by_mode": [dict(m) for m in modes]
+    }
 # ---------- HOME ----------
 @app.get("/api")
 def api_home():
@@ -634,6 +702,10 @@ def classify_image_category(contents: bytes, content_type: str = "image/jpeg") -
     except Exception as e:
         print(f"[kategori kontrolü] hata: {e}")
     return "unknown"
+
+def compute_image_hash(contents: bytes) -> str:
+    """Görselin SHA256 hash'ini hesaplar (feedback için)."""
+    return hashlib.sha256(contents).hexdigest()[:16]
 
 def check_exif(contents: bytes) -> tuple:
     """
@@ -954,10 +1026,10 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
         )
         final_real_score = 100.0 - final_ai_score
         verdict = "AI" if final_ai_score > DECISION_THRESHOLD else "REAL"
-        # Not: hem yeni (ai_probability) hem eski (result dizisi) formatı birlikte
-        # döndürüyoruz ki frontend hangi sürümde olursa olsun doğru okuyabilsin.
+        image_hash = compute_image_hash(contents)
         return {
             "ai_probability": round(final_ai_score, 1),
+            "image_hash": image_hash,
             "real_probability": round(final_real_score, 1),
             "verdict": verdict,
             "status": "success",
@@ -987,6 +1059,8 @@ async def predict_heatmap(file: UploadFile = File(None), image_url: str = Form(N
             return {"error": "Görsel bulunamadı."}
 
         normalized_contents, content_type = normalize_image_bytes(contents)
+                # Feedback için görsel hash'i hesapla
+        image_hash = compute_image_hash(contents)
         ai_score_pct, _breakdown = await call_ai_model_ensemble(normalized_contents, content_type)
         ai_score = ai_score_pct / 100.0
 
