@@ -1670,6 +1670,39 @@ function resetFeedbackUI() {
     currentImageHash = null;
 }
 
+// ============ UPGRADE PARAM KONTROLÜ ============
+function checkUpgradeParam() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('upgrade') && urlParams.get('upgrade') === 'success') {
+        window.history.replaceState({}, document.title, window.location.pathname);
+        showToast(currentLang === 'tr' ? "Ödemeniz alındı, hesabınız güncelleniyor..." : "Payment received, updating your account...", 'info');
+        if (typeof pollForProStatus === 'function') pollForProStatus();
+    }
+}
+
+async function pollForProStatus(attempt = 0) {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+    try {
+        const res = await fetch(`${BACKEND_URL}/auth/me`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const data = await res.json();
+        const isPro = data.is_pro === true || (data.user && data.user.is_pro === true);
+        if (isPro) {
+            if (typeof setProUser === 'function') setProUser(true);
+            currentUser = data.user;
+            updateAuthUI();
+            return;
+        }
+    } catch (e) {}
+    if (attempt < 10) {
+        setTimeout(() => pollForProStatus(attempt + 1), 3000);
+    } else {
+        showToast(currentLang === 'tr' ? "Güncelleme gecikti, birkaç dakika sonra sayfayı yenileyin." : "Update delayed, refresh in a few minutes.", 'error');
+    }
+}
+
+   
+
       function loginSuccess(token, user) {
     localStorage.setItem('authToken', token);
     currentUser = user;
@@ -2000,6 +2033,11 @@ function resetFeedbackUI() {
                  
                     addToHistory(currentLoadedFile.name, aiScore, statusKey);
                     generateHeatmap(currentLoadedFile);
+                                        // Feedback için
+                    currentImageHash = data.image_hash || null;
+                    currentAiScore = parseFloat(aiScore);
+                    resetFeedbackUI();
+                    console.log('[FEEDBACK] hash:', currentImageHash);
                     currentImageHash = data.image_hash || null;
                     currentAiScore = parseFloat(aiScore);
                     resetFeedbackUI();
