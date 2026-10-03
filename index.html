@@ -360,6 +360,7 @@
                     </div>
                 </div>
                 <p id="summaryMessage" class="text-lg font-bold pt-2"></p>
+                <section id="evidenceReport" class="hidden text-left space-y-4 pt-4 border-t border-slate-700" aria-live="polite"></section>
                 <!-- FEEDBACK BÖLÜMÜ -->
 <div id="feedbackSection" class="mt-4 pt-4 border-t border-slate-700">
     <p class="text-xs text-slate-400 mb-2 text-center">Bu sonuç doğru mu?</p>
@@ -833,8 +834,8 @@
                 scanBtn: "Scan Image",
                 resultTitle: "Analysis Result",
                 loadingText: "Analyzing...",
-                aiProb: "AI Generated Probability",
-                humanProb: "Real Photo Probability",
+                aiProb: "AI model score",
+                humanProb: "Real photo model score",
                 historyTitle: "Recent Scans",
                 clearHistory: "Clear History",
                 aiMsg: "🚨 Model score favors AI generation.",
@@ -1029,11 +1030,11 @@
                 batchDesc: "Birden fazla görsel tara", batchBtn: "Etkinleştir",
                 batchBtnSoon: "Yakında",
                 scanBtn: "Görseli Tara", resultTitle: "Analiz Sonucu",
-                loadingText: "Analiz ediliyor...", aiProb: "Yapay Zeka Olasılığı",
-                humanProb: "Gerçek Fotoğraf Olasılığı", historyTitle: "Son Taramalar",
+                loadingText: "Analiz ediliyor...", aiProb: "Yapay zekâ model skoru",
+                humanProb: "Gerçek fotoğraf model skoru", historyTitle: "Son Taramalar",
                 clearHistory: "Geçmişi Temizle",
                 aiMsg: "🚨 Model skoru yapay zekâ üretimi yönünde.",
-                suspiciousMsg: "⚠️ Karışık sinyaller.",
+                suspiciousMsg: "⚠️ Karar belirsiz. Ayrıntıları aşağıda görebilirsin.",
                 realMsg: "✅ Model skoru gerçek fotoğraf yönünde.",
                 errorMsg: "Analiz hatası:", connError: "Bağlantı hatası.",
                 selectFirst: "Lütfen önce bir görsel seçin!", noHistory: "Henüz tarama yok.",
@@ -1620,6 +1621,7 @@ if (piggyProgressBar) setTimeout(() => piggyProgressBar.style.width = '75%', 300
         // ============ FEEDBACK SİSTEMİ ============
 let currentImageHash = null;
 let currentAiScore = 0;
+let currentAnalysisToken = null;
 
 function submitFeedback(isCorrect, actualOverride = null) {
     if (!currentImageHash) {
@@ -1628,6 +1630,11 @@ function submitFeedback(isCorrect, actualOverride = null) {
     }
     
     const predicted = lastAnalysisStatus?.statusKey === 'AI' ? 'AI' : (lastAnalysisStatus?.statusKey === 'Real' ? 'REAL' : 'UNCERTAIN');
+    if (isCorrect && predicted === 'UNCERTAIN') {
+        showWrongFeedback();
+        showToast(currentLang === 'tr' ? 'Kaynağını biliyorsan gerçek veya AI seç.' : 'Select the known source: real or AI.', 'info');
+        return;
+    }
     const actual = isCorrect ? predicted : actualOverride;
     
     if (!actual) return;
@@ -1641,9 +1648,14 @@ function submitFeedback(isCorrect, actualOverride = null) {
             ai_score: currentAiScore,
             predicted: predicted,
             actual: actual,
-            mode: currentMode || 'general'
+            mode: currentMode || 'general',
+            analysis_token: currentAnalysisToken
         })
-    }).then(r => r.json()).then(data => {
+    }).then(async r => {
+        const responseData = await r.json();
+        if (!r.ok || responseData.status !== 'ok') throw new Error('Feedback rejected');
+        return responseData;
+    }).then(data => {
         document.getElementById('feedbackButtons').classList.add('hidden');
         document.getElementById('wrongFeedbackOptions').classList.add('hidden');
         document.getElementById('feedbackThanks').classList.remove('hidden');
@@ -1903,6 +1915,52 @@ async function pollForProStatus(attempt = 0) {
             switchTab('file');
         }
 
+
+        function renderEvidenceReport(data) {
+            const container = document.getElementById('evidenceReport');
+            container.replaceChildren();
+            const report = data.evidence_report;
+            if (!report) { container.classList.add('hidden'); return; }
+            container.classList.remove('hidden');
+            const addText = (parent, tag, text, className) => {
+                const node = document.createElement(tag);
+                node.textContent = text;
+                node.className = className || '';
+                parent.appendChild(node);
+                return node;
+            };
+            const block = (title) => {
+                const section = document.createElement('div');
+                section.className = 'bg-slate-800/60 rounded-xl p-4 space-y-2';
+                container.appendChild(section);
+                addText(section, 'h4', title, 'font-bold text-slate-100 text-sm');
+                return section;
+            };
+            const tr = currentLang === 'tr';
+            const reasons = block(tr ? 'Bu karar neden verildi?' : 'Why this decision?');
+            report.decision_reasons.forEach(reason => addText(reasons, 'p', reason, 'text-sm text-amber-300'));
+            const models = block(tr ? 'Modellerin ayrı sonuçları' : 'Individual model results');
+            report.models.forEach(model => {
+                const row = document.createElement('div');
+                row.className = 'flex justify-between gap-3 text-xs';
+                models.appendChild(row);
+                addText(row, 'span', model.model, 'text-slate-300 break-all');
+                addText(row, 'span', model.ai_score === null ? (tr ? 'Cevap yok' : 'Unavailable') : `${Number(model.ai_score).toFixed(1)} / 100 AI`, 'text-indigo-300 whitespace-nowrap');
+            });
+            const observations = block(tr ? 'Dosyada kontrol edilenler' : 'File observations');
+            report.observations.forEach(item => {
+                addText(observations, 'p', item.title, 'text-sm font-semibold text-slate-200');
+                addText(observations, 'p', item.detail, 'text-xs text-slate-400');
+            });
+            const steps = block(tr ? 'Sonraki doğrulama adımları' : 'Next verification steps');
+            report.verification_steps.forEach(item => {
+                addText(steps, 'p', item.title, 'text-sm font-semibold text-slate-200');
+                addText(steps, 'p', item.detail, 'text-xs text-slate-400');
+            });
+            addText(container, 'p', report.limitations, 'text-xs text-amber-300');
+            addText(container, 'p', report.learning, 'text-xs text-slate-400');
+        }
+
         function updateSummaryMessage(aiScore, statusKey) {
             const summaryMessage = document.getElementById('summaryMessage');
             const resultArea = document.getElementById('resultArea');
@@ -1980,6 +2038,9 @@ async function pollForProStatus(attempt = 0) {
     }
 }
 
+            currentAnalysisToken = null;
+            currentImageHash = null;
+            document.getElementById('evidenceReport').classList.add('hidden');
             scanButton.disabled = true;
             scanButton.classList.add('opacity-70', 'cursor-not-allowed');
             buttonText.innerText = currentLang === 'tr' ? "Analiz Ediliyor..." : "Analyzing...";
@@ -2035,6 +2096,8 @@ async function pollForProStatus(attempt = 0) {
                                         // Feedback için
                                        resetFeedbackUI();
                     currentImageHash = data.image_hash || null;
+                    currentAnalysisToken = data.analysis_token || null;
+                    renderEvidenceReport(data);
                     currentAiScore = parseFloat(aiScore);
                     console.log('[FEEDBACK] hash:', currentImageHash);
                    const pdfBtn = document.getElementById('pdfdownloadBtn');
@@ -2332,6 +2395,9 @@ async function pollForProStatus(attempt = 0) {
 
         function switchMode(mode) {
             currentMode = mode;
+            currentImageHash = null;
+            currentAnalysisToken = null;
+            document.getElementById('resultArea').classList.add('hidden');
             localStorage.setItem('mode', mode);
             document.body.classList.remove('mode-car', 'mode-realestate');
             if (mode === 'car') document.body.classList.add('mode-car');
@@ -2373,8 +2439,6 @@ async function pollForProStatus(attempt = 0) {
         }
 
             // Aktif modu saklayan global değişken
-currentMode = 'general';
-
 // Görselin doğru modda olup olmadığını denetleyen fonksiyon
 function handleImageValidation(event) {
     const file = event.target.files[0];

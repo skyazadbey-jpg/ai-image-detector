@@ -37,7 +37,7 @@
                 Yüklediğiniz görsel, yapay zeka üretimi görselleri tanımak için eğitilmiş bir makine öğrenmesi modeline gönderilir. Model, görselin dokusundaki, ışıklandırmasındaki ve piksel örüntülerindeki ipuçlarına bakarak 0-100 arası bir model skoru üretir. Bu skor kalibre edilmiş bir olasılık değildir. Modeller erişilemezse analiz başarısız olur; eksik veya çelişkili cevaplarda sonuç belirsiz gösterilir.
             </p>
             <p class="text-slate-300 leading-relaxed">
-                <strong class="text-slate-100">Araba</strong> ve <strong class="text-slate-100">Emlak</strong> modlarında, önce görselin gerçekten o kategoriyle ilgili olup olmadığını ayrı bir kontrolle doğrularız — alakasız bir görsel yüklenirse analiz yapılmadan sizi bilgilendiririz.
+                <strong class="text-slate-100">Araba</strong> ve <strong class="text-slate-100">Emlak</strong> modlarında, önce görselin gerçekten o kategoriyle ilgili olup olmadığını ayrı bir kontrolle doğrularız — kategori kontrolünün sonucunu raporda gösteririz. Bu model yanılabildiği için görseli yalnızca kategori tahminine dayanarak reddetmeyiz.
             </p>
         </section>
 
@@ -88,6 +88,11 @@
                 <li class="flex gap-3"><i class="fas fa-circle-minus text-amber-400 mt-1 text-xs"></i> Emlak modunda, sıra dışı mimari tarzdaki gerçek bina fotoğrafları nadiren yanlışlıkla reddedilebilir.</li>
                 <li class="flex gap-3"><i class="fas fa-circle-minus text-amber-400 mt-1 text-xs"></i> Sonuçlarımız <strong class="text-slate-200">bir ipucudur, kesin hüküm değildir</strong>. Önemli bir alım-satım kararı öncesi mutlaka ek doğrulama yapın (tapu, TRAMER, yüz yüze görüşme).</li>
             </ul>
+        </section>
+
+        <section class="mb-10">
+            <h2 class="font-display text-xl font-bold mb-3">Sürekli gelişim nasıl ölçülür?</h2>
+            <p class="text-slate-300">Model cevapları, yanıt süresi ve hata durumu çalışma kayıtlarına yazılır; fotoğraf, dosya adı, EXIF değerleri ve URL bu kayıtlara eklenmez. Kullanıcı geri bildirimleri doğrulanmamış beyanlardır; otomatik eğitim için kullanılmaz. Otomatik öğrenme veya model terfisi şu anda etkin değildir. Bunlar bağımsız ve doğrulanmış test örnekleri gerektirir.</p>
         </section>
 
         <section class="mb-4">

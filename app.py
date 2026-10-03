@@ -17,6 +17,8 @@ import asyncio
 import hashlib
 import concurrent.futures
 import math
+import json
+from evidence_report import build_report
 from detector_core import parse_prediction, decide_verdict
 from PIL import Image, ImageFilter, ImageDraw
 from passlib.hash import bcrypt
@@ -43,7 +45,7 @@ HF_TOKEN = os.getenv("HF_TOKEN")
 # kod dokunmadan guncelleyebilirsiniz. Yeni bir model eklemeden once o modelin
 # huggingface.co uzerinde "image-classification" gorevini destekledigini ve
 # router.huggingface.co uzerinden erisilebilir oldugunu dogrulayin.
-_DEFAULT_MODELS = "Vontra/detectra-v1:0.55,prithivMLmods/deepfake-detector-model-v1:0.30,umm-maybe/AI-image-detector:0.15"
+_DEFAULT_MODELS = "Ateeqq/ai-vs-human-image-detector:1.0"
 
 def _parse_model_configs(raw: str):
     configs = []
@@ -527,12 +529,27 @@ class FeedbackRequest(BaseModel):
     predicted: str
     actual: str
     mode: str = "general"
+    analysis_token: str = ""
 
 
 @app.post("/feedback")
 def submit_feedback(data: FeedbackRequest):
-    """Kullanıcı geri bildirimini kaydeder."""
+    """Store self-reported labels only; never train from these automatically."""
+    payload = decode_jwt(data.analysis_token)
+    if not payload or payload.get("scope") != "analysis_feedback":
+        raise HTTPException(status_code=400, detail="Önce yeniden analiz yapın.")
+    if data.actual not in ("AI", "REAL", "UNCERTAIN"):
+        raise HTTPException(status_code=400, detail="Geçersiz geri bildirim.")
+    # Bind claims to the server-issued analysis; client cannot change score/prediction.
+    data.image_hash = payload["image_hash"]
+    data.ai_score = payload["score"]
+    data.predicted = payload["verdict"]
+    data.mode = payload["mode"]
     conn = get_db()
+    duplicate = conn.execute("SELECT 1 FROM feedback WHERE image_hash=? AND predicted=? AND ai_score=?", (data.image_hash, data.predicted, data.ai_score)).fetchone()
+    if duplicate:
+        conn.close()
+        return {"status": "ok", "message": "Bu analiz için geri bildirim zaten kaydedildi."}
     conn.execute(
         "INSERT INTO feedback (image_hash, ai_score, predicted, actual, mode, created_at) VALUES (?,?,?,?,?,?)",
         (data.image_hash, data.ai_score, data.predicted, data.actual, data.mode, time.time())
@@ -550,7 +567,7 @@ def feedback_stats():
     total = conn.execute("SELECT COUNT(*) FROM feedback").fetchone()[0]
     if total == 0:
         conn.close()
-        return {"total": 0, "accuracy": 0, "by_mode": []}
+        return {"total": 0, "self_reported_agreement": None, "verified_accuracy": None, "by_mode": []}
     
     correct = conn.execute(
         "SELECT COUNT(*) FROM feedback WHERE predicted = actual"
@@ -565,7 +582,9 @@ def feedback_stats():
         "total": total,
         "correct": correct,
         "wrong": total - correct,
-        "accuracy": round(correct / total * 100, 1),
+        "self_reported_agreement": round(correct / total * 100, 1),
+        "verified_accuracy": None,
+        "note": "Kullanıcı beyanları doğrulanmış test seti değildir.",
         "by_mode": [dict(m) for m in modes]
     }
 # ---------- HOME ----------
@@ -1066,6 +1085,7 @@ async def call_ai_model_ensemble(contents: bytes, content_type: str):
 @app.post("/predict")
 async def predict(file: UploadFile = File(None), image_url: str = Form(None), mode: str = Form("general")):
     try:
+        started_at = time.monotonic()
         contents = None
         content_type = "application/octet-stream"
 
@@ -1085,23 +1105,11 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
         if mode not in ("general", "car", "realestate"):
             return {"error": "Geçersiz analiz modu."}
 
-        # ---------- KATEGORI DOGRULAMASI (araba / emlak modlarinda) ----------
-        # "Araba" veya "Emlak" sekmesinden yuklenen gorselin gercekten o
-        # kategoriyle ilgili olup olmadigini kontrol ediyoruz. Alakasiz bir
-        # gorsel (ornegin araba sekmesine manzara fotografi) yuklenirse
-        # kullaniciya bunu bildirip analiz yapmadan durduruyoruz - bu da
-        # sitenin guvenilirligini korur.
+        # ImageNet category guesses are guidance, never a hard rejection.
+        category = "not_checked"
         if mode in ("car", "realestate"):
-            category = classify_image_category(contents, content_type)
-            if category == "other":
-                if mode == "car":
-                    return {"error": "Bu görsel bir araba fotoğrafına benzemiyor. Lütfen incelemek istediğiniz aracın net bir fotoğrafını yükleyin."}
-                else:
-                    return {"error": "Bu görsel bir emlak/bina fotoğrafına benzemiyor. Lütfen incelemek istediğiniz mülkün net bir fotoğrafını yükleyin."}
-            # category == "unknown" ise (API'ye ulasilamadi vb.) kullaniciyi
-            # yanlislikla engellememek icin analiz normal sekilde devam eder.
+            category = await asyncio.to_thread(classify_image_category, contents, content_type)
 
-                # 1. ÖNCE AI modellerini çağır
         final_ai_score, breakdown = await call_ai_model_ensemble(contents, content_type)
         
         final_real_score = 100.0 - final_ai_score
@@ -1111,6 +1119,15 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
         verdict = decide_verdict(final_ai_score, DECISION_THRESHOLD, UNCERTAINTY_MARGIN,
                                  degraded or disagreement)
         image_hash = compute_image_hash(original_contents)
+        report = build_report(original_contents, mode, breakdown, verdict, degraded, disagreement, category)
+        analysis_token = jwt.encode({"scope": "analysis_feedback", "image_hash": image_hash,
+            "score": round(final_ai_score, 1), "verdict": verdict, "mode": mode,
+            "exp": time.time() + 3600}, JWT_SECRET, algorithm="HS256")
+        # Operational metrics only: no image bytes, filename, URL, EXIF values or image hash.
+        print(json.dumps({"event": "analysis_completed", "version": "2.0", "mode": mode,
+            "duration_ms": round((time.monotonic() - started_at) * 1000),
+            "verdict": verdict, "degraded": degraded, "disagreement": disagreement,
+            "models": breakdown}, ensure_ascii=False), flush=True)
         return {
             "ai_probability": round(final_ai_score, 1),
             "image_hash": image_hash,
@@ -1126,6 +1143,8 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
             "degraded": degraded,
             "model_disagreement": disagreement,
             "decision_threshold": DECISION_THRESHOLD,
+            "evidence_report": report,
+            "analysis_token": analysis_token,
         }
     except Exception as e:
         return {"error": str(e)}
