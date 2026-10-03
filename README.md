@@ -12,7 +12,7 @@ Kaynaklar: bitmind/open-images-v7-subset, bitmind/MS-COCO-unique___FLUX.1-dev, b
 
 Mevcut Python 3.11 ortamı ve `pip install -r requirements.txt` kurulumu uygundur. Başlatma: `uvicorn app:app --host 0.0.0.0 --port $PORT` (tek worker). Standart motor `local` olduğu için AI_MODELS ayarı kullanılmaz; değiştirmeniz gerekmez. İsteğe bağlı AI_BACKEND=hf eski API motoruna dönüş içindir.
 
-`detector_model.part00`–`part04` dosyaları ve manifest aynı klasörde bulunmalıdır. İlk analizde bütünlükleri kontrol edilerek tek ONNX dosyasına birleştirilirler. Bozuk/eksik modelde sonuç üretilmez. Dosyaları parçalara bölme amacı GitHub tarayıcı yükleme sınırına uymaktır.
+`detector_model.part00`–`part15` dosyaları ve manifest aynı klasörde bulunmalıdır. İlk analizde bütünlükleri kontrol edilerek tek ONNX dosyasına birleştirilirler. Bozuk/eksik modelde sonuç üretilmez. Dosyaları parçalara bölme amacı GitHub tarayıcı yükleme sınırına uymaktır.
 
 Ücretsiz sunucuda bellek için aynı anda tek analiz çalışır; diğer istekler tekrar deneme mesajı alır. Dosya sınırı 20 MB ve 20 megapikseldir. Ücretsiz Render uykudan uyanırken ve yoğunken analiz daha uzun sürebilir. Windows testinde uygulamanın tepe çalışma belleği yaklaşık 313 MB ölçüldü; bu Linux/Render bellek garantisi değildir.
 
