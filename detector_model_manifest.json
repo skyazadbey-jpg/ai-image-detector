@@ -1,0 +1,77 @@
+{
+  "model": "xRayon/convnext-ai-images-detector",
+  "revision": "1b4d270be0590cde4320fa7503d68b44bb7ee77e",
+  "source_file": "AI Images Detector/checkpoints/checkpoint_phase2.pth",
+  "source_sha256": "37f31776a241b575dc034ddded7afd12014ba453ac07cbe3725f808787717f0e",
+  "variant": "onnx-dynamic-int8",
+  "opset": 17,
+  "runtime": "onnxruntime==1.30.0",
+  "sha256": "2b8b40817e30b1cc8b32dbb703cfad223255cb6657f4f12b792c166f6e9d3ab4",
+  "bytes": 100375312,
+  "parts": [
+    {
+      "name": "detector_model.part00",
+      "bytes": 20971520,
+      "sha256": "893feb47c3ab22cce9a40338c1ee08c113ef147602fc6d933aae84571e5ff500"
+    },
+    {
+      "name": "detector_model.part01",
+      "bytes": 20971520,
+      "sha256": "df37085d84af61ebad786ff293390c96ff732a8b38f3cad1cb95c6a3e59c2514"
+    },
+    {
+      "name": "detector_model.part02",
+      "bytes": 20971520,
+      "sha256": "97cd1bcebf5095e0abbdad47318645e268c4fa9f21f950996ba084919ed6b150"
+    },
+    {
+      "name": "detector_model.part03",
+      "bytes": 20971520,
+      "sha256": "97cbe01cd0ec1c53986dbd61f9af0f7171c1c4515fb2ecb99c08747b6483fb61"
+    },
+    {
+      "name": "detector_model.part04",
+      "bytes": 16489232,
+      "sha256": "9a5886bc6d157cab6bd8138828c7daf6856e1a0fb31c5dae9855043eb3cdbedf"
+    }
+  ],
+  "input": {
+    "size": [
+      1,
+      3,
+      256,
+      256
+    ],
+    "resize_short_edge": 288,
+    "center_crop": 256,
+    "rgb": true,
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ]
+  },
+  "labels": {
+    "0": "REAL",
+    "1": "AI"
+  },
+  "license": "MIT",
+  "benchmark": {
+    "development_correct": 158,
+    "development_total": 200,
+    "holdout_correct": 170,
+    "holdout_total": 200,
+    "holdout_wrong": 26,
+    "holdout_uncertain": 4,
+    "combined_correct": 328,
+    "combined_total": 400,
+    "threshold": 60,
+    "uncertainty_margin": 10,
+    "scope": "Publisher-labeled OpenImages, FLUX and SDXL samples; training overlap unknown."
+  }
+}

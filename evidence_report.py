@@ -44,7 +44,9 @@ def build_report(contents, mode, breakdown, verdict, degraded=False, disagreemen
     if not reasons:
         reasons.append('Karar mevcut model skoruna ve ayarlanmış eşiğe dayanıyor.')
     if mode != 'general':
-        if category == 'unknown':
+        if category == 'not_checked':
+            pass  # Mode selects guidance; it does not change the AI score.
+        elif category == 'unknown':
             observations.append({'title': 'Kategori kontrolü', 'detail': 'Kategori modeli cevap vermedi; araç veya mülk içeriği doğrulanamadı.'})
         elif category != mode:
             observations.append({'title': 'Kategori kontrolü', 'detail': 'Kategori modeli seçili modla eşleşmedi; sonuçları bu sınırlamayla değerlendir.'})

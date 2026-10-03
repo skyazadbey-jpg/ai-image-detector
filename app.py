@@ -20,6 +20,7 @@ import math
 import json
 from evidence_report import build_report
 from detector_core import parse_prediction, decide_verdict
+import local_detector
 from PIL import Image, ImageFilter, ImageDraw
 from passlib.hash import bcrypt
 from google.oauth2 import id_token as google_id_token
@@ -73,7 +74,12 @@ def _parse_model_configs(raw: str):
     return configs
 
 
-MODEL_CONFIGS = _parse_model_configs(os.getenv("AI_MODELS", _DEFAULT_MODELS))
+AI_BACKEND = os.getenv("AI_BACKEND", "local").strip().lower()
+if AI_BACKEND not in ("local", "hf"):
+    raise ValueError("AI_BACKEND local veya hf olmalı")
+MODEL_CONFIGS = ([{"model_id": local_detector.MODEL_ID, "weight": 1.0}]
+                 if AI_BACKEND == "local" else _parse_model_configs(os.getenv("AI_MODELS", _DEFAULT_MODELS)))
+ANALYSIS_GATE = asyncio.Lock()
 
 # Karar esigi: ai_probability bu degerin ustundeyse "AI/FAKE" olarak isaretlenir.
 # Eşik bağımsız ve doğrulanmış bir test setiyle ayarlanmalıdır.
@@ -658,6 +664,19 @@ async def gumroad_webhook(request: Request):
 
 
 # ---------- PREDICT (tek ve doğru versiyon) ----------
+def download_analysis_image(url):
+    if not url.lower().startswith(("http://", "https://")):
+        raise ValueError("Geçerli bir HTTP/HTTPS görsel bağlantısı kullanın.")
+    with requests.get(url, timeout=20, stream=True) as response:
+        response.raise_for_status()
+        result = io.BytesIO()
+        for chunk in response.iter_content(64 * 1024):
+            if result.tell() + len(chunk) > 20 * 1024 * 1024:
+                raise ValueError("Görsel 20 MB sınırını aşıyor.")
+            result.write(chunk)
+        return result.getvalue(), response.headers.get("content-type", "image/jpeg")
+
+
 def normalize_image_bytes(contents: bytes):
     """JPEG/PNG bytes are preserved; other formats use lossless PNG."""
     if not contents or len(contents) > 20 * 1024 * 1024:
@@ -665,6 +684,12 @@ def normalize_image_bytes(contents: bytes):
     with Image.open(io.BytesIO(contents)) as image:
         if image.width * image.height > 40_000_000:
             raise ValueError("Görsel 40 megapiksel sınırını aşıyor.")
+        if AI_BACKEND == "local":
+            if image.width * image.height > local_detector.MAX_PIXELS:
+                raise ValueError("Görsel 20 megapiksel sınırını aşıyor. Daha küçük bir kopya yükleyin.")
+            content_type = Image.MIME.get(image.format, "application/octet-stream")
+            image.verify()
+            return contents, content_type
         image.load()
         if image.format in ("JPEG", "PNG"):
             return contents, "image/jpeg" if image.format == "JPEG" else "image/png"
@@ -1055,6 +1080,8 @@ async def call_ai_model_ensemble(contents: bytes, content_type: str):
     """Tüm modelleri PARALEL çağırır, sonuçları ağırlıklı ortalamayla birleştirir.
     Dönüş: (final_ai_score, model_breakdown_listesi)
     """
+    if AI_BACKEND == "local":
+        return await asyncio.to_thread(local_detector.analyze, contents)
     loop = asyncio.get_event_loop()
     with concurrent.futures.ThreadPoolExecutor(max_workers=max(len(MODEL_CONFIGS), 1)) as executor:
         futures = [
@@ -1084,19 +1111,21 @@ async def call_ai_model_ensemble(contents: bytes, content_type: str):
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(None), image_url: str = Form(None), mode: str = Form("general")):
+    acquired = False
+    if AI_BACKEND == "local":
+        if ANALYSIS_GATE.locked():
+            return {"error": "Analiz motoru şu anda meşgul. Birkaç saniye sonra tekrar deneyin."}
+        await ANALYSIS_GATE.acquire()
+        acquired = True
     try:
         started_at = time.monotonic()
         contents = None
         content_type = "application/octet-stream"
 
         if file:
-            contents = await file.read()
+            contents = await file.read(20 * 1024 * 1024 + 1)
         elif image_url:
-            img_response = requests.get(image_url, timeout=20)
-            if img_response.status_code != 200:
-                return {"error": "Görsel indirilemedi."}
-            contents = img_response.content
-            content_type = img_response.headers.get("content-type", "image/jpeg")
+            contents, content_type = await asyncio.to_thread(download_analysis_image, image_url)
         else:
             return {"error": "Görsel bulunamadı."}
 
@@ -1107,7 +1136,7 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
 
         # ImageNet category guesses are guidance, never a hard rejection.
         category = "not_checked"
-        if mode in ("car", "realestate"):
+        if mode in ("car", "realestate") and AI_BACKEND == "hf":
             category = await asyncio.to_thread(classify_image_category, contents, content_type)
 
         final_ai_score, breakdown = await call_ai_model_ensemble(contents, content_type)
@@ -1124,7 +1153,7 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
             "score": round(final_ai_score, 1), "verdict": verdict, "mode": mode,
             "exp": time.time() + 3600}, JWT_SECRET, algorithm="HS256")
         # Operational metrics only: no image bytes, filename, URL, EXIF values or image hash.
-        print(json.dumps({"event": "analysis_completed", "version": "2.0", "mode": mode,
+        print(json.dumps({"event": "analysis_completed", "version": "3.0", "backend": AI_BACKEND, "mode": mode,
             "duration_ms": round((time.monotonic() - started_at) * 1000),
             "verdict": verdict, "degraded": degraded, "disagreement": disagreement,
             "models": breakdown}, ensure_ascii=False), flush=True)
@@ -1140,6 +1169,8 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
             ],
             "model_breakdown": breakdown,
             "score_type": "uncalibrated_model_score",
+            "analysis_version": "3.0",
+            "analysis_backend": AI_BACKEND,
             "degraded": degraded,
             "model_disagreement": disagreement,
             "decision_threshold": DECISION_THRESHOLD,
@@ -1148,15 +1179,20 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
         }
     except Exception as e:
         return {"error": str(e)}
+    finally:
+        if acquired:
+            ANALYSIS_GATE.release()
 
 
 # ---------- HEATMAP (eksik olan endpoint geri eklendi) ----------
 @app.post("/predict-heatmap")
 async def predict_heatmap(file: UploadFile = File(None), image_url: str = Form(None)):
+    if AI_BACKEND == "local":
+        return {"error": "Bu analiz motorunda ısı haritası desteklenmiyor."}
     try:
         contents = None
         if file:
-            contents = await file.read()
+            contents = await file.read(20 * 1024 * 1024 + 1)
         elif image_url:
             img_response = requests.get(image_url, timeout=20)
             if img_response.status_code != 200:
