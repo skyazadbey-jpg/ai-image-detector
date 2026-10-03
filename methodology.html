@@ -34,7 +34,7 @@
                 <i class="fas fa-layer-group text-indigo-400"></i> Analiz nasıl yapılıyor?
             </h2>
             <p class="text-slate-300 leading-relaxed mb-3">
-                Yüklediğiniz görsel, yapay zeka üretimi görselleri tanımak için eğitilmiş bir makine öğrenmesi modeline gönderilir. Model, görselin dokusundaki, ışıklandırmasındaki ve piksel örüntülerindeki ipuçlarına bakarak 0-100 arası bir "yapay zeka olasılığı" skoru üretir.
+                Yüklediğiniz görsel, yapay zeka üretimi görselleri tanımak için eğitilmiş bir makine öğrenmesi modeline gönderilir. Model, görselin dokusundaki, ışıklandırmasındaki ve piksel örüntülerindeki ipuçlarına bakarak 0-100 arası bir model skoru üretir. Bu skor kalibre edilmiş bir olasılık değildir. Modeller erişilemezse analiz başarısız olur; eksik veya çelişkili cevaplarda sonuç belirsiz gösterilir.
             </p>
             <p class="text-slate-300 leading-relaxed">
                 <strong class="text-slate-100">Araba</strong> ve <strong class="text-slate-100">Emlak</strong> modlarında, önce görselin gerçekten o kategoriyle ilgili olup olmadığını ayrı bir kontrolle doğrularız — alakasız bir görsel yüklenirse analiz yapılmadan sizi bilgilendiririz.
@@ -43,10 +43,10 @@
 
         <section class="mb-10">
             <h2 class="font-display text-xl font-bold mb-3 flex items-center gap-2">
-                <i class="fas fa-grip text-indigo-400"></i> Isı haritası gerçek bir analizdir
+                <i class="fas fa-grip text-indigo-400"></i> Isı haritasının sınırları
             </h2>
             <p class="text-slate-300 leading-relaxed mb-4">
-                Sonuç ekranında gördüğünüz ısı haritası, görseli küçük bir ızgaraya bölüp <strong class="text-slate-100">her bir parçayı ayrı ayrı modele göndererek</strong> oluşturulur. Kırmızı bölgeler modelin "yapay zeka şüphesi" duyduğu alanları, mavi bölgeler "gerçek" olarak değerlendirdiği alanları gösterir - renkler rastgele değil, gerçek analiz sonuçlarıdır.
+                Sonuç ekranında gördüğünüz ısı haritası, görseli küçük bir ızgaraya bölüp <strong class="text-slate-100">her bir parçayı ayrı ayrı modele göndererek</strong> oluşturulur. Kırmızı bölgeler modelin "yapay zeka şüphesi" duyduğu alanları, mavi bölgeler "gerçek" olarak değerlendirdiği alanları gösterir - renkler parça tahminlerini gösterir; manipülasyonun konumunu kanıtlamaz. Parça tahminleri bütün görsel için verilen karardan farklı olabilir.
             </p>
             <div class="grid-demo max-w-[220px] mx-auto mb-2">
                 <div style="background:#dc2626cc">82</div><div style="background:#3b82f699">31</div><div style="background:#dc262699">68</div>
@@ -61,11 +61,11 @@
                 <i class="fas fa-chart-simple text-indigo-400"></i> Gerçek doğruluk oranlarımız
             </h2>
             <p class="text-slate-300 leading-relaxed mb-5">
-                Kendi test setimizde ölçtüğümüz güncel performans (bağımsız, eğitimde kullanılmamış görsellerle):
+                Doğrulanmış ve bağımsız bir test setiyle ölçüm tamamlanmadan doğruluk yüzdesi yayımlamıyoruz.
             </p>
             <div class="grid grid-cols-2 gap-3 mb-5">
                 <div class="stat-card rounded-xl p-4 text-center">
-                    <p class="text-3xl font-bold font-display text-indigo-300">~%65-70</p>
+                    <p class="text-3xl font-bold font-display text-indigo-300">Ölçüm bekleniyor</p>
                     <p class="text-xs text-slate-400 mt-1">Genel doğruluk oranı</p>
                 </div>
                 <div class="stat-card rounded-xl p-4 text-center">

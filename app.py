@@ -16,6 +16,8 @@ import random
 import asyncio
 import hashlib
 import concurrent.futures
+import math
+from detector_core import parse_prediction, decide_verdict
 from PIL import Image, ImageFilter, ImageDraw
 from passlib.hash import bcrypt
 from google.oauth2 import id_token as google_id_token
@@ -58,6 +60,8 @@ def _parse_model_configs(raw: str):
         else:
             model_id, weight = part, 1.0
         model_id = model_id.strip()
+        if not math.isfinite(weight) or weight <= 0:
+            raise ValueError("AI_MODELS ağırlıkları pozitif ve sonlu olmalı")
         if model_id:
             configs.append({
                 "model_id": model_id,
@@ -70,8 +74,11 @@ def _parse_model_configs(raw: str):
 MODEL_CONFIGS = _parse_model_configs(os.getenv("AI_MODELS", _DEFAULT_MODELS))
 
 # Karar esigi: ai_probability bu degerin ustundeyse "AI/FAKE" olarak isaretlenir.
-# test_elsa setinizle calibrate_threshold.py calistirarak en iyi degeri bulabilirsiniz.
-DECISION_THRESHOLD = float(os.getenv("DECISION_THRESHOLD", "50"))
+# Eşik bağımsız ve doğrulanmış bir test setiyle ayarlanmalıdır.
+DECISION_THRESHOLD = float(os.getenv("DECISION_THRESHOLD", "60"))
+UNCERTAINTY_MARGIN = float(os.getenv("UNCERTAINTY_MARGIN", "10"))
+if not 0 <= UNCERTAINTY_MARGIN < min(DECISION_THRESHOLD, 100 - DECISION_THRESHOLD):
+    raise ValueError("Karar eşiği / belirsizlik aralığı geçersiz")
 
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production")
@@ -633,16 +640,18 @@ async def gumroad_webhook(request: Request):
 
 # ---------- PREDICT (tek ve doğru versiyon) ----------
 def normalize_image_bytes(contents: bytes):
-    """Gelen görseli her zaman JPEG'e çevirir, model bazı formatlarda hata verebiliyor."""
-    try:
-        image = Image.open(io.BytesIO(contents))
-        if image.mode in ("RGBA", "P"):
-            image = image.convert("RGB")
-        output_buffer = io.BytesIO()
-        image.save(output_buffer, format="JPEG")
-        return output_buffer.getvalue(), "image/jpeg"
-    except Exception:
-        return contents, "application/octet-stream"
+    """JPEG/PNG bytes are preserved; other formats use lossless PNG."""
+    if not contents or len(contents) > 20 * 1024 * 1024:
+        raise ValueError("Görsel boş veya 20 MB sınırını aşıyor.")
+    with Image.open(io.BytesIO(contents)) as image:
+        if image.width * image.height > 40_000_000:
+            raise ValueError("Görsel 40 megapiksel sınırını aşıyor.")
+        image.load()
+        if image.format in ("JPEG", "PNG"):
+            return contents, "image/jpeg" if image.format == "JPEG" else "image/png"
+        output = io.BytesIO()
+        image.convert("RGB").save(output, format="PNG")
+        return output.getvalue(), "image/png"
 
 
 CATEGORY_CHECK_MODEL = "google/vit-base-patch16-224"
@@ -1017,21 +1026,10 @@ def _call_single_model(model_config: dict, contents: bytes, content_type: str):
         return None
 
     try:
-        result = response.json()
-        if isinstance(result, list) and len(result) > 0:
-            if isinstance(result[0], list):
-                result = result[0]
-            for item in result:
-                label = str(item.get("label", "")).lower()
-                score = float(item.get("score", 0.5))
-                if any(k in label for k in ["artificial", "fake", "ai", "generated", "deepfake", "label_1"]):
-                                        return score * 100 * 0.95
-                elif any(k in label for k in ["hum", "human", "real", "authentic", "natural", "label_0"]):
-                                        return (1.0 - score) * 100 * 1.02
-    except Exception as e:
-        print(f"[{model_config['model_id']}] Cevap çözümlenemedi: {e}")
-
-    return None
+        return parse_prediction(response.json(), model_config["model_id"])
+    except (ValueError, TypeError, KeyError):
+        print(f"[{model_config['model_id']}] Geçersiz veya tanınmayan model cevabı")
+        return None
 
 
 async def call_ai_model_ensemble(contents: bytes, content_type: str):
@@ -1058,8 +1056,8 @@ async def call_ai_model_ensemble(contents: bytes, content_type: str):
         weight_total += cfg["weight"]
 
     if weight_total == 0:
-        # Hiçbir model cevap vermediyse en güvenli varsayım: kararsız (50)
-        return 50.0, breakdown
+        # Hiçbir model cevap vermediyse sonuç üretme.
+        raise RuntimeError("Analiz modellerine ulaşılamadı veya cevapları doğrulanamadı. Lütfen daha sonra tekrar deneyin.")
 
     final_ai_score = weighted_sum / weight_total
     return final_ai_score, breakdown
@@ -1073,7 +1071,6 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
 
         if file:
             contents = await file.read()
-            contents, content_type = normalize_image_bytes(contents)
         elif image_url:
             img_response = requests.get(image_url, timeout=20)
             if img_response.status_code != 200:
@@ -1082,6 +1079,11 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
             content_type = img_response.headers.get("content-type", "image/jpeg")
         else:
             return {"error": "Görsel bulunamadı."}
+
+        original_contents = contents
+        contents, content_type = normalize_image_bytes(contents)
+        if mode not in ("general", "car", "realestate"):
+            return {"error": "Geçersiz analiz modu."}
 
         # ---------- KATEGORI DOGRULAMASI (araba / emlak modlarinda) ----------
         # "Araba" veya "Emlak" sekmesinden yuklenen gorselin gercekten o
@@ -1102,68 +1104,13 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
                 # 1. ÖNCE AI modellerini çağır
         final_ai_score, breakdown = await call_ai_model_ensemble(contents, content_type)
         
-                   # 2. SONRA EXIF analizi yap
-        exif_score, exif_reason = check_exif(contents)
-        print(f"[EXIF] skor={exif_score} sebep={exif_reason}")
-        exif_ai_score = 100.0 - exif_score
-        
-        # 3. JPEG blok analizi yap
-        jpeg_score, jpeg_reason = check_jpeg_blocks(contents)
-        print(f"[JPEG] skor={jpeg_score} sebep={jpeg_reason}")
-        jpeg_ai_score = 100.0 - jpeg_score
-        
-               # 4. Noise analizi yap
-        noise_score, noise_reason = check_noise(contents)
-        print(f"[NOISE] skor={noise_score} sebep={noise_reason}")
-        noise_ai_score = 100.0 - noise_score
-        
-        # 5. Bulanıklık analizi yap (YENİ)
-        blur_score, blur_reason = check_blur(contents)
-        print(f"[BLUR] skor={blur_score} sebep={blur_reason}")
-        blur_ai_score = 100.0 - blur_score
-
-                # 6. Araba modu ise plaka kontrolü yap (YENİ)
-        if mode == "car":
-            plate_score, plate_reason = check_plate_region(contents)
-            print(f"[PLATE] skor={plate_score} sebep={plate_reason}")
-            plate_ai_score = 100.0 - plate_score
-        else:
-            plate_score = 50.0
-            plate_ai_score = 50.0
-                # 7. EN SONDA katmanları birleştir
-        if mode == "car":
-            # Araba modu: plaka daha önemli
-            final_ai_score = (
-                final_ai_score * 0.30 +
-                exif_ai_score * 0.05 +
-                jpeg_ai_score * 0.25 +
-                noise_ai_score * 0.10 +
-                blur_ai_score * 0.10 +
-                plate_ai_score * 0.20  # Plaka %20
-            )
-        else:
-            # Diğer modlar: plaka yok
-            final_ai_score = (
-                final_ai_score * 0.35 +
-                exif_ai_score * 0.05 +
-                jpeg_ai_score * 0.30 +
-                noise_ai_score * 0.15 +
-                blur_ai_score * 0.15
-            )
         final_real_score = 100.0 - final_ai_score
-                # Moda göre threshold
-        if mode == "car":
-            mode_threshold = DECISION_THRESHOLD - 10  # Araba modunda daha katı
-        elif mode == "realestate":
-            mode_threshold = DECISION_THRESHOLD - 5   # Emlak modunda orta
-        else:
-            mode_threshold = DECISION_THRESHOLD       # Genel modda normal
-        
-        verdict = "AI" if final_ai_score > mode_threshold else "REAL"
-        print(f"[VERDICT] mode={mode} score={final_ai_score:.1f} threshold={mode_threshold} verdict={verdict}")
-        if mode == "car":
-           print(f"[CAR-MODE] Model={final_ai_score:.1f} EXIF={exif_ai_score:.1f} JPEG={jpeg_ai_score:.1f} Noise={noise_ai_score:.1f} Blur={blur_ai_score:.1f} Plate={plate_ai_score:.1f} → FINAL={final_ai_score:.1f}")
-        image_hash = compute_image_hash(contents)
+        available = [item["ai_score"] for item in breakdown if item["ai_score"] is not None]
+        degraded = len(available) != len(MODEL_CONFIGS)
+        disagreement = len(available) > 1 and max(available) - min(available) > 40
+        verdict = decide_verdict(final_ai_score, DECISION_THRESHOLD, UNCERTAINTY_MARGIN,
+                                 degraded or disagreement)
+        image_hash = compute_image_hash(original_contents)
         return {
             "ai_probability": round(final_ai_score, 1),
             "image_hash": image_hash,
@@ -1175,6 +1122,10 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
                 {"label": "human", "score": final_real_score / 100},
             ],
             "model_breakdown": breakdown,
+            "score_type": "uncalibrated_model_score",
+            "degraded": degraded,
+            "model_disagreement": disagreement,
+            "decision_threshold": DECISION_THRESHOLD,
         }
     except Exception as e:
         return {"error": str(e)}
@@ -1210,7 +1161,7 @@ async def predict_heatmap(file: UploadFile = File(None), image_url: str = Form(N
         # Boylece renklendirme rastgele degil, modelin o bolge icin verdigi
         # gercek AI-olma skoruna dayanir. Izgara boyutunu buyutmek daha
         # detayli ama daha yavas/maliyetli bir analiz anlamina gelir.
-        grid_size = int(os.getenv("HEATMAP_GRID_SIZE", "3"))
+        grid_size = max(1, min(4, int(os.getenv("HEATMAP_GRID_SIZE", "3"))))
         tile_w = width // grid_size
         tile_h = height // grid_size
 

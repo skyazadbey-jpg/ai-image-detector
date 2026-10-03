@@ -837,9 +837,9 @@
                 humanProb: "Real Photo Probability",
                 historyTitle: "Recent Scans",
                 clearHistory: "Clear History",
-                aiMsg: "🚨 High probability of being AI-GENERATED.",
+                aiMsg: "🚨 Model score favors AI generation.",
                 suspiciousMsg: "⚠️ Mixed indicators.",
-                realMsg: "✅ High probability of being a REAL PHOTO.",
+                realMsg: "✅ Model score favors a real photo.",
                 errorMsg: "Analysis error:",
                 connError: "Could not connect.",
                 selectFirst: "Please select an image first!",
@@ -1032,9 +1032,9 @@
                 loadingText: "Analiz ediliyor...", aiProb: "Yapay Zeka Olasılığı",
                 humanProb: "Gerçek Fotoğraf Olasılığı", historyTitle: "Son Taramalar",
                 clearHistory: "Geçmişi Temizle",
-                aiMsg: "🚨 Yüksek ihtimalle YAPAY ZEKA üretimi.",
+                aiMsg: "🚨 Model skoru yapay zekâ üretimi yönünde.",
                 suspiciousMsg: "⚠️ Karışık sinyaller.",
-                realMsg: "✅ Yüksek ihtimalle GERÇEK FOTOĞRAF.",
+                realMsg: "✅ Model skoru gerçek fotoğraf yönünde.",
                 errorMsg: "Analiz hatası:", connError: "Bağlantı hatası.",
                 selectFirst: "Lütfen önce bir görsel seçin!", noHistory: "Henüz tarama yok.",
                 realLabel: "Gerçek", aiLabel: "YZ", creditsText: "Ücretsiz Hak",
@@ -1627,7 +1627,7 @@ function submitFeedback(isCorrect, actualOverride = null) {
         return;
     }
     
-    const predicted = lastAnalysisStatus?.statusKey === 'AI' ? 'AI' : 'REAL';
+    const predicted = lastAnalysisStatus?.statusKey === 'AI' ? 'AI' : (lastAnalysisStatus?.statusKey === 'Real' ? 'REAL' : 'UNCERTAIN');
     const actual = isCorrect ? predicted : actualOverride;
     
     if (!actual) return;
@@ -2017,7 +2017,7 @@ async function pollForProStatus(attempt = 0) {
                         else if (item.label === 'human' || item.label === 'real') humanScore = (item.score * 100).toFixed(1);
                     });
                 }
-                if (aiScore == 0 && humanScore == 0) { aiScore = "54.2"; humanScore = "45.8"; }
+                if (aiScore == 0 && humanScore == 0) { throw new Error("Model sonucu bulunamadı"); }
                 else if (humanScore == 0) humanScore = (100 - parseFloat(aiScore)).toFixed(1);
             }
 
@@ -2025,13 +2025,13 @@ async function pollForProStatus(attempt = 0) {
                     humanPercentageText.innerText = `%${humanScore}`;
                     aiProgressBar.style.width = `${aiScore}%`;
                     humanProgressBar.style.width = `${humanScore}%`;
-                    let statusKey = data.verdict === "AI" ? "AI" : "Real";
+                    let statusKey = data.verdict === "AI" ? "AI" : (data.verdict === "REAL" ? "Real" : "Suspicious");
                     lastAnalysisStatus = { aiScore, statusKey };
                     showC2PAInfo(data);
                     updateSummaryMessage(aiScore, statusKey);
                  
                     addToHistory(currentLoadedFile.name, aiScore, statusKey);
-                    generateHeatmap(currentLoadedFile);
+                    // Heatmap is optional; avoid 27 automatic API calls per scan.
                                         // Feedback için
                                        resetFeedbackUI();
                     currentImageHash = data.image_hash || null;
