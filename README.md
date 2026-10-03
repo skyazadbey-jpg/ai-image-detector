@@ -36,3 +36,8 @@ Yerel kategori testi: 200 araba görselinde 131 uyumlu ipucu, 68 belirsiz, 1 uyu
 ## Ayrı araba AI testi
 
 Canlı sitede 100 yayıncı etiketli gerçek + 100 ProGAN üretimi araba görseli: 173 doğru, 23 yanlış, 4 belirsiz (%86,5). AI 92/100, gerçek 81/100. Kaynak CNNDetection/ProGAN test grubudur; tek üretici, bağımsız kamera kökeni denetimi yok, eğitim örtüşmesi bilinmiyor. Bu oran diğer üreticilere veya tüm ilanlara genellenmez.
+
+
+## Ayrı yatak odası AI testi
+
+Ricker ve arkadaşlarının LSUN-Bedroom araştırma test grubundan 100 gerçek + 100 üretilmiş oda: canlı sitede 150 doğru, 46 yanlış, 4 belirsiz (%75). Gerçek 85/100, AI 65/100; ProGAN, StyleGAN, ProjectedGAN, Diff-StyleGAN2, Diff-ProjectedGAN, DDPM, IDDPM, ADM, PNDM ve LDM üreticilerinden 10'ar örnek. Kaynak https://zenodo.org/records/7528113 . Rastgele seçim tohumu 20261006. Eğitim örtüşmesi bilinmiyor; bu sonuç dış cephe veya tüm emlak ilanları için geçerli değildir.

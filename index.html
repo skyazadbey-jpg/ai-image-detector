@@ -363,28 +363,28 @@
                 <section id="evidenceReport" class="hidden text-left space-y-4 pt-4 border-t border-slate-700" aria-live="polite"></section>
                 <!-- FEEDBACK BÖLÜMÜ -->
 <div id="feedbackSection" class="mt-4 pt-4 border-t border-slate-700">
-    <p class="text-xs text-slate-400 mb-2 text-center">Bu sonuç doğru mu?</p>
+    <p class="text-xs text-slate-400 mb-2 text-center"><span data-i18n="feedbackQuestion">Bu sonuç doğru mu?</span></p>
     <div id="feedbackButtons" class="flex justify-center gap-2">
         <button onclick="submitFeedback(true)" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-1.5">
-            <i class="fas fa-check"></i> Doğru
+            <i class="fas fa-check"></i> <span data-i18n="feedbackCorrect">Doğru</span>
         </button>
         <button onclick="showWrongFeedback()" class="bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-1.5">
-            <i class="fas fa-times"></i> Yanlış
+            <i class="fas fa-times"></i> <span data-i18n="feedbackWrong">Yanlış</span>
         </button>
     </div>
     <div id="wrongFeedbackOptions" class="hidden mt-2">
-        <p class="text-xs text-slate-400 mb-2 text-center">Gerçekte ne olmalıydı?</p>
+        <p class="text-xs text-slate-400 mb-2 text-center"><span data-i18n="feedbackExpected">Gerçekte ne olmalıydı?</span></p>
         <div class="flex justify-center gap-2">
             <button onclick="submitFeedback(false, 'AI')" class="bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition">
-                Aslında AI
+                <span data-i18n="feedbackAI">Aslında AI</span>
             </button>
             <button onclick="submitFeedback(false, 'REAL')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition">
-                Aslında Gerçek
+                <span data-i18n="feedbackReal">Aslında Gerçek</span>
             </button>
         </div>
     </div>
     <p id="feedbackThanks" class="hidden text-xs text-emerald-400 text-center mt-2">
-        <i class="fas fa-check-circle"></i> Geri bildiriminiz için teşekkürler!
+        <i class="fas fa-check-circle"></i> <span data-i18n="feedbackThanksText">Geri bildiriminiz için teşekkürler!</span>
     </p>
 </div>
                 <div class="pt-2 flex justify-center gap-2">
@@ -530,7 +530,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
                     <div class="bg-slate-900/60 rounded-xl p-3">
                         <p class="text-xs text-slate-400" data-i18n="accuracyC2PA">Yerel test · 400 görsel</p>
-                        <p class="text-2xl font-extrabold text-emerald-400">%82</p>
+                        <p class="text-2xl font-extrabold text-emerald-400" data-i18n="accuracyLocalRate">%82</p>
                         <p class="text-[10px] text-slate-500" data-i18n="accuracyC2PADesc">328 doğru · 400 görsel</p>
                     </div>
                     <div class="bg-slate-900/60 rounded-xl p-3">
@@ -631,7 +631,7 @@
                 </div>
                 <div id="forgotPasswordLinkWrapper" class="text-right">
                     <button type="button" onclick="openForgotPassword()" class="text-xs text-indigo-400 hover:text-indigo-300 hover:underline transition">
-                        Şifremi unuttum
+                        <span data-i18n="forgotPassword">Şifremi unuttum</span>
                     </button>
                 </div>
                 <button type="submit" id="authSubmitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg text-sm" data-i18n="authActionBtn">Sign In to Account</button>
@@ -641,7 +641,7 @@
             <div id="otpSection" class="hidden space-y-4 text-center pt-2 border-t border-slate-700">
                 <div class="bg-indigo-950/60 p-3 rounded-xl border border-indigo-900 text-xs text-indigo-300">
                     <i class="fas fa-paper-plane mb-1 text-sm block"></i>
-                    <span id="otpInfoText">Doğrulama kodu gönderildi.</span>
+                    <span id="otpInfoText"><span data-i18n="otpSent">Doğrulama kodu gönderildi.</span></span>
                 </div>
                 <div>
                     <input type="text" id="otpCodeInput" maxlength="6" placeholder="• • • • • •" class="w-full text-center tracking-[0.5em] text-xl font-extrabold bg-slate-900 border border-slate-700 rounded-xl py-3 text-white focus:outline-none focus:border-indigo-500">
@@ -650,8 +650,8 @@
                     <i class="fas fa-shield-check"></i> <span data-i18n="verifyBtn">Verify Code</span>
                 </button>
                 <div class="flex justify-between text-xs text-slate-400 pt-1">
-                    <button onclick="resendOtpCode()" class="text-indigo-400 hover:underline">Kodu tekrar gönder</button>
-                    <button onclick="resetAuthForm()" class="text-indigo-400 hover:underline">E-postayı değiştir</button>
+                    <button onclick="resendOtpCode()" class="text-indigo-400 hover:underline"><span data-i18n="resendCode">Kodu tekrar gönder</span></button>
+                    <button onclick="resetAuthForm()" class="text-indigo-400 hover:underline"><span data-i18n="changeEmail">E-postayı değiştir</span></button>
                 </div>
             </div>
         
@@ -1098,7 +1098,45 @@
             }
         };
 
-        let currentLang = localStorage.getItem('lang') || 'en';
+        translations.tr["feedbackQuestion"] = "Bu sonuç doğru mu?";
+        translations.tr["feedbackCorrect"] = "Doğru";
+        translations.tr["feedbackWrong"] = "Yanlış";
+        translations.tr["feedbackExpected"] = "Gerçekte ne olmalıydı?";
+        translations.tr["feedbackAI"] = "Aslında AI";
+        translations.tr["feedbackReal"] = "Aslında Gerçek";
+        translations.tr["feedbackThanksText"] = "Geri bildiriminiz için teşekkürler!";
+        translations.tr["forgotPassword"] = "Şifremi unuttum";
+        translations.tr["otpSent"] = "Doğrulama kodu gönderildi.";
+        translations.tr["resendCode"] = "Kodu tekrar gönder";
+        translations.tr["changeEmail"] = "E-postayı değiştir";
+        translations.en["feedbackQuestion"] = "Is this result correct?";
+        translations.en["feedbackCorrect"] = "Correct";
+        translations.en["feedbackWrong"] = "Incorrect";
+        translations.en["feedbackExpected"] = "What should the result have been?";
+        translations.en["feedbackAI"] = "Actually AI";
+        translations.en["feedbackReal"] = "Actually real";
+        translations.en["feedbackThanksText"] = "Thank you for your feedback!";
+        translations.en["forgotPassword"] = "Forgot password";
+        translations.en["otpSent"] = "A verification code has been sent.";
+        translations.en["resendCode"] = "Resend code";
+        translations.en["changeEmail"] = "Change email";
+        translations.tr["backToLoginBtn"] = "Giriş ekranına dön";
+        translations.tr["forgotInfoText"] = "E-posta adresinizi girin. Size şifre sıfırlama bağlantısı göndereceğiz.";
+        translations.tr["forgotSendBtn"] = "Sıfırlama Linki Gönder";
+        translations.tr["resetInfoText"] = "Yeni şifrenizi belirleyin.";
+        translations.tr["resetSubmitBtn"] = "Şifremi Güncelle";
+        translations.tr["upgradeMenuBtn"] = "Topluluk Kumbarası";
+        translations.en["backToLoginBtn"] = "Back to sign in";
+        translations.en["forgotInfoText"] = "Enter your email address. We will send a password reset link.";
+        translations.en["forgotSendBtn"] = "Send reset link";
+        translations.en["resetInfoText"] = "Choose your new password.";
+        translations.en["resetSubmitBtn"] = "Update password";
+        translations.en["upgradeMenuBtn"] = "Community Piggy Bank";
+        translations.en.accuracyLocalRate = "82%";
+        translations.tr.accuracyLocalRate = "%82";
+        let currentLang = localStorage.getItem('lang') === 'tr' ? 'tr' : 'en';
+        let lastEvidenceData = null;
+        let activeLegalType = null;
         let isDark = localStorage.getItem('theme') !== 'light';
         let lastAnalysisStatus = null;
         let activeInputMode = 'file';
@@ -1309,15 +1347,23 @@ if (piggyProgressBar) setTimeout(() => piggyProgressBar.style.width = '75%', 300
             document.getElementById('authSuccessBox').classList.add('hidden');
         }
 
+        const serviceMessages = {"Email gerekli": "Email is required.", "6 haneli kod girin": "Enter the 6-digit code.", "Şifre en az 6 karakter": "Password must contain at least 6 characters.", "Şifreler eşleşmiyor": "Passwords do not match.", "Yeni kod gönderildi.": "A new code has been sent.", "URL girin": "Enter an image URL.", "Yüklenemedi": "The image could not be loaded.", "Bu email zaten kayıtlı. Giriş yapmayı deneyin.": "This email is already registered. Try signing in.", "Kullanıcı bulunamadı.": "User not found.", "Hatalı doğrulama kodu.": "Invalid verification code.", "Doğrulama kodunun süresi dolmuş, yeni kod isteyin.": "The verification code expired. Request a new code.", "Şifre en az 6 karakter olmalı.": "Password must contain at least 6 characters.", "Hesap zaten doğrulanmış.": "This account is already verified.", "Email veya şifre hatalı.": "Incorrect email or password.", "Hesabınız henüz doğrulanmamış.": "Your account has not been verified yet.", "Geçersiz veya süresi dolmuş link.": "Invalid or expired link.", "Geçersiz Google token.": "Invalid Google sign-in token.", "Oturum bulunamadı.": "No active session was found.", "Geçersiz veya süresi dolmuş oturum.": "Invalid or expired session.", "Önce yeniden analiz yapın.": "Run a new analysis first.", "Geçersiz geri bildirim.": "Invalid feedback."};
+        function translateServiceMessage(msg) {
+            if (currentLang === 'tr') return msg;
+            return serviceMessages[msg] || (/[çğıöşüÇĞİÖŞÜ]/.test(msg) ? 'The request could not be completed. Please try again.' : msg);
+        }
+        function formatPercent(score) {
+            return new Intl.NumberFormat(currentLang === 'tr' ? 'tr-TR' : 'en-US', {style:'percent', minimumFractionDigits:1, maximumFractionDigits:1}).format(Number(score)/100);
+        }
         function showAuthError(msg) {
             const box = document.getElementById('authErrorBox');
-            box.innerText = msg; box.classList.remove('hidden');
+            box.dataset.originalMessage = msg; box.innerText = translateServiceMessage(msg); box.classList.remove('hidden');
             document.getElementById('authSuccessBox').classList.add('hidden');
         }
 
         function showAuthSuccess(msg) {
             const box = document.getElementById('authSuccessBox');
-            box.innerText = msg; box.classList.remove('hidden');
+            box.dataset.originalMessage = msg; box.innerText = translateServiceMessage(msg); box.classList.remove('hidden');
             document.getElementById('authErrorBox').classList.add('hidden');
         }
 
@@ -1341,7 +1387,8 @@ if (piggyProgressBar) setTimeout(() => piggyProgressBar.style.width = '75%', 300
                     size: 'large',
                     text: 'continue_with',
                     shape: 'rectangular',
-                    width: 350
+                    width: 350,
+                    locale: currentLang
                 });
             }
         }
@@ -1400,7 +1447,8 @@ if (piggyProgressBar) setTimeout(() => piggyProgressBar.style.width = '75%', 300
             document.getElementById('forgotPasswordSection').classList.add('hidden');
             document.getElementById('resetPasswordSection').classList.add('hidden');
             document.getElementById('otpSection').classList.remove('hidden');
-            document.getElementById('otpInfoText').innerText = msg;
+            document.getElementById('otpInfoText').dataset.originalMessage = msg;
+            document.getElementById('otpInfoText').innerText = translateServiceMessage(msg);
             document.getElementById('otpCodeInput').value = "";
         }
 
@@ -1712,7 +1760,7 @@ async function pollForProStatus(attempt = 0) {
 
         function loadUrlImage() {
             const urlInput = document.getElementById('imageUrlInput').value.trim();
-            if (!urlInput) { alert("URL girin"); return; }
+            if (!urlInput) { alert(translateServiceMessage("URL girin")); return; }
             const img = new Image();
             img.crossOrigin = "anonymous";
             img.onload = function() {
@@ -1728,7 +1776,7 @@ async function pollForProStatus(attempt = 0) {
                     }
                 }, 'image/jpeg', 0.9);
             };
-            img.onerror = function() { alert("Yüklenemedi"); };
+            img.onerror = function() { alert(translateServiceMessage("Yüklenemedi")); };
             img.src = urlInput;
         }
 
@@ -1785,9 +1833,30 @@ async function pollForProStatus(attempt = 0) {
             if (lastAnalysisStatus) updateSummaryMessage(lastAnalysisStatus.aiScore, lastAnalysisStatus.statusKey);
             if (currentMode) renderModeTips(currentMode);
             switchMode(currentMode);
+            if (lastEvidenceData && !document.getElementById('scanButton').disabled) renderEvidenceReport(lastEvidenceData);
+            if (document.getElementById('scanButton').disabled) document.getElementById('buttonText').innerText = currentLang === 'tr' ? 'Analiz Ediliyor...' : 'Analyzing...';
+            if (activeLegalType && !document.getElementById('legalModal').classList.contains('hidden')) openModal(activeLegalType);
+            document.getElementById('authSubmitBtn').innerText = translations[currentLang][authMode === 'register' ? 'authActionBtnRegister' : 'authActionBtn'];
+            ['authErrorBox','authSuccessBox','otpInfoText'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el.dataset.originalMessage) el.innerText = translateServiceMessage(el.dataset.originalMessage);
+            });
+            if (currentUser) document.getElementById('creditBadge').innerHTML = '<i class="fas fa-check-circle"></i> <span>' + (currentLang === 'tr' ? 'Aktif' : 'Active') + '</span>';
+            if (lastAnalysisStatus) {
+                document.getElementById('aiPercentageText').innerText = formatPercent(lastAnalysisStatus.aiScore);
+                document.getElementById('humanPercentageText').innerText = formatPercent(100-lastAnalysisStatus.aiScore);
+            }
+            if (!document.getElementById('authModal').classList.contains('hidden')) renderGoogleButton();
         }
 
+        window.addEventListener('storage', event => {
+            if (event.key === 'lang' && (event.newValue === 'en' || event.newValue === 'tr') && event.newValue !== currentLang) toggleLanguage();
+        });
         function applyLanguage() {
+            document.documentElement.lang = currentLang;
+            const description = currentLang === 'tr' ? 'Görsellerdeki yapay zekâ izlerini inceleyin. Genel, araba ve emlak fotoğrafları için model skorları ve doğrulama önerileri.' : 'Check images for signs of AI generation. Model scores and verification guidance for general, car and property photos.';
+            document.querySelectorAll('meta[name="description"],meta[property="og:description"],meta[name="twitter:description"]').forEach(el => el.content = description);
+            document.querySelectorAll('meta[property="og:title"],meta[name="twitter:title"]').forEach(el => el.content = currentLang === 'tr' ? 'AI Görsel Tespit' : 'AI Image Detector');
             document.querySelectorAll('[data-i18n="planCarFeature3"]').forEach(el => { el.innerText = translations[currentLang].planCarFeature3; });
             document.querySelectorAll('[data-i18n="planRealestateFeature3"]').forEach(el => { el.innerText = translations[currentLang].planRealestateFeature3; });
             document.getElementById('langText').innerText = currentLang.toUpperCase();
@@ -1852,8 +1921,11 @@ async function pollForProStatus(attempt = 0) {
 
         function renderEvidenceReport(data) {
             const container = document.getElementById('evidenceReport');
+            lastEvidenceData = data;
+            const wasOpen = container.querySelector('details')?.open || false;
             container.replaceChildren();
-            const report = data.evidence_report;
+            const baseReport = data.evidence_report;
+            const report = baseReport && {...baseReport, ...(baseReport.localized?.[currentLang] || {})};
             if (!report) { container.classList.add('hidden'); return; }
             container.classList.remove('hidden');
             const addText = (parent, tag, text, className) => {
@@ -1865,6 +1937,7 @@ async function pollForProStatus(attempt = 0) {
             };
             const details = document.createElement('details');
             details.className = 'space-y-3';
+            details.open = wasOpen;
             container.appendChild(details);
             const tr = currentLang === 'tr';
             const category = data.category_check || report.category_check;
@@ -1893,7 +1966,7 @@ async function pollForProStatus(attempt = 0) {
                 row.className = 'flex justify-between gap-3 text-xs';
                 models.appendChild(row);
                 addText(row, 'span', model.model, 'text-slate-300 break-all');
-                addText(row, 'span', model.ai_score === null ? (tr ? 'Cevap yok' : 'Unavailable') : `${Number(model.ai_score).toFixed(1)} / 100 AI`, 'text-indigo-300 whitespace-nowrap');
+                addText(row, 'span', model.ai_score === null ? (tr ? 'Cevap yok' : 'Unavailable') : `${Number(model.ai_score).toLocaleString(currentLang === "tr" ? "tr-TR" : "en-US", {minimumFractionDigits:1,maximumFractionDigits:1})} / 100 AI`, 'text-indigo-300 whitespace-nowrap');
             });
             const observations = block(tr ? 'Dosyada kontrol edilenler' : 'File observations');
             report.observations.forEach(item => {
@@ -1988,6 +2061,8 @@ async function pollForProStatus(attempt = 0) {
 
             currentAnalysisToken = null;
             currentImageHash = null;
+            lastEvidenceData = null;
+            lastAnalysisStatus = null;
             document.getElementById('evidenceReport').classList.add('hidden');
             scanButton.disabled = true;
             scanButton.classList.add('opacity-70', 'cursor-not-allowed');
@@ -2006,7 +2081,7 @@ async function pollForProStatus(attempt = 0) {
                 const response = await fetch(`${BACKEND_URL}/predict`, { method: 'POST', body: formData });
                 const data = await response.json();
                 if (data.error) {
-            alert(data.error);
+            alert(translateServiceMessage(data.error));
             loadingState.classList.add('hidden');
             return;
         }
@@ -2030,8 +2105,8 @@ async function pollForProStatus(attempt = 0) {
                 else if (humanScore == 0) humanScore = (100 - parseFloat(aiScore)).toFixed(1);
             }
 
-                    aiPercentageText.innerText = `%${aiScore}`;
-                    humanPercentageText.innerText = `%${humanScore}`;
+                    aiPercentageText.innerText = formatPercent(aiScore);
+                    humanPercentageText.innerText = formatPercent(humanScore);
                     aiProgressBar.style.width = `${aiScore}%`;
                     humanProgressBar.style.width = `${humanScore}%`;
                     let statusKey = data.verdict === "AI" ? "AI" : (data.verdict === "REAL" ? "Real" : "Suspicious");
@@ -2053,12 +2128,13 @@ async function pollForProStatus(attempt = 0) {
                     pdfBtn.classList.remove('hidden');
                     }
                 } else {
-                    finalResults.innerHTML = `<p class='text-red-500 font-bold'>${translations[currentLang].errorMsg} ${data.error || "Unknown"}</p>`;
+                    finalResults.classList.add('hidden');
+                    alert(translations[currentLang].errorMsg);
                 }
             } catch (error) {
                 loadingState.classList.add('hidden');
-                finalResults.classList.remove('hidden');
-                finalResults.innerHTML = `<p class='text-red-500 font-bold'>${translations[currentLang].connError}</p>`;
+                finalResults.classList.add('hidden');
+                alert(translations[currentLang].connError);
             } finally {
                 scanButton.disabled = false;
                 scanButton.classList.remove('opacity-70', 'cursor-not-allowed');
@@ -2217,7 +2293,7 @@ async function pollForProStatus(attempt = 0) {
             const liveSiteUrl = window.location.origin;
             const text = currentLang === 'tr'
                 ? `🔍 Bu görselin analiz sonucu: YZ %${lastAnalysisStatus.aiScore}\n\nSen de test et:`
-                : `🔍 Analysis result: AI %${lastAnalysisStatus.aiScore}\n\nTest it yourself:`;
+                : `🔍 Analysis result: AI ${lastAnalysisStatus.aiScore}%\n\nTest it yourself:`;
             if (platform === 'twitter') {
                 window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(liveSiteUrl)}`, '_blank');
             } else if (platform === 'whatsapp') {
@@ -2375,8 +2451,8 @@ async function pollForProStatus(attempt = 0) {
             }
           const pageTitles = {
                 general: "AI Image Detector",
-                car: "Araba Detector - AI Image Detector",
-                realestate: "Emlak Detector - AI Image Detector"
+                car: currentLang === "tr" ? "Araba Detector - AI Image Detector" : "Car Detector - AI Image Detector",
+                realestate: currentLang === "tr" ? "Emlak Detector - AI Image Detector" : "Property Detector - AI Image Detector"
             };
             document.title = pageTitles[mode];
             renderModeTips(mode);
@@ -2455,6 +2531,7 @@ function handleImageValidation(event) {
         }
 
         function openModal(type) {
+            activeLegalType = type;
             const legalModal = document.getElementById('legalModal');
             const legalTitle = document.getElementById('legalTitle');
             const legalContent = document.getElementById('legalContent');
@@ -2469,7 +2546,7 @@ function handleImageValidation(event) {
 
         function addToHistory(name, score, statusKey) {
             let history = JSON.parse(localStorage.getItem('scanHistory')) || [];
-            history.unshift({ name, score, statusKey, date: new Date().toLocaleTimeString() });
+            history.unshift({ name, score, statusKey, timestamp: Date.now() });
             if (history.length > 10) history.pop();
             localStorage.setItem('scanHistory', JSON.stringify(history));
             loadHistory();
@@ -2486,11 +2563,14 @@ function handleImageValidation(event) {
                 const div = document.createElement('div');
                 div.className = "flex justify-between items-center bg-slate-800/80 hover:bg-slate-700/80 px-4 py-2.5 rounded-xl border border-slate-700 text-xs transition";
                 let colorClass = item.score > 50 ? 'text-red-400' : 'text-green-400';
-                let labelText = item.statusKey === 'AI' ? `%${item.score} ${translations[currentLang].aiLabel}` : (item.statusKey === 'Suspicious' ? `%${item.score} ?` : `%${(100 - item.score).toFixed(1)} ${translations[currentLang].realLabel}`);
-                div.innerHTML = `
-                    <span class="truncate max-w-[180px] text-slate-300 font-medium"><i class="fas fa-file-image mr-1 text-indigo-400"></i> ${item.name} (${item.date})</span>
-                    <span class="${colorClass} font-bold">${labelText}</span>
-                `;
+                let labelText = item.statusKey === 'AI' ? `${formatPercent(item.score)} ${translations[currentLang].aiLabel}` : (item.statusKey === 'Suspicious' ? `${formatPercent(item.score)} ?` : `${formatPercent(100-item.score)} ${translations[currentLang].realLabel}`);
+                const nameNode = document.createElement('span');
+                nameNode.className = 'truncate max-w-[180px] text-slate-300 font-medium';
+                nameNode.textContent = `${item.name} (${item.timestamp ? new Date(item.timestamp).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-US') : item.date || ''})`;
+                const scoreNode = document.createElement('span');
+                scoreNode.className = colorClass + ' font-bold';
+                scoreNode.textContent = labelText;
+                div.append(nameNode, scoreNode);
                 historyList.appendChild(div);
             });
         }
@@ -2500,101 +2580,6 @@ function handleImageValidation(event) {
             loadHistory();
         }
     </script>
-    <script>
-// 1. Sayfa açıldığında tarayıcı adres çubuğuna bakar
-window.addEventListener("DOMContentLoaded", () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const resetToken = urlParams.get("reset_token");
-
-    // 2. Eğer linkin içinde "reset_token" varsa demek ki kullanıcı mailden şifre sıfırlamak için gelmiş
-    if (resetToken) {
-        // Kullanıcıya yeni şifre gireceği kutuyu ekranda açıyoruz
-        const sifreKutusu = document.getElementById("sifreSifirlamaAlani");
-        if (sifreKutusu) {
-            sifreKutusu.style.display = "block"; // Kutuyu görünür yap
-        }
-        
-        // Token'ı arka planda saklıyoruz
-        window.gizliToken = resetToken;
-    }
-});
-
-// 3. Kullanıcı yeni şifresini yazıp butonuna bastığında bu çalışır
-async function yeniSifreyiKaydet() {
-    const yeniSifre = document.getElementById("yeniSifreInput").value;
-
-    if (!yeniSifre) {
-        alert("Lütfen yeni şifrenizi yazın!");
-        return;
-    }
-
-    // Python (Backend) tarafına yeni şifreyi ve token'ı gönderiyoruz
-    const cevap = await fetch("/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            token: window.gizliToken,
-            new_password: yeniSifre
-        })
-    });
-
-    if (cevap.ok) {
-        alert("Şifreniz başarıyla değiştirildi! Giriş yapabilirsiniz.");
-        window.location.href = "/"; // Ana sayfaya yönlendir
-    } else {
-        alert("Şifre değiştirilemedi, linkin süresi dolmuş olabilir.");
-    }
-}
-</script>
-<!-- Şifre Sıfırlama Alanı -->
-    <div id="sifreSifirlamaAlani" style="display: none; padding: 20px; background: #fff; border: 1px solid #ccc; margin-top: 20px;">
-        <h3>Yeni Şifre Belirleme</h3>
-        <p>Lütfen yeni şifrenizi aşağıya yazın:</p>
-        <input type="password" id="yeniSifreInput" placeholder="Yeni şifreniz" style="padding: 8px; margin-right: 10px;">
-        <button onclick="yeniSifreyiKaydet()" style="padding: 8px 15px; background: #4F46E5; color: #fff; border: none; cursor: pointer;">Şifremi Değiştir</button>
-    </div>
-
-    <script>
-    window.addEventListener("DOMContentLoaded", () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const resetToken = urlParams.get("reset_token");
-
-        if (resetToken) {
-            const sifreKutusu = document.getElementById("sifreSifirlamaAlani");
-            if (sifreKutusu) {
-                sifreKutusu.style.display = "block";
-            }
-            window.gizliToken = resetToken;
-        }
-    });
-
-    async function yeniSifreyiKaydet() {
-        const yeniSifre = document.getElementById("yeniSifreInput").value;
-
-        if (!yeniSifre) {
-            alert("Lütfen yeni şifrenizi yazın!");
-            return;
-        }
-
-        const cevap = await fetch("/auth/reset-password", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                token: window.gizliToken,
-                new_password: yeniSifre
-            })
-        });
-
-        if (cevap.ok) {
-            alert("Şifreniz başarıyla değiştirildi! Giriş yapabilirsiniz.");
-            window.location.href = "/";
-        } else {
-            alert("Şifre değiştirilemedi, linkin süresi dolmuş olabilir.");
-        }
-    }
-  
-
-</script>
 <!-- ================= 1. SAĞ TARAFTAKİ NEON KUMBARA KARTI ================= -->
 <div class="fixed right-6 top-1/2 -translate-y-1/2 z-45 hidden 2xl:block">
     <div class="flex flex-col items-center">
