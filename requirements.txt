@@ -7,5 +7,6 @@ bcrypt==4.0.1
 pyjwt
 google-auth
 email-validator
-pillow
-numpy
+pillow==12.3.0
+numpy==2.3.5
+onnxruntime==1.30.0

@@ -244,7 +244,7 @@
         </div>
         <div class="inline-flex items-center gap-2 bg-indigo-950/40 border border-indigo-800/50 text-indigo-300 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 ml-2">
             <i class="fas fa-flask"></i>
-            <span data-i18n="heroBadge3">1000+ görselle test edildi</span>
+            <span data-i18n="heroBadge3">400 görselle test edildi</span>
         </div>
         <div id="modeHeroIcon" class="mb-4 flex justify-center">
             <div class="w-16 h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg">
@@ -261,8 +261,8 @@
             </div>
             <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl px-2 py-4">
                 <i class="fas fa-bolt text-indigo-400 mb-2"></i>
-                <p class="font-mono-stat text-lg font-semibold text-slate-100">&lt;5s</p>
-                <p class="text-[11px] text-slate-400 mt-1" data-i18n="trustSpeed">Ortalama analiz süresi</p>
+                <p class="font-mono-stat text-lg font-semibold text-slate-100" data-i18n="trustSpeedValue">Değişken</p>
+                <p class="text-[11px] text-slate-400 mt-1" data-i18n="trustSpeed">Analiz süresi</p>
             </div>
             <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl px-2 py-4">
                 <i class="fas fa-brain text-indigo-400 mb-2"></i>
@@ -343,7 +343,7 @@
             <div id="finalResults" class="hidden space-y-3">
                 <div class="space-y-1">
                     <div class="flex justify-between text-sm font-medium">
-                        <span class="text-red-300 flex items-center gap-1.5"><i class="fas fa-brain"></i> <span data-i18n="aiProb">AI Generated Probability</span></span>
+                        <span class="text-red-300 flex items-center gap-1.5"><i class="fas fa-brain"></i> <span data-i18n="aiProb">AI model score</span></span>
                         <span id="aiPercentageText" class="text-red-400 font-bold text-lg"></span>
                     </div>
                     <div class="w-full bg-slate-700 rounded-full h-3 overflow-hidden border border-slate-600">
@@ -352,7 +352,7 @@
                 </div>
                 <div class="space-y-1">
                     <div class="flex justify-between text-sm font-medium">
-                        <span class="text-green-300 flex items-center gap-1.5"><i class="fas fa-camera"></i> <span data-i18n="humanProb">Real Photo Probability</span></span>
+                        <span class="text-green-300 flex items-center gap-1.5"><i class="fas fa-camera"></i> <span data-i18n="humanProb">Real photo model score</span></span>
                         <span id="humanPercentageText" class="text-green-400 font-bold text-lg"></span>
                     </div>
                     <div class="w-full bg-slate-700 rounded-full h-3 overflow-hidden border border-slate-600">
@@ -402,22 +402,6 @@
                     </button>
                 </div>
 
-                <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-800 mt-2">
-                    <div class="bg-amber-950/40 p-4 rounded-xl border border-amber-700/50 mt-3">
-                        <div class="flex items-start gap-3">
-                            <i class="fas fa-triangle-exclamation text-amber-400 text-lg mt-0.5"></i>
-                            <div class="text-left">
-                                <p class="text-xs font-bold text-amber-300 mb-2" data-i18n="disclaimerTitle">⚠️ Önemli Uyarı ve Sınırlamalar</p>
-                                <div class="text-[11px] text-amber-100/80 leading-relaxed space-y-1.5">
-                                    <p data-i18n="disclaimerP1"><strong>1. Olasılık Tahmini:</strong> Bu sonuç <strong>kesin hüküm değildir</strong>. Yapay zeka modelleri piksel desenlerini analiz eder ve <strong>%100 doğru değildir</strong>.</p>
-                                    <p data-i18n="disclaimerP2"><strong>2. Model Sınırlaması:</strong> Sistemimiz <strong>yeni nesil AI görselleri</strong> için optimize edilmiştir. <strong>Eski AI modelleriyle</strong> üretilmiş görsellerde doğruluk düşebilir.</p>
-                                    <p data-i18n="disclaimerP3"><strong>3. Ek Doğrulama Şart:</strong> Önemli kararlar için mutlaka <strong>ek doğrulama</strong> yapın.</p>
-                                    <p data-i18n="disclaimerP4"><strong>4. Sorumluluk:</strong> Bu araç <strong>yardımcı bir araçtır</strong>. <strong>Kullanıcı sorumludur</strong>.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <div id="heatmapContainer" class="hidden mt-4 space-y-3">
@@ -472,7 +456,7 @@
             <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 text-center">
                 <div class="w-9 h-9 rounded-lg bg-indigo-950/60 border border-indigo-900 text-indigo-300 flex items-center justify-center mx-auto mb-3 font-mono-stat text-sm">3</div>
                 <p class="text-sm font-semibold text-slate-200 mb-1" data-i18n="howStep3Title">Sonucu görün</p>
-                <p class="text-xs text-slate-400" data-i18n="howStep3Desc">Yapay zeka olasılığını anında öğrenin.</p>
+                <p class="text-xs text-slate-400" data-i18n="howStep3Desc">Analiz sonucunu görün.</p>
             </div>
         </div>
     </div>
@@ -489,57 +473,23 @@
                 <div class="bg-emerald-950/30 border border-emerald-700/50 rounded-xl p-4">
                     <div class="flex items-center gap-2 mb-2">
                         <i class="fas fa-circle-check text-emerald-400 text-lg"></i>
-                        <span class="text-sm font-bold text-emerald-300" data-i18n="resultGreenTitle">%0-40 AI</span>
+                        <span class="text-sm font-bold text-emerald-300" data-i18n="resultGreenTitle">AI skoru 50'nin altında</span>
                     </div>
-                    <p class="text-xs text-slate-300 leading-relaxed" data-i18n="resultGreenDesc">Yüksek ihtimalle gerçek fotoğraf. Ama yine de emin olmak için kaynağı kontrol edin.</p>
+                    <p class="text-xs text-slate-300 leading-relaxed" data-i18n="resultGreenDesc">Gerçek fotoğrafa daha yakın bir sonuç. Görselin kaynağını ayrıca doğrulayın.</p>
                 </div>
                 <div class="bg-amber-950/30 border border-amber-700/50 rounded-xl p-4">
                     <div class="flex items-center gap-2 mb-2">
                         <i class="fas fa-triangle-exclamation text-amber-400 text-lg"></i>
-                        <span class="text-sm font-bold text-amber-300" data-i18n="resultYellowTitle">%40-70 AI</span>
+                        <span class="text-sm font-bold text-amber-300" data-i18n="resultYellowTitle">AI skoru 50–70</span>
                     </div>
-                    <p class="text-xs text-slate-300 leading-relaxed" data-i18n="resultYellowDesc">Karışık sinyaller. Görsel düzenlenmiş olabilir. Mutlaka ek doğrulama yapın.</p>
+                    <p class="text-xs text-slate-300 leading-relaxed" data-i18n="resultYellowDesc">Karar vermek için yeterli sinyal yok. Ek doğrulama yapın.</p>
                 </div>
                 <div class="bg-red-950/30 border border-red-700/50 rounded-xl p-4">
                     <div class="flex items-center gap-2 mb-2">
                         <i class="fas fa-circle-exclamation text-red-400 text-lg"></i>
-                        <span class="text-sm font-bold text-red-300" data-i18n="resultRedTitle">%70-100 AI</span>
+                        <span class="text-sm font-bold text-red-300" data-i18n="resultRedTitle">AI skoru 70'in üstünde</span>
                     </div>
-                    <p class="text-xs text-slate-300 leading-relaxed" data-i18n="resultRedDesc">Yüksek ihtimalle yapay zeka. Ama kesin hüküm değil. Dikkatli olun.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="max-w-2xl w-full mx-auto mt-10 px-2">
-            <h3 class="text-center font-display text-lg font-semibold text-slate-200 mb-2" data-i18n="examplesTitle">Örnek Analizler</h3>
-            <p class="text-center text-slate-400 text-xs mb-6" data-i18n="examplesDesc">Sistemimizin nasıl çalıştığını görün</p>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="bg-emerald-950/30 border border-emerald-700/50 rounded-xl p-4 text-center">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-3">
-                        <i class="fas fa-camera text-emerald-400 text-lg"></i>
-                    </div>
-                    <p class="text-xs font-bold text-emerald-300 mb-1" data-i18n="exampleReal">Gerçek Fotoğraf</p>
-                    <p class="text-[10px] text-slate-400" data-i18n="exampleRealDesc">C2PA yok · 3 model analizi</p>
-                    <p class="text-lg font-extrabold text-emerald-400 mt-2">%85</p>
-                    <p class="text-[10px] text-slate-500" data-i18n="exampleRealResult">Gerçek</p>
-                </div>
-                <div class="bg-red-950/30 border border-red-700/50 rounded-xl p-4 text-center">
-                    <div class="w-12 h-12 rounded-xl bg-red-600/20 border border-red-500/30 flex items-center justify-center mx-auto mb-3">
-                        <i class="fas fa-certificate text-red-400 text-lg"></i>
-                    </div>
-                    <p class="text-xs font-bold text-red-300 mb-1" data-i18n="exampleAI">AI Görsel (C2PA'lı)</p>
-                    <p class="text-[10px] text-slate-400" data-i18n="exampleAIDesc">C2PA var · Kesin sonuç</p>
-                    <p class="text-lg font-extrabold text-red-400 mt-2">%100</p>
-                    <p class="text-[10px] text-slate-500" data-i18n="exampleAIResult">AI</p>
-                </div>
-                <div class="bg-amber-950/30 border border-amber-700/50 rounded-xl p-4 text-center">
-                    <div class="w-12 h-12 rounded-xl bg-amber-600/20 border border-amber-500/30 flex items-center justify-center mx-auto mb-3">
-                        <i class="fas fa-robot text-amber-400 text-lg"></i>
-                    </div>
-                    <p class="text-xs font-bold text-amber-300 mb-1" data-i18n="exampleAISuspicious">AI Görsel (C2PA'sız)</p>
-                    <p class="text-[10px] text-slate-400" data-i18n="exampleAISuspiciousDesc">C2PA yok · 3 model analizi</p>
-                    <p class="text-lg font-extrabold text-amber-400 mt-2">%72</p>
-                    <p class="text-[10px] text-slate-500" data-i18n="exampleAISuspiciousResult">AI</p>
+                    <p class="text-xs text-slate-300 leading-relaxed" data-i18n="resultRedDesc">Yapay zekâ üretimine işaret eden bulgular var. Sonuç kesin kanıt değildir.</p>
                 </div>
             </div>
         </div>
@@ -549,11 +499,11 @@
             <div class="space-y-2">
                 <details class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 cursor-pointer">
                     <summary class="text-sm font-semibold text-slate-200" data-i18n="faqQ1">Bu araç %100 doğru mu?</summary>
-                    <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA1">Hayır. C2PA imzası olan görsellerde %100 doğruluk sağlıyoruz. Ancak C2PA'sız görsellerde 3 model analizine dayalı olasılık tahmini yapıyoruz (%69 doğruluk).</p>
+                    <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA1">Hayır. Toplam 400 test görselinde %82, ayrı 200 görselde %85 doğru sonuç elde edildi. Bu oran her yeni görsel için garanti değildir.</p>
                 </details>
                 <details class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 cursor-pointer">
-                    <summary class="text-sm font-semibold text-slate-200" data-i18n="faqQ2">C2PA nedir?</summary>
-                    <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA2">C2PA (Content Credentials), bir görselin "kimlik kartı" gibidir. Kim tarafından, ne zaman, hangi araçla üretildiğini gösterir.</p>
+                    <summary class="text-sm font-semibold text-slate-200" data-i18n="faqQ2">Sonuç kesin kanıt mı?</summary>
+                    <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA2">Hayır. Analiz görseldeki AI işaretlerini değerlendirir; görselin kaynağını veya bir ilanın güvenilirliğini kanıtlamaz.</p>
                 </details>
                 <details class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 cursor-pointer">
                     <summary class="text-sm font-semibold text-slate-200" data-i18n="faqQ3">Görsellerim saklanıyor mu?</summary>
@@ -561,11 +511,11 @@
                 </details>
                 <details class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 cursor-pointer">
                     <summary class="text-sm font-semibold text-slate-200" data-i18n="faqQ4">Sonuçlar neden bazen farklı çıkıyor?</summary>
-                    <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA4">AI tespit modelleri olasılık tahmini yapar. Görselin kalitesi, sıkıştırma oranı ve üretim tekniği sonucu etkileyebilir.</p>
+                    <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA4">Sıkıştırma, düzenleme ve model sürümü sonucu etkileyebilir.</p>
                 </details>
                 <details class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 cursor-pointer">
                     <summary class="text-sm font-semibold text-slate-200" data-i18n="faqQ5">Ücretsiz deneme var mı?</summary>
-                   <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA5">Evet. AI Image Detector tamamen ücretsiz, sınırsız ve açık erişimli bir topluluk projesidir. İstediğiniz kadar tarama yapabilir, bağımsız gelişimi "Topluluk Kumbarası" üzerinden gönüllü olarak destekleyebilirsiniz.</p>
+                   <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA5">Evet. Giriş yaptıktan sonra ücretsiz tarama yapabilirsiniz.</p>
                 </details>
             </div>
         </div>
@@ -576,20 +526,20 @@
                     <i class="fas fa-shield-halved text-emerald-400 text-2xl"></i>
                     <h3 class="font-display text-lg sm:text-xl font-bold text-white" data-i18n="accuracyTitle">Doğruluk Raporumuz</h3>
                 </div>
-                <p class="text-slate-300 text-sm mb-4" data-i18n="accuracyDesc">1000+ görsel ile bağımsız test edilmiştir</p>
+                <p class="text-slate-300 text-sm mb-4" data-i18n="accuracyDesc">200 AI + 200 gerçek görsel ile ölçüldü</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
                     <div class="bg-slate-900/60 rounded-xl p-3">
-                        <p class="text-xs text-slate-400" data-i18n="accuracyC2PA">C2PA'lı Görseller</p>
-                        <p class="text-2xl font-extrabold text-emerald-400">%100</p>
-                        <p class="text-[10px] text-slate-500" data-i18n="accuracyC2PADesc">Kesin tespit</p>
+                        <p class="text-xs text-slate-400" data-i18n="accuracyC2PA">Toplam 400 görsel</p>
+                        <p class="text-2xl font-extrabold text-emerald-400">%82</p>
+                        <p class="text-[10px] text-slate-500" data-i18n="accuracyC2PADesc">328 doğru · 400 görsel</p>
                     </div>
                     <div class="bg-slate-900/60 rounded-xl p-3">
-                        <p class="text-xs text-slate-400" data-i18n="accuracyGeneral">Genel Görseller</p>
-                        <p class="text-2xl font-extrabold text-cyan-400">%69</p>
-                        <p class="text-[10px] text-slate-500" data-i18n="accuracyGeneralDesc">Olasılık tahmini</p>
+                        <p class="text-xs text-slate-400" data-i18n="accuracyGeneral">Ayrı 200 görsel</p>
+                        <p class="text-2xl font-extrabold text-cyan-400">%85</p>
+                        <p class="text-[10px] text-slate-500" data-i18n="accuracyGeneralDesc">170 doğru · 200 görsel</p>
                     </div>
                 </div>
-                <p class="text-[10px] text-slate-500 mt-3 italic" data-i18n="accuracyNote">Test verileri bağımsız olarak toplanmış ve değerlendirilmiştir.</p>
+                <p class="text-[10px] text-slate-500 mt-3 italic" data-i18n="accuracyNote">Bu oranlar test örnekleri için geçerlidir.</p>
             </div>
         </div>
 
@@ -603,7 +553,7 @@
             <div class="flex flex-col items-center text-center gap-2 p-4">
                 <i class="fas fa-chart-simple text-indigo-400 text-xl"></i>
                 <p class="text-sm font-semibold text-slate-200" data-i18n="trustCard2Title">Şeffaf sonuçlar</p>
-                <p class="text-xs text-slate-400" data-i18n="trustCard2Desc">Sonuçlar olasılık tahminidir.</p>
+                <p class="text-xs text-slate-400" data-i18n="trustCard2Desc">Model skoru, kesin hüküm değildir.</p>
             </div>
             <div class="flex flex-col items-center text-center gap-2 p-4">
                 <i class="fas fa-lock text-indigo-400 text-xl"></i>
@@ -838,9 +788,9 @@
                 humanProb: "Real photo model score",
                 historyTitle: "Recent Scans",
                 clearHistory: "Clear History",
-                aiMsg: "🚨 Model score favors AI generation.",
+                aiMsg: "🚨 The image shows signs of AI generation.",
                 suspiciousMsg: "⚠️ Mixed indicators.",
-                realMsg: "✅ Model score favors a real photo.",
+                realMsg: "✅ The image appears closer to a real photo.",
                 errorMsg: "Analysis error:",
                 connError: "Could not connect.",
                 selectFirst: "Please select an image first!",
@@ -871,12 +821,12 @@
                 withdrawalConsentText: "I confirm immediate performance.",
                 fileTooLarge: "File size exceeds 10MB limit!",
                 howToUseTitle: "How to Interpret Results?",
-                resultGreenTitle: "0-40% AI",
-                resultGreenDesc: "Likely a real photo. But verify the source to be sure.",
-                resultYellowTitle: "40-70% AI",
-                resultYellowDesc: "Mixed signals. The image may be edited. Do additional verification.",
-                resultRedTitle: "70-100% AI",
-                resultRedDesc: "Likely AI-generated. But not definitive. Be careful.",
+                resultGreenTitle: "AI score below 50",
+                resultGreenDesc: "The result is closer to a real photo. Verify the source separately.",
+                resultYellowTitle: "AI score 50–70",
+                resultYellowDesc: "There is insufficient signal for a decision. Seek additional verification.",
+                resultRedTitle: "AI score above 70",
+                resultRedDesc: "The image shows signs of AI generation. The result is not definitive evidence.",
                 disclaimerTitle: "⚠️ Important Notice & Limitations",
                 disclaimerP1: "<strong>1. Probability Estimation:</strong> This result is <strong>not a definitive verdict</strong>.",
                 disclaimerP2: "<strong>2. Model Limitation:</strong> Our system is optimized for <strong>modern AI images</strong>.",
@@ -910,41 +860,30 @@
                 heroBadge: "Your images are never stored",
                 c2paFound: "🔐 C2PA Signature Found",
                 c2paSourceLabel: "Source: -",
-                examplesTitle: "Example Analyses",
-                examplesDesc: "See how our system works",
-                exampleReal: "Real Photo",
-                exampleRealDesc: "No C2PA · 3 model analysis",
-                exampleRealResult: "Real",
-                exampleAI: "AI Image (With C2PA)",
-                exampleAIDesc: "C2PA found · Certain result",
-                exampleAIResult: "AI",
-                exampleAISuspicious: "AI Image (No C2PA)",
-                exampleAISuspiciousDesc: "No C2PA · 3 model analysis",
-                exampleAISuspiciousResult: "AI",
                 faqTitle: "Frequently Asked Questions",
                 faqQ1: "Is this tool 100% accurate?",
-                faqA1: "No. We achieve 100% accuracy for images with C2PA signatures.",
-                faqQ2: "What is C2PA?",
-                faqA2: "C2PA (Content Credentials) is like an id card for an image.",
+                faqA1: "No. The measured success rate was 82% across 400 samples and 85% on the separate 200. This is not a guarantee for every new image.",
+                faqQ2: "Is the result definitive evidence?",
+                faqA2: "No. The analysis assesses AI indicators; it does not prove image origin or listing reliability.",
                 faqQ3: "Are my images stored?",
                 faqA3: "No. Uploaded images are processed instantly and automatically deleted after analysis.",
                 faqQ4: "Why do results sometimes differ?",
-                faqA4: "AI detection models make probability estimates.",
+                faqA4: "Compression, editing and model version can affect the result.",
                 faqQ5: "Is there a free trial?",
-                faqA5: "Yes. When you sign in, you get 3 free scans.",
+                faqA5: "Yes. You can scan for free after signing in.",
                 accuracyTitle: "Our Accuracy Report",
-                accuracyDesc: "Independently tested with 1000+ images",
-                accuracyC2PA: "C2PA Images",
-                accuracyC2PADesc: "Certain detection",
-                accuracyGeneral: "General Images",
-                accuracyGeneralDesc: "Probability estimate",
-                accuracyNote: "Test data collected and evaluated independently.",
+                accuracyDesc: "Measured on 200 AI + 200 real images",
+                accuracyC2PA: "All 400 images",
+                accuracyC2PADesc: "328 correct · 400 images",
+                accuracyGeneral: "Separate 200 images",
+                accuracyGeneralDesc: "170 correct · 200 images",
+                accuracyNote: "These rates apply to the test samples.",
                 heroBadge2: "100% private · Try free",
-                heroBadge3: "Tested with 1000+ images",
+                heroBadge3: "Tested with 400 images",
                 heroTitle: "Is that image real, or AI-generated?",
                 heroSubtitle: "Find out in seconds.",
                 trustStorage: "Images stored",
-                trustSpeed: "Average analysis time",
+                trustSpeed: "Analysis time", trustSpeedValue: "Varies",
                 trustModelLabel: "Neural Net",
                 trustModel: "Analysis engine",
                 howTitle: "How it works",
@@ -953,12 +892,12 @@
                 howStep2Title: "It gets analyzed",
                 howStep2Desc: "Scans for artificial traces.",
                 howStep3Title: "See the result",
-                howStep3Desc: "Get the probability instantly.",
+                howStep3Desc: "See the analysis result.",
                 trustTitle: "Why you can trust this",
                 trustCard1Title: "Privacy first",
                 trustCard1Desc: "Images are never kept.",
                 trustCard2Title: "Transparent results",
-                trustCard2Desc: "Probability estimates, not verdicts.",
+                trustCard2Desc: "Model scores, not definitive verdicts.",
                 trustCard3Title: "Encrypted connection",
                 trustCard3Desc: "All data is encrypted.",
                 heatmapTitle: "AI Detection Heatmap",
@@ -1033,9 +972,9 @@
                 loadingText: "Analiz ediliyor...", aiProb: "Yapay zekâ model skoru",
                 humanProb: "Gerçek fotoğraf model skoru", historyTitle: "Son Taramalar",
                 clearHistory: "Geçmişi Temizle",
-                aiMsg: "🚨 Model skoru yapay zekâ üretimi yönünde.",
+                aiMsg: "🚨 Görselde yapay zekâ üretimine işaret eden bulgular var.",
                 suspiciousMsg: "⚠️ Karar belirsiz. Ayrıntıları aşağıda görebilirsin.",
-                realMsg: "✅ Model skoru gerçek fotoğraf yönünde.",
+                realMsg: "✅ Görsel gerçek fotoğrafa daha yakın görünüyor.",
                 errorMsg: "Analiz hatası:", connError: "Bağlantı hatası.",
                 selectFirst: "Lütfen önce bir görsel seçin!", noHistory: "Henüz tarama yok.",
                 realLabel: "Gerçek", aiLabel: "YZ", creditsText: "Ücretsiz Hak",
@@ -1051,12 +990,12 @@
                 modalClose: "Belki Sonra", withdrawalConsentText: "Hemen başlatılmasını onaylıyorum.",
                 fileTooLarge: "Dosya boyutu 10MB sınırını aşıyor!",
                 howToUseTitle: "Sonuçları Nasıl Yorumlarsınız?",
-                resultGreenTitle: "%0-40 AI",
-                resultGreenDesc: "Yüksek ihtimalle gerçek fotoğraf.",
-                resultYellowTitle: "%40-70 AI",
-                resultYellowDesc: "Karışık sinyaller.",
-                resultRedTitle: "%70-100 AI",
-                resultRedDesc: "Yüksek ihtimalle yapay zeka.",
+                resultGreenTitle: "AI skoru 50'nin altında",
+                resultGreenDesc: "Gerçek fotoğrafa daha yakın bir sonuç. Görselin kaynağını ayrıca doğrulayın.",
+                resultYellowTitle: "AI skoru 50–70",
+                resultYellowDesc: "Karar vermek için yeterli sinyal yok. Ek doğrulama yapın.",
+                resultRedTitle: "AI skoru 70'in üstünde",
+                resultRedDesc: "Yapay zekâ üretimine işaret eden bulgular var. Sonuç kesin kanıt değildir.",
                 disclaimerTitle: "⚠️ Önemli Uyarı ve Sınırlamalar",
                 disclaimerP1: "<strong>1. Olasılık Tahmini:</strong> Bu sonuç <strong>kesin hüküm değildir</strong>.",
                 disclaimerP2: "<strong>2. Model Sınırlaması:</strong> Yeni nesil AI görselleri için optimize edilmiştir.",
@@ -1080,49 +1019,38 @@
                 heroBadge: "Görselleriniz asla saklanmaz",
                 c2paFound: "🔐 C2PA İmzası Bulundu",
                 c2paSourceLabel: "Kaynak: -",
-                examplesTitle: "Örnek Analizler",
-                examplesDesc: "Sistemimizin nasıl çalıştığını görün",
-                exampleReal: "Gerçek Fotoğraf",
-                exampleRealDesc: "C2PA yok · 3 model analizi",
-                exampleRealResult: "Gerçek",
-                exampleAI: "AI Görsel (C2PA'lı)",
-                exampleAIDesc: "C2PA var · Kesin sonuç",
-                exampleAIResult: "AI",
-                exampleAISuspicious: "AI Görsel (C2PA'sız)",
-                exampleAISuspiciousDesc: "C2PA yok · 3 model analizi",
-                exampleAISuspiciousResult: "AI",
                 faqTitle: "Sıkça Sorulan Sorular",
                 faqQ1: "Bu araç %100 doğru mu?",
-                faqA1: "Hayır. C2PA imzası olan görsellerde %100 doğruluk sağlıyoruz.",
-                faqQ2: "C2PA nedir?",
-                faqA2: "C2PA (Content Credentials), bir görselin kimlik kartı gibidir.",
+                faqA1: "Hayır. Toplam 400 test görselinde %82, ayrı 200 görselde %85 doğru sonuç elde edildi. Bu oran her yeni görsel için garanti değildir.",
+                faqQ2: "Sonuç kesin kanıt mı?",
+                faqA2: "Hayır. Analiz görseldeki AI işaretlerini değerlendirir; görselin kaynağını veya bir ilanın güvenilirliğini kanıtlamaz.",
                 faqQ3: "Görsellerim saklanıyor mu?",
                 faqA3: "Hayır. Yüklediğiniz görseller anlık olarak işlenir ve otomatik silinir.",
                 faqQ4: "Sonuçlar neden bazen farklı çıkıyor?",
-                faqA4: "AI tespit modelleri olasılık tahmini yapar.",
+                faqA4: "Sıkıştırma, düzenleme ve model sürümü sonucu etkileyebilir.",
                 faqQ5: "Ücretsiz deneme var mı?",
-                faqA5: "Evet. Giriş yaptığınızda 3 ücretsiz tarama hakkınız olur.",
+                faqA5: "Evet. Giriş yaptıktan sonra ücretsiz tarama yapabilirsiniz.",
                 accuracyTitle: "Doğruluk Raporumuz",
-                accuracyDesc: "1000+ görsel ile bağımsız test edilmiştir",
-                accuracyC2PA: "C2PA'lı Görseller",
-                accuracyC2PADesc: "Kesin tespit",
-                accuracyGeneral: "Genel Görseller",
-                accuracyGeneralDesc: "Olasılık tahmini",
-                accuracyNote: "Test verileri bağımsız olarak toplanmıştır.",
+                accuracyDesc: "200 AI + 200 gerçek görsel ile ölçüldü",
+                accuracyC2PA: "Toplam 400 görsel",
+                accuracyC2PADesc: "328 doğru · 400 görsel",
+                accuracyGeneral: "Ayrı 200 görsel",
+                accuracyGeneralDesc: "170 doğru · 200 görsel",
+                accuracyNote: "Bu oranlar test örnekleri için geçerlidir.",
                 heroBadge2: "%100 gizli · Ücretsiz deneyin",
-                heroBadge3: "1000+ görselle test edildi",
+                heroBadge3: "400 görselle test edildi",
                 heroTitle: "Bir görsel gerçek mi, yapay zeka mı?",
                 heroSubtitle: "Saniyeler içinde öğrenin.",
-                trustStorage: "Görsel saklanır", trustSpeed: "Ortalama analiz süresi",
+                trustStorage: "Görsel saklanır", trustSpeed: "Analiz süresi", trustSpeedValue: "Değişken",
                 trustModelLabel: "Nöral Ağ", trustModel: "Analiz motoru",
                 howTitle: "Nasıl çalışır", howStep1Title: "Yükleyin",
                 howStep1Desc: "Görseli sürükleyin.",
                 howStep2Title: "Analiz edilir", howStep2Desc: "Piksellerdeki izleri tarar.",
-                howStep3Title: "Sonucu görün", howStep3Desc: "Olasılığı anında öğrenin.",
+                howStep3Title: "Sonucu görün", howStep3Desc: "Analiz sonucunu görün.",
                 trustTitle: "Neden güvenebilirsiniz", trustCard1Title: "Gizlilik önceliğimiz",
                 trustCard1Desc: "Görseller anlık işlenir.",
                 trustCard2Title: "Şeffaf sonuçlar",
-                trustCard2Desc: "Olasılık tahminidir.",
+                trustCard2Desc: "Model skoru, kesin hüküm değildir.",
                 trustCard3Title: "Şifreli bağlantı",
                 trustCard3Desc: "Veri aktarımı şifrelidir.",
                 heatmapTitle: "AI Tespit Isı Haritası", heatmapOriginal: "Orijinal",
@@ -1929,14 +1857,19 @@ async function pollForProStatus(attempt = 0) {
                 parent.appendChild(node);
                 return node;
             };
+            const details = document.createElement('details');
+            details.className = 'space-y-3';
+            container.appendChild(details);
+            const tr = currentLang === 'tr';
+            addText(details, 'summary', tr ? 'Analiz ayrıntıları' : 'Analysis details', 'cursor-pointer text-sm text-indigo-300 font-semibold');
+            addText(container, 'p', tr ? 'Bu bir model tahminidir; görselin kaynağını kesin olarak kanıtlamaz.' : 'This is a model estimate; it does not establish the image origin.', 'text-xs text-slate-400');
             const block = (title) => {
                 const section = document.createElement('div');
                 section.className = 'bg-slate-800/60 rounded-xl p-4 space-y-2';
-                container.appendChild(section);
+                details.appendChild(section);
                 addText(section, 'h4', title, 'font-bold text-slate-100 text-sm');
                 return section;
             };
-            const tr = currentLang === 'tr';
             const reasons = block(tr ? 'Bu karar neden verildi?' : 'Why this decision?');
             report.decision_reasons.forEach(reason => addText(reasons, 'p', reason, 'text-sm text-amber-300'));
             const models = block(tr ? 'Modellerin ayrı sonuçları' : 'Individual model results');
@@ -1957,8 +1890,8 @@ async function pollForProStatus(attempt = 0) {
                 addText(steps, 'p', item.title, 'text-sm font-semibold text-slate-200');
                 addText(steps, 'p', item.detail, 'text-xs text-slate-400');
             });
-            addText(container, 'p', report.limitations, 'text-xs text-amber-300');
-            addText(container, 'p', report.learning, 'text-xs text-slate-400');
+            addText(details, 'p', report.limitations, 'text-xs text-amber-300');
+            addText(details, 'p', report.learning, 'text-xs text-slate-400');
         }
 
         function updateSummaryMessage(aiScore, statusKey) {
@@ -2100,7 +2033,7 @@ async function pollForProStatus(attempt = 0) {
                     renderEvidenceReport(data);
                     currentAiScore = parseFloat(aiScore);
                     console.log('[FEEDBACK] hash:', currentImageHash);
-                   const pdfBtn = document.getElementById('pdfdownloadBtn');
+                   const pdfBtn = document.getElementById('pdfDownloadBtn');
                     if (pdfBtn) {
                     pdfBtn.classList.remove('hidden');
                     }
@@ -2132,12 +2065,6 @@ async function pollForProStatus(attempt = 0) {
         }
 
         function downloadPDF() {
-                       const heatmapImgCheck = document.getElementById('heatmapImage');
-            if (heatmapImgCheck && (!heatmapImgCheck.complete || heatmapImgCheck.naturalWidth === 0)) {
-                showToast(currentLang === 'tr' ? '⏳ Isı haritası hazırlanıyor, lütfen bekleyin...' : '⏳ Preparing heatmap, please wait...', 'info');
-                setTimeout(() => downloadPDF(), 3000);
-                return;
-            }
             if (!lastAnalysisStatus) {
                 showToast(currentLang === 'tr' ? 'Önce bir görsel tarayın.' : 'Please scan an image first.', 'error');
                 return;
@@ -2185,7 +2112,7 @@ async function pollForProStatus(attempt = 0) {
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'normal');
                 doc.setTextColor(...darkColor);
-                doc.text(currentLang === 'tr' ? 'Yapay Zeka Olasiligi:' : 'AI Generated Probability:', 15, 85);
+                doc.text(currentLang === 'tr' ? 'Yapay Zeka Model Skoru:' : 'AI Model Score:', 15, 85);
                 doc.setTextColor(...redColor);
                 doc.setFont('helvetica', 'bold');
                 doc.setFontSize(16);
@@ -2197,7 +2124,7 @@ async function pollForProStatus(attempt = 0) {
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'normal');
                 doc.setTextColor(...darkColor);
-                doc.text(currentLang === 'tr' ? 'Gercek Fotograf Olasiligi:' : 'Real Photo Probability:', 15, 110);
+                doc.text(currentLang === 'tr' ? 'Gercek Fotograf Model Skoru:' : 'Real Photo Model Score:', 15, 110);
                 doc.setTextColor(...greenColor);
                 doc.setFont('helvetica', 'bold');
                 doc.setFontSize(16);
@@ -2218,7 +2145,7 @@ async function pollForProStatus(attempt = 0) {
                     resultText = currentLang === 'tr' ? 'SONUC: Karisik sinyaller' : 'RESULT: Mixed indicators';
                 } else {
                     resultColor = greenColor;
-                    resultText = currentLang === 'tr' ? 'SONUC: Yuksek ihtimalle GERCEK FOTOGRAF' : 'RESULT: Likely REAL PHOTO';
+                    resultText = currentLang === 'tr' ? 'SONUC: Gercek fotografa daha yakin' : 'RESULT: Closer to a real photo';
                 }
                 doc.setTextColor(...resultColor);
                 doc.text(resultText, 105, 135, { align: 'center' });
@@ -2226,7 +2153,7 @@ async function pollForProStatus(attempt = 0) {
                     const originalImg = document.getElementById('imagePreview');
                     const heatmapImg = document.getElementById('heatmapImage');
                     const imgToPngDataUrl = (imgElement) => {
-                        if (!imgElement || !imgElement.src) return null;
+                        if (!imgElement || !imgElement.getAttribute('src') || !imgElement.complete || !imgElement.naturalWidth) return null;
                         try {
                             const canvas = document.createElement('canvas');
                             const ctx = canvas.getContext('2d');
@@ -2256,7 +2183,7 @@ async function pollForProStatus(attempt = 0) {
                 doc.setFontSize(8);
                 doc.setFont('helvetica', 'italic');
                 doc.setTextColor(...lightGray);
-                doc.text(currentLang === 'tr' ? 'Bu rapor olasilik tahminine dayanir, kesin hukum degildir.' : 'This report is based on probability estimation, not a final verdict.', 105, 260, { align: 'center', maxWidth: 180 });
+                doc.text(currentLang === 'tr' ? 'Bu rapor model skoruna dayanir; kesin hukum degildir.' : 'This report uses a model score; it is not a final verdict.', 105, 260, { align: 'center', maxWidth: 180 });
                 doc.setDrawColor(...lightGray);
                 doc.line(15, 268, 195, 268);
                 doc.setFontSize(8);
