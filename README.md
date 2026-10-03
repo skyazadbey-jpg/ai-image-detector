@@ -4,9 +4,11 @@ Genel, Araba ve Emlak modları aynı ConvNeXt analiz motorunu kullanır. Fotoğr
 
 ## Ölçüm — 3 Ekim 2026
 
-Model seçimi için kullanılan ilk 200 görsel: 158 doğru, 39 yanlış, 3 belirsiz (%79). Ayrı 200 görsel: 170 doğru, 26 yanlış, 4 belirsiz (%85). Toplam: 328/400 (%82). Her grup 100 AI ve 100 gerçek görsel içerir. Belirsizler başarı sayılmaz. Eğitim verisiyle örtüşme bilinmiyor; Gemini, araba ve emlak için ayrı başarı oranı ölçülmedi.
+Yerel Windows testinde model seçimi için kullanılan ilk 200 görsel: 158 doğru, 39 yanlış, 3 belirsiz (%79). Ayrı 200 görsel: 170 doğru, 26 yanlış, 4 belirsiz (%85). Toplam: 328/400 (%82). Her grup 100 AI ve 100 gerçek görsel içerir. Belirsizler başarı sayılmaz. Eğitim verisiyle örtüşme bilinmiyor; Gemini, araba ve emlak için ayrı başarı oranı ölçülmedi.
 
 Kaynaklar: bitmind/open-images-v7-subset, bitmind/MS-COCO-unique___FLUX.1-dev, bitmind/MS-COCO-unique___stable-diffusion-xl-base-1.0. Yayıncı etiketleri kullanıldı; tüm örneklerin kaynağı bağımsız olarak denetlenmedi. Örnekler rastgele satır aralıklarından alındı. Bu test tüm yeni görsellerde aynı başarıyı garanti etmez.
+
+Canlı Render tekrar testi: aynı ayrı 200 görselde 169 doğru, 29 yanlış, 2 belirsiz, 0 istek hatası (%84,5). AI: 83/100; gerçek: 86/100. Bu tekrar yeni bir veri grubu değildir. Yerel Windows skorlarıyla canlı Linux skorları farklılaşabildiği için canlı sonuç ayrıca ölçüldü.
 
 ## Render
 

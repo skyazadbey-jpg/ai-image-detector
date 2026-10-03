@@ -499,7 +499,7 @@
             <div class="space-y-2">
                 <details class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 cursor-pointer">
                     <summary class="text-sm font-semibold text-slate-200" data-i18n="faqQ1">Bu araç %100 doğru mu?</summary>
-                    <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA1">Hayır. Toplam 400 test görselinde %82, ayrı 200 görselde %85 doğru sonuç elde edildi. Bu oran her yeni görsel için garanti değildir.</p>
+                    <p class="text-xs text-slate-400 mt-2 leading-relaxed" data-i18n="faqA1">Hayır. Yerel 400 görsel testinde %82, canlı sitedeki 200 görsel testinde %84,5 doğru sonuç elde edildi. Bu oran her yeni görsel için garanti değildir.</p>
                 </details>
                 <details class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 cursor-pointer">
                     <summary class="text-sm font-semibold text-slate-200" data-i18n="faqQ2">Sonuç kesin kanıt mı?</summary>
@@ -529,14 +529,14 @@
                 <p class="text-slate-300 text-sm mb-4" data-i18n="accuracyDesc">200 AI + 200 gerçek görsel ile ölçüldü</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
                     <div class="bg-slate-900/60 rounded-xl p-3">
-                        <p class="text-xs text-slate-400" data-i18n="accuracyC2PA">Toplam 400 görsel</p>
+                        <p class="text-xs text-slate-400" data-i18n="accuracyC2PA">Yerel test · 400 görsel</p>
                         <p class="text-2xl font-extrabold text-emerald-400">%82</p>
                         <p class="text-[10px] text-slate-500" data-i18n="accuracyC2PADesc">328 doğru · 400 görsel</p>
                     </div>
                     <div class="bg-slate-900/60 rounded-xl p-3">
-                        <p class="text-xs text-slate-400" data-i18n="accuracyGeneral">Ayrı 200 görsel</p>
-                        <p class="text-2xl font-extrabold text-cyan-400">%85</p>
-                        <p class="text-[10px] text-slate-500" data-i18n="accuracyGeneralDesc">170 doğru · 200 görsel</p>
+                        <p class="text-xs text-slate-400" data-i18n="accuracyGeneral">Canlı test · 200 görsel</p>
+                        <p class="text-2xl font-extrabold text-cyan-400" data-i18n="accuracyLiveRate">%84,5</p>
+                        <p class="text-[10px] text-slate-500" data-i18n="accuracyGeneralDesc">169 doğru · 200 görsel</p>
                     </div>
                 </div>
                 <p class="text-[10px] text-slate-500 mt-3 italic" data-i18n="accuracyNote">Bu oranlar test örnekleri için geçerlidir.</p>
@@ -862,7 +862,7 @@
                 c2paSourceLabel: "Source: -",
                 faqTitle: "Frequently Asked Questions",
                 faqQ1: "Is this tool 100% accurate?",
-                faqA1: "No. The measured success rate was 82% across 400 samples and 85% on the separate 200. This is not a guarantee for every new image.",
+                faqA1: "No. The local 400-image test achieved 82%, and the live 200-image test achieved 84.5%. This is not a guarantee for every new image.",
                 faqQ2: "Is the result definitive evidence?",
                 faqA2: "No. The analysis assesses AI indicators; it does not prove image origin or listing reliability.",
                 faqQ3: "Are my images stored?",
@@ -873,10 +873,11 @@
                 faqA5: "Yes. You can scan for free after signing in.",
                 accuracyTitle: "Our Accuracy Report",
                 accuracyDesc: "Measured on 200 AI + 200 real images",
-                accuracyC2PA: "All 400 images",
+                accuracyC2PA: "Local test · 400 images",
                 accuracyC2PADesc: "328 correct · 400 images",
-                accuracyGeneral: "Separate 200 images",
-                accuracyGeneralDesc: "170 correct · 200 images",
+                accuracyGeneral: "Live test · 200 images",
+                accuracyLiveRate: "84.5%",
+                accuracyGeneralDesc: "169 correct · 200 images",
                 accuracyNote: "These rates apply to the test samples.",
                 heroBadge2: "100% private · Try free",
                 heroBadge3: "Tested with 400 images",
@@ -1021,7 +1022,7 @@
                 c2paSourceLabel: "Kaynak: -",
                 faqTitle: "Sıkça Sorulan Sorular",
                 faqQ1: "Bu araç %100 doğru mu?",
-                faqA1: "Hayır. Toplam 400 test görselinde %82, ayrı 200 görselde %85 doğru sonuç elde edildi. Bu oran her yeni görsel için garanti değildir.",
+                faqA1: "Hayır. Yerel 400 görsel testinde %82, canlı sitedeki 200 görsel testinde %84,5 doğru sonuç elde edildi. Bu oran her yeni görsel için garanti değildir.",
                 faqQ2: "Sonuç kesin kanıt mı?",
                 faqA2: "Hayır. Analiz görseldeki AI işaretlerini değerlendirir; görselin kaynağını veya bir ilanın güvenilirliğini kanıtlamaz.",
                 faqQ3: "Görsellerim saklanıyor mu?",
@@ -1032,10 +1033,11 @@
                 faqA5: "Evet. Giriş yaptıktan sonra ücretsiz tarama yapabilirsiniz.",
                 accuracyTitle: "Doğruluk Raporumuz",
                 accuracyDesc: "200 AI + 200 gerçek görsel ile ölçüldü",
-                accuracyC2PA: "Toplam 400 görsel",
+                accuracyC2PA: "Yerel test · 400 görsel",
                 accuracyC2PADesc: "328 doğru · 400 görsel",
-                accuracyGeneral: "Ayrı 200 görsel",
-                accuracyGeneralDesc: "170 doğru · 200 görsel",
+                accuracyGeneral: "Canlı test · 200 görsel",
+                accuracyLiveRate: "%84,5",
+                accuracyGeneralDesc: "169 doğru · 200 görsel",
                 accuracyNote: "Bu oranlar test örnekleri için geçerlidir.",
                 heroBadge2: "%100 gizli · Ücretsiz deneyin",
                 heroBadge3: "400 görselle test edildi",

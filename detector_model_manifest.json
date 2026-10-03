@@ -127,6 +127,17 @@
     "combined_total": 400,
     "threshold": 60,
     "uncertainty_margin": 10,
-    "scope": "Publisher-labeled OpenImages, FLUX and SDXL samples; training overlap unknown."
+    "scope": "Publisher-labeled OpenImages, FLUX and SDXL samples; training overlap unknown.",
+    "local_runtime": "Windows Python 3.12 CPU",
+    "live_repeat": {
+      "runtime": "Render Linux CPU",
+      "correct": 169,
+      "total": 200,
+      "wrong": 29,
+      "uncertain": 2,
+      "errors": 0,
+      "accuracy_pct": 84.5,
+      "same_holdout_images": true
+    }
   }
 }
