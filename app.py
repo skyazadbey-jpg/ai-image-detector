@@ -1134,10 +1134,15 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
         if mode not in ("general", "car", "realestate"):
             return {"error": "Geçersiz analiz modu."}
 
-        # ImageNet category guesses are guidance, never a hard rejection.
-        category = "not_checked"
-        if mode in ("car", "realestate") and AI_BACKEND == "hf":
-            category = await asyncio.to_thread(classify_image_category, contents, content_type)
+        # Local object hints do not change the AI score or reject an upload.
+        category = {"status": "not_checked", "detected": "unknown"}
+        if mode in ("car", "realestate"):
+            try:
+                from category_detector import classify
+                category = await asyncio.to_thread(classify, contents, mode)
+            except Exception as error:
+                print(json.dumps({"event": "category_check_unavailable", "error_type": type(error).__name__}))
+                category = {"status": "unavailable", "detected": "unknown"}
 
         final_ai_score, breakdown = await call_ai_model_ensemble(contents, content_type)
         
@@ -1175,6 +1180,7 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
             "model_disagreement": disagreement,
             "decision_threshold": DECISION_THRESHOLD,
             "evidence_report": report,
+            "category_check": category,
             "analysis_token": analysis_token,
         }
     except Exception as e:

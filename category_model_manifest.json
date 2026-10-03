@@ -1,0 +1,27 @@
+{
+  "sha256": "70fc6f84dfd48becf4f409a6372af34f8028d1d2a83d1f38d6762a9550f79bb2",
+  "bytes": 10181058,
+  "parts": [
+    {
+      "name": "category_model.part00",
+      "bytes": 5242880,
+      "sha256": "40afdfc0a4a626ee0ae01f439635cee1f49174dc09b6b2bed482d1655cb1a089"
+    },
+    {
+      "name": "category_model.part01",
+      "bytes": 4938178,
+      "sha256": "2421c3047a40088d03bf1192725327e79d239dce8b87dd657716a6a74438720c"
+    }
+  ],
+  "source": {
+    "source_url": "https://download.pytorch.org/models/mobilenet_v3_small-047dcff4.pth",
+    "source_sha256": "047dcff4addef86ea5bc2eff13c9614dc11f47ab1160d0a71a25e7db994f4e1f",
+    "architecture": "torchvision/mobilenet_v3_small",
+    "weights": "IMAGENET1K_V1",
+    "torch": "2.14.1+cpu",
+    "torchvision": "0.29.1+cpu",
+    "onnx_sha256": "70fc6f84dfd48becf4f409a6372af34f8028d1d2a83d1f38d6762a9550f79bb2"
+  },
+  "labels_sha256": "91a3a6afaeb2a047fc854406fad4a8513ba0719421d50ce8786816954ecf72d2",
+  "purpose": "ImageNet object hints, not property verification or AI detection"
+}

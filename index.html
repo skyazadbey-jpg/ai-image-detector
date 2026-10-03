@@ -747,6 +747,8 @@
         const GOOGLE_CLIENT_ID = "231913863443-oos54itr9jsirb8sv6705hqr00kchvr4.apps.googleusercontent.com";
         const translations = {
             en: {
+                categoryMismatchTitle: "This image may not match the section you selected.",
+                categoryMismatchBody: "Try General Scan or the appropriate section. The image analysis still completed.",
                 neonBadgeText: "⚡ KEEP IT ALIVE",
                 sidePiggyTitle: "Community Piggy Bank",
                 sidePiggyDesc: "Support us to keep this project 100% free and ad-free!",
@@ -943,6 +945,8 @@
     
             },
             tr: {
+                categoryMismatchTitle: "Bu görsel seçtiğin bölüme uymuyor olabilir.",
+                categoryMismatchBody: "Genel taramayı veya uygun bölümü kullanabilirsin. Fotoğraf analizi yine tamamlandı.",
                 neonBadgeText: "⚡ PROJEYİ YAŞAT",
                 sidePiggyTitle: "Topluluk Kumbarası",
                 sidePiggyDesc: "Reklamsız ve %100 ücretsiz kalması için bize destek ol!",
@@ -1863,6 +1867,15 @@ async function pollForProStatus(attempt = 0) {
             details.className = 'space-y-3';
             container.appendChild(details);
             const tr = currentLang === 'tr';
+            const category = data.category_check || report.category_check;
+            if (category && category.status === 'mismatch') {
+                const warning = document.createElement('div');
+                warning.setAttribute('role', 'status');
+                warning.className = 'rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-200';
+                container.insertBefore(warning, details);
+                addText(warning, 'p', tr ? 'Bu görsel seçtiğin bölüme uymuyor olabilir.' : 'This image may not match the section you selected.', 'font-semibold').setAttribute('data-i18n', 'categoryMismatchTitle');
+                addText(warning, 'p', tr ? 'Genel taramayı veya uygun bölümü kullanabilirsin. Fotoğraf analizi yine tamamlandı.' : 'Try General Scan or the appropriate section. The image analysis still completed.', 'mt-1 text-xs').setAttribute('data-i18n', 'categoryMismatchBody');
+            }
             addText(details, 'summary', tr ? 'Analiz ayrıntıları' : 'Analysis details', 'cursor-pointer text-sm text-indigo-300 font-semibold');
             addText(container, 'p', tr ? 'Bu bir model tahminidir; görselin kaynağını kesin olarak kanıtlamaz.' : 'This is a model estimate; it does not establish the image origin.', 'text-xs text-slate-400');
             const block = (title) => {
@@ -2323,10 +2336,12 @@ async function pollForProStatus(attempt = 0) {
         }
 
         function switchMode(mode) {
+            if (currentMode !== mode) {
+                currentImageHash = null;
+                currentAnalysisToken = null;
+                document.getElementById('resultArea').classList.add('hidden');
+            }
             currentMode = mode;
-            currentImageHash = null;
-            currentAnalysisToken = null;
-            document.getElementById('resultArea').classList.add('hidden');
             localStorage.setItem('mode', mode);
             document.body.classList.remove('mode-car', 'mode-realestate');
             if (mode === 'car') document.body.classList.add('mode-car');

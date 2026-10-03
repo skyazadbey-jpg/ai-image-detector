@@ -44,7 +44,16 @@ def build_report(contents, mode, breakdown, verdict, degraded=False, disagreemen
     if not reasons:
         reasons.append('Karar mevcut model skoruna ve ayarlanmış eşiğe dayanıyor.')
     if mode != 'general':
-        if category == 'not_checked':
+        if isinstance(category, dict):
+            status = category.get('status')
+            if status == 'mismatch':
+                detail = 'Görsel seçili bölüme uymuyor olabilir. Genel taramayı veya uygun bölümü kullanabilirsiniz; AI skoru bu uyarıdan bağımsızdır.'
+            elif status == 'compatible':
+                detail = 'Araçla ilişkili görsel işaretler bulundu.' if mode == 'car' else 'Bina veya iç mekânla ilişkili nesneler bulundu; mülkün kimliği doğrulanmadı.'
+            else:
+                detail = 'Görsel türü güvenle belirlenemedi; fotoğraf analizi sürdürüldü.'
+            observations.append({'title': 'Kategori kontrolü', 'detail': detail})
+        elif category == 'not_checked':
             pass  # Mode selects guidance; it does not change the AI score.
         elif category == 'unknown':
             observations.append({'title': 'Kategori kontrolü', 'detail': 'Kategori modeli cevap vermedi; araç veya mülk içeriği doğrulanamadı.'})
@@ -55,6 +64,7 @@ def build_report(contents, mode, breakdown, verdict, degraded=False, disagreemen
     return {
         'version': '2.0', 'mode': mode, 'observations': observations, 'decision_reasons': reasons,
         'models': breakdown,
+        'category_check': category if isinstance(category, dict) else {'status': 'not_checked', 'detected': 'unknown'},
         'verification_steps': [{'title': title, 'detail': detail} for title, detail in GUIDANCE[mode]],
         'limitations': 'Model skoru kalibre edilmiş bir olasılık değildir. Gerçek fotoğraf kullanılmış olması ilanı güvenilir yapmaz.',
         'provenance': 'not_verified', 'fraud_assessment': 'not_determined',
