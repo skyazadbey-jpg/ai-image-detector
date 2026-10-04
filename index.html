@@ -20,7 +20,8 @@
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="AI Görsel Tespit - Sahte Fotoğraf Kontrolü">
     <meta name="twitter:description" content="Araba ve emlak ilanlarındaki fotoğrafların AI üretimi olup olmadığını saniyeler içinde öğrenin.">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%236366f1'/><stop offset='100%' style='stop-color:%23a855f7'/></linearGradient></defs><rect width='100' height='100' rx='22' fill='url(%23g)'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>AI</text></svg>">
+    <link rel="icon" type="image/png" href="/brand-logo.png?v=1">
+    <link rel="apple-touch-icon" href="/brand-logo.png?v=1"><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%236366f1'/><stop offset='100%' style='stop-color:%23a855f7'/></linearGradient></defs><rect width='100' height='100' rx='22' fill='url(%23g)'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>AI</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -247,9 +248,7 @@
             <span data-i18n="heroBadge3">400 görselle test edildi</span>
         </div>
         <div id="modeHeroIcon" class="mb-4 flex justify-center">
-            <div class="w-16 h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg">
-                <i class="fas fa-magnifying-glass text-white text-2xl"></i>
-            </div>
+            <img src="/brand-logo.png?v=1" alt="AI Image Detector" width="96" height="96" class="w-24 h-24 rounded-2xl" fetchpriority="high">
         </div>
         <h2 class="font-display text-2xl sm:text-4xl font-bold text-slate-100 leading-tight mb-3" data-i18n="heroTitle">Bir görsel gerçek mi, yapay zeka mı?</h2>
         <p class="text-slate-400 text-sm sm:text-base max-w-lg mx-auto" data-i18n="heroSubtitle">Saniyeler içinde öğrenin.</p>
@@ -2438,16 +2437,6 @@ async function pollForProStatus(attempt = 0) {
                     realestate: { tr: "Emlak Detector", en: "Real Estate Detector" }
                 };
                 pageTitle.innerText = titles[mode][currentLang];
-            }
-            const heroIcon = document.querySelector('#modeHeroIcon div');
-            if (heroIcon) {
-                const icons = {
-                    general: { icon: "fa-magnifying-glass", bg: "from-indigo-500 to-violet-600" },
-                    car: { icon: "fa-car", bg: "from-red-500 to-orange-500" },
-                    realestate: { icon: "fa-house", bg: "from-cyan-500 to-emerald-500" }
-                };
-                heroIcon.className = `w-16 h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br ${icons[mode].bg} shadow-lg`;
-                heroIcon.innerHTML = `<i class="fas ${icons[mode].icon} text-white text-2xl"></i>`;
             }
           const pageTitles = {
                 general: "AI Image Detector",

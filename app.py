@@ -1,3 +1,4 @@
+from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -1269,6 +1270,12 @@ async def predict_heatmap(file: UploadFile = File(None), image_url: str = Form(N
 
 
 # ---------- STATIC FILES ----------
+@app.get("/brand-logo.png", include_in_schema=False)
+def serve_brand_logo():
+    return FileResponse(Path(__file__).resolve().parent / "brand-logo.png", media_type="image/png", headers={"Cache-Control": "public, max-age=86400"})
+
+
+
 @app.get("/")
 def serve_index():
     return FileResponse("index.html")
