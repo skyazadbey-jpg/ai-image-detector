@@ -324,6 +324,7 @@
 
 
 
+        <div id="guestTrialNotice" class="mb-4 rounded-xl border border-indigo-500/30 bg-indigo-500/10 p-4 text-sm"><p id="guestTrialText"></p><button id="guestTrialLogin" onclick="openAuthModal()" class="mt-3 rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-white" hidden></button></div>
         <button onclick="analyzeImage()" id="scanButton" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl transition duration-200 shadow-lg flex items-center justify-center gap-3 text-lg active:scale-[0.98]">
             <i class="fas fa-robot" id="buttonIcon"></i>
             <span id="buttonText" data-i18n="scanBtn">Scan Image</span>
@@ -596,11 +597,13 @@
     <div id="authModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                
                 <h3 id="authModalTitle" class="text-xl font-bold text-indigo-400 flex items-center gap-2">
                     <i class="fas fa-lock-keyhole"></i> <span data-i18n="authTitle">Secure Account Access</span>
                 </h3>
                 <button onclick="closeAuthModal()" class="text-slate-400 hover:text-white text-lg"><i class="fas fa-xmark"></i></button>
             </div>
+            <p id="guestAuthPrompt" class="mb-4 text-sm text-slate-400"></p>
             <div id="googleButtonContainer" class="flex justify-center"></div>
             <div class="flex items-center my-4">
                 <div class="flex-grow border-t border-slate-700"></div>
@@ -1710,6 +1713,7 @@ async function pollForProStatus(attempt = 0) {
 }
 
        function updateAuthUI() {
+    renderGuestTrial();
     const btnText = document.getElementById('authNavText');
     const chevron = document.getElementById('userMenuChevron');
     const dropdownEmail = document.getElementById('dropdownEmail');
@@ -1801,24 +1805,8 @@ async function pollForProStatus(attempt = 0) {
         }
 
         async function updateCreditDisplay() {
-            if (currentUser) {
-                try {
-                    const token = localStorage.getItem('authToken');
-                    const res = await fetch(`${BACKEND_URL}/user/credits`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    const data = await res.json();
-                    if (data.is_pro) {
-                        document.getElementById('creditBadge').innerHTML = '<i class="fas fa-infinity"></i> <span>' + (currentLang === 'tr' ? 'Sınırsız' : 'Unlimited') + '</span>';
-                    } else {
-                        document.getElementById('creditsLeft').innerText = data.credits;
-                    }
-                } catch (err) {
-                    document.getElementById('creditsLeft').innerText = freeCredits;
-                }
-            } else {
-                document.getElementById('creditsLeft').innerText = freeCredits;
-            }
+            if(currentUser) document.getElementById('creditBadge').textContent=currentLang==='tr'?'Aktif':'Active';
+            else renderGuestTrial();
         }
 
         function toggleLanguage() {
@@ -2023,10 +2011,59 @@ async function pollForProStatus(attempt = 0) {
             }
         }
 
+
+        let guestRemaining = 1;
+        function guestCopy() { return currentLang === 'tr' ? {
+            intro:'İlk fotoğrafınızı ücretsiz analiz edin. Sonucu gördükten sonra, devam etmek için giriş yapın.',
+            used:'Ücretsiz denemeniz tamamlandı. Daha fazla fotoğraf analiz etmek için giriş yapın veya ücretsiz hesap oluşturun.',
+            button:'Giriş yap / Ücretsiz hesap oluştur', badge:'1 ücretsiz deneme'
+        } : {
+            intro:'Try your first photo for free. See the result, then sign in to keep analyzing.',
+            used:'Your free trial is complete. Sign in or create a free account to analyze more photos.',
+            button:'Sign in / Create a free account', badge:'1 free trial'
+        }; }
+        function renderGuestTrial() {
+            const box=document.getElementById('guestTrialNotice');
+            if (!box) return;
+            box.hidden=!!currentUser;
+            document.getElementById('guestTrialText').textContent=guestRemaining ? guestCopy().intro : guestCopy().used;
+            const button=document.getElementById('guestTrialLogin');
+            button.textContent=guestCopy().button; button.hidden=!!guestRemaining;
+            document.getElementById('guestAuthPrompt').textContent=currentUser?'':(guestRemaining?guestCopy().intro:guestCopy().used);
+            if(!currentUser) document.getElementById('creditBadge').textContent=guestRemaining ? guestCopy().badge : (currentLang==='tr'?'Giriş yapın':'Sign in');
+        }
+        async function ensureAnalysisAccess(count=1) {
+            if (!currentUser && localStorage.getItem("authToken")) await restoreSession();
+            if (currentUser) return true;
+            try {
+                const res=await fetch(`${BACKEND_URL}/auth/guest`,{credentials:'same-origin',cache:'no-store'});
+                if (!res.ok) throw Error('trial');
+                guestRemaining=(await res.json()).remaining;
+                renderGuestTrial();
+                if (guestRemaining && count===1) return true;
+                openAuthModal();
+                document.getElementById('guestAuthPrompt').textContent=count>1 && guestRemaining
+                    ? (currentLang==='tr'?'Bir fotoğrafı giriş yapmadan ücretsiz deneyebilirsiniz. Çoklu fotoğraf analizi için ücretsiz hesabınızla giriş yapın.':'Try one photo for free without signing in. Sign in with a free account to analyze multiple photos.') : guestCopy().used;
+                return false;
+            } catch(e) { showToast(currentLang==='tr'?'Bağlantı kurulamadı. Lütfen tekrar deneyin.':'Could not connect. Please try again.','error');return false; }
+        }
+        async function requestPhotoAnalysis(body,signal) {
+            const token=localStorage.getItem('authToken');
+            const res=await fetch(`${BACKEND_URL}/predict`,{method:'POST',body,signal,credentials:'same-origin',headers:currentUser&&token?{'Authorization':`Bearer ${token}`}:{}});
+            const data=await res.json();
+            if (res.status===401) {
+                if(data.detail==='SESSION_EXPIRED'){currentUser=null;localStorage.removeItem('authToken');updateAuthUI();}
+                guestRemaining=0;renderGuestTrial();openAuthModal();
+                return {res,data:{error:guestCopy().used,login_required:true}};
+            }
+            if(res.ok&&data.status==='success'&&!currentUser){guestRemaining=0;renderGuestTrial();}
+            return {res,data};
+        }
+
        async function analyzeImage() {
 
     
-    // Kredi ve Pro kısıtlamaları kaldırıldı, herkes için tamamen serbest!
+    if (!await ensureAnalysisAccess()) return;
 
     if (!currentLoadedFile) { alert(translations[currentLang].selectFirst); return; }
             if (!currentLoadedFile) { alert(translations[currentLang].selectFirst); return; }
@@ -2069,8 +2106,7 @@ async function pollForProStatus(attempt = 0) {
             formData.append("mode", currentMode);
 
             try {
-                const response = await fetch(`${BACKEND_URL}/predict`, { method: 'POST', body: formData });
-                const data = await response.json();
+                const {res:response,data} = await requestPhotoAnalysis(formData);
                 if (data.error) {
             alert(translateServiceMessage(data.error));
             loadingState.classList.add('hidden');
@@ -2681,7 +2717,7 @@ let items=[],busy=false,cancelled=false,controller=null,reportMode=currentMode,c
 const studio=document.createElement('section');studio.className='review-studio';studio.setAttribute('aria-label','Photo review');
 studio.innerHTML=`<div class="rs-tabs" role="tablist"><button id="rsSingle" role="tab" aria-selected="true" aria-controls="fileSection"></button><button id="rsMulti" role="tab" aria-selected="false" aria-controls="rsPanel"></button></div><div class="rs-panel" id="rsPanel" hidden><div class="rs-head"><div><p id="rsEyebrow" class="rs-eyebrow"></p><h2 id="rsTitle"></h2><p id="rsSub" class="rs-sub"></p></div><span id="rsBadge" class="rs-badge"></span></div><input id="rsFiles" type="file" multiple accept="image/jpeg,image/png,image/webp" hidden><button id="rsDrop" type="button" class="rs-drop"><i class="fas fa-images rs-upload-icon" aria-hidden="true"></i><strong id="rsDropTitle"></strong><span id="rsBrowse"></span><span id="rsLimits"></span></button><div id="rsSelection" class="rs-selection"></div><p id="rsError" class="rs-error" role="alert" hidden></p><div class="rs-toolbar"><button id="rsRun" class="rs-primary"></button><button id="rsClear" class="rs-quiet"></button><button id="rsCancel" class="rs-quiet" hidden></button></div><p class="rs-privacy"><i class="fas fa-shield-halved" aria-hidden="true"></i><span id="rsPrivacy"></span></p><div id="rsProgress" class="rs-progress" role="status" aria-live="polite"></div><div id="rsSummary" class="rs-summary" hidden><div class="rs-summary-head"><h3 id="rsSummaryTitle"></h3><span id="rsCount" class="rs-badge"></span></div><div id="rsCounts" class="rs-counts"></div><p id="rsSummaryText" class="rs-callout"></p><div id="rsResults" class="rs-results"></div><div class="rs-export"><button id="rsPdf" class="rs-primary"></button><button id="rsPrint" class="rs-quiet"></button></div><p id="rsNote" class="rs-footnote"></p></div></div>`;
 const originalTabs=document.getElementById('tabFileBtn').parentElement;
-originalTabs.before(studio);
+originalTabs.before(document.getElementById('guestTrialNotice'));originalTabs.before(studio);
 const $=id=>document.getElementById(id),t=()=>copy[currentLang==='tr'?'tr':'en'];
 function node(tag,value,cls=''){const n=document.createElement(tag);n.textContent=value;n.className=cls;return n;}
 function image(item,cls=''){const img=document.createElement('img');img.src=item.url;img.alt=item.file.name;img.className=cls;return img;}
@@ -2702,11 +2738,11 @@ const results=$('rsResults');const expanded=new Set(Array.from(results.querySele
 if(x.data){const score=node('div','','rs-score');score.append(node('span',c.score),node('strong',formatPercent(x.data.ai_probability)));card.append(score);const meter=node('div','','rs-meter');const fill=node('span','');fill.style.width=`${Math.max(0,Math.min(100,x.data.ai_probability))}%`;meter.append(fill);card.append(meter);if(x.data.category_check?.status==='mismatch')card.append(node('p',c.mismatch,'rs-warning'));
 const detail=node('details','');detail.dataset.index=String(i);detail.open=expanded.has(String(i));detail.append(node('summary',c.details));for(const o of report(x)?.observations||[]){const finding=node('p',o.detail,'rs-finding');finding.prepend(node('b',o.title));detail.append(finding);}const next=report(x)?.verification_steps?.[0];if(next){const guidance=node('p',next.detail,'rs-finding');guidance.prepend(node('b',next.title));detail.append(guidance);}card.append(detail);
 }else if(x.error)card.append(node('p',c.failed,'rs-warning'));results.append(card);});}
-async function run(){if(busy||exporting||!items.length||$('scanButton').disabled)return;busy=true;cancelled=false;errorKey='';created=new Date();reportMode=currentMode;items.forEach(x=>{delete x.data;delete x.error;});$('scanButton').disabled=true;document.querySelectorAll('.mode-tab').forEach(n=>n.disabled=true);
-try{for(let i=0;i<items.length;i++){if(cancelled)break;activeIndex=i;render();const x=items[i];controller=new AbortController();const timer=setTimeout(()=>controller.abort(),180000);try{const body=new FormData();body.append('file',x.file);body.append('mode',reportMode);const res=await fetch(`${BACKEND_URL}/predict`,{method:'POST',body,signal:controller.signal});const data=await res.json();if(!res.ok||data.error||!Number.isFinite(data.ai_probability)||!['AI','REAL','UNCERTAIN'].includes(data.verdict))throw Error('Invalid response');x.data=data;}catch(e){if(!cancelled)x.error=true;}finally{clearTimeout(timer);controller=null;}render();}}finally{activeIndex=-1;busy=false;$('scanButton').disabled=false;document.querySelectorAll('.mode-tab').forEach(n=>n.disabled=false);render();}}
+async function run(){if(busy||exporting||!items.length||$('scanButton').disabled)return;if(!await ensureAnalysisAccess(items.length))return;busy=true;cancelled=false;errorKey='';created=new Date();reportMode=currentMode;items.forEach(x=>{delete x.data;delete x.error;});$('scanButton').disabled=true;document.querySelectorAll('.mode-tab').forEach(n=>n.disabled=true);
+try{for(let i=0;i<items.length;i++){if(cancelled)break;activeIndex=i;render();const x=items[i];controller=new AbortController();const timer=setTimeout(()=>controller.abort(),180000);try{const body=new FormData();body.append('file',x.file);body.append('mode',reportMode);const {res,data}=await requestPhotoAnalysis(body,controller.signal);if(data.login_required){cancelled=true;break;}if(!res.ok||data.error||!Number.isFinite(data.ai_probability)||!['AI','REAL','UNCERTAIN'].includes(data.verdict))throw Error('Invalid response');x.data=data;}catch(e){if(!cancelled)x.error=true;}finally{clearTimeout(timer);controller=null;}render();}}finally{activeIndex=-1;busy=false;$('scanButton').disabled=false;document.querySelectorAll('.mode-tab').forEach(n=>n.disabled=false);render();}}
 $('rsSingle').onclick=()=>setMulti(false);$('rsMulti').onclick=()=>setMulti(true);$('rsDrop').onclick=()=>$('rsFiles').click();$('rsFiles').onchange=e=>{select(Array.from(e.target.files));e.target.value='';};$('rsClear').onclick=()=>{items.forEach(x=>URL.revokeObjectURL(x.url));items=[];created=null;errorKey='';render();};$('rsRun').onclick=run;$('rsCancel').onclick=()=>{cancelled=true;controller?.abort();};
 for(const type of ['dragenter','dragover'])$('rsDrop').addEventListener(type,e=>{e.preventDefault();if(!busy)$('rsDrop').classList.add('dragging');});for(const type of ['dragleave','drop'])$('rsDrop').addEventListener(type,e=>{e.preventDefault();$('rsDrop').classList.remove('dragging');});$('rsDrop').addEventListener('drop',e=>select(Array.from(e.dataTransfer.files)));
-const oldLanguage=applyLanguage;applyLanguage=function(){oldLanguage();render();};
+const oldLanguage=applyLanguage;applyLanguage=function(){oldLanguage();render();renderGuestTrial();};
 window.addEventListener('beforeunload',()=>items.forEach(x=>URL.revokeObjectURL(x.url)));
 function makePage(){const canvas=document.createElement('canvas');canvas.width=1240;canvas.height=1754;const ctx=canvas.getContext('2d');ctx.fillStyle='#f5f7fb';ctx.fillRect(0,0,1240,1754);return {canvas,ctx};}
 function write(ctx,value,x,y,maxWidth,size=24,color='#465570',weight=400){ctx.fillStyle=color;ctx.font=`${weight} ${size}px Arial, sans-serif`;let line='',at=y;for(const word of String(value).split(/\s+/)){const next=line?line+' '+word:word;if(ctx.measureText(next).width>maxWidth&&line){ctx.fillText(line,x,at);at+=size*1.5;line=word;}else line=next;}if(line)ctx.fillText(line,x,at);return at+size*1.5;}
@@ -2719,7 +2755,7 @@ doc.setProperties({title:t().report,author:'AI Image Detector',subject:'Individu
 }catch(e){errorKey='pdfError';}finally{exporting=false;$('langBtn').disabled=false;document.querySelectorAll('.mode-tab').forEach(n=>n.disabled=false);render();}}
 function printReport(){const popup=window.open('','_blank');if(!popup){errorKey='pdfError';render();return;}const d=popup.document;d.title=t().report;const style=d.createElement('style');style.textContent='body{font:15px Arial,sans-serif;color:#1c2b42;max-width:850px;margin:40px auto;padding:20px}header{border-bottom:3px solid #7963db;margin-bottom:28px}h1{font-size:27px}article{break-inside:avoid;border:1px solid #d5dce7;padding:20px;border-radius:12px;margin:20px 0}img{max-width:240px;max-height:180px;object-fit:contain}p{line-height:1.7}small{color:#63738b}@media print{body{margin:0}button{display:none}}';d.head.append(style);const header=node('header','');header.append(node('small','AI IMAGE DETECTOR'),node('h1',t().report),node('p',`${t().section}: ${t()[reportMode]} · ${created.toLocaleString(currentLang==='tr'?'tr-TR':'en-US')}`));d.body.append(header,node('p',summary()));items.forEach(item=>{const a=node('article','');a.append(image(item),node('h2',item.file.name),node('p',item.data?t()[item.data.verdict]:t().error));if(item.data){a.append(node('p',`${t().score}: ${formatPercent(item.data.ai_probability)}`));for(const o of report(item)?.observations||[])a.append(node('p',`${o.title}: ${o.detail}`));}d.body.append(a);});d.body.append(node('p',t().note));const btn=node('button',t().print);btn.onclick=()=>popup.print();d.body.prepend(btn);popup.focus();}
 for(const id of ['rsSingle','rsMulti'])$(id).addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)&&!busy&&!exporting){e.preventDefault();const next=e.key==='Home'?false:e.key==='End'?true:!multi;setMulti(next);$(next?'rsMulti':'rsSingle').focus();}});
-$('rsPdf').onclick=pdf;$('rsPrint').onclick=printReport;render();
+$('rsPdf').onclick=pdf;$('rsPrint').onclick=printReport;render();renderGuestTrial();fetch(`${BACKEND_URL}/auth/guest`,{credentials:'same-origin',cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{if(d){guestRemaining=d.remaining;renderGuestTrial();}}).catch(()=>{});
 })();
 
 </script>
