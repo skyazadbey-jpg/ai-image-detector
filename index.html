@@ -317,16 +317,7 @@
             </div>
         </div>
 
-        <div class="flex items-center justify-between mb-6 bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">
-            <div class="flex items-center gap-2">
-                <i class="fas fa-layer-group text-indigo-400"></i>
-                <div>
-                    <p class="text-xs font-bold text-slate-200" data-i18n="batchTitle">Batch Processing Mode</p>
-                   <p class="text-[10px] text-slate-400" data-i18n="batchDesc">Scan multiple images at once</p>
-                </div>
-            </div>
-            <button onclick="showBatchComingSoon()" class="bg-slate-800 hover:bg-slate-700 text-slate-500 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-600 transition cursor-not-allowed" data-i18n="batchBtnSoon">Yakında</button>
-        </div>
+
 
         <button onclick="analyzeImage()" id="scanButton" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl transition duration-200 shadow-lg flex items-center justify-center gap-3 text-lg active:scale-[0.98]">
             <i class="fas fa-robot" id="buttonIcon"></i>
@@ -2028,11 +2019,7 @@ async function pollForProStatus(attempt = 0) {
         }
 
        async function analyzeImage() {
-    if (!currentUser) {
-        showToast(currentLang === 'tr' ? 'Tarama yapmak için lütfen giriş yapın.' : 'Please sign in to scan.', 'info');
-        setTimeout(() => { openAuthModal(); }, 800);
-        return;
-    }
+
     
     // Kredi ve Pro kısıtlamaları kaldırıldı, herkes için tamamen serbest!
 
@@ -2676,6 +2663,63 @@ function handleImageValidation(event) {
             closeModal();
         }
     }
+</script>
+<script>
+(() => {
+  const words = {
+    tr: {title:'Fotoğrafları birlikte incele',desc:'En fazla 10 fotoğraf · Üyelik gerekmez',choose:'Fotoğraf seç',run:'Raporu oluştur',download:'Raporu indir',note:'Bu rapor fotoğrafları inceler. İlanın veya satıcının güvenilirliğini kanıtlamaz. Skorlar doğruluk oranı değildir.',mixed:'Fotoğraflarda farklı sonuçlar var. Yapay zekâ yönünde çıkan görselleri ayrıca kontrol edin.',consistent:'Fotoğraf sonuçları aşağıda ayrı ayrı gösteriliyor.',AI:'Yapay zekâ yönünde',REAL:'Gerçek fotoğraf yönünde',UNCERTAIN:'Belirsiz',error:'Analiz tamamlanamadı. Bu fotoğrafı tekrar deneyin.',limit:'En fazla 10 görsel seçin; her dosya en fazla 10 MB olmalı.',waiting:'Sırayla analiz ediliyor. Sunucunun ilk açılışı zaman alabilir.',mismatch:'Bu fotoğraf seçilen kategoriyle uyuşmayabilir.',score:'Yapay zekâ model skoru',empty:'Önce fotoğraf seçin.',general:'Genel',car:'Araba',realestate:'Emlak',mode:'Analiz bölümü',failed:'Başarısız',duplicates:'Aynı dosya birden fazla seçildi; tek kez incelenecek.'},
+    en: {title:'Review photos together',desc:'Up to 10 photos · No account needed',choose:'Choose photos',run:'Create report',download:'Download report',note:'This report examines photos. It does not verify the listing or seller. Scores are not accuracy rates.',mixed:'The photos have different outcomes. Check images flagged as AI separately.',consistent:'Individual photo results are shown below.',AI:'Leans toward AI',REAL:'Leans toward a real photo',UNCERTAIN:'Uncertain',error:'Analysis could not finish. Try this photo again.',limit:'Choose up to 10 images, each no larger than 10 MB.',waiting:'Analyzing one at a time. The server may take time to wake up.',mismatch:'This photo may not match the selected category.',score:'AI model score',empty:'Choose photos first.',general:'General',car:'Car',realestate:'Property',mode:'Analysis section',failed:'Failed',duplicates:'Duplicate files were selected; each will be reviewed once.'}
+  };
+  let files=[], rows=[], busy=false, reportMode='general';
+  const box=document.createElement('section');
+  box.className='mt-6 mb-6 p-4 rounded-xl border border-indigo-500/40 bg-slate-900/60 text-left';
+  box.innerHTML='<h2 id="listingTitle" class="font-bold text-lg"></h2><p id="listingDesc" class="text-sm text-slate-400 mt-1"></p><label id="listingChoose" for="listingFiles" class="block text-sm mt-3"></label><input id="listingFiles" type="file" accept="image/jpeg,image/png,image/webp" multiple class="block w-full text-sm mt-2"><p id="listingSelection" class="text-sm mt-2 break-words"></p><button id="listingRun" type="button" class="mt-3 bg-indigo-600 px-4 py-3 rounded-xl font-bold"></button><p id="listingProgress" role="status" aria-live="polite" class="text-sm mt-3"></p><div id="listingResults" class="space-y-3 mt-3"></div><button id="listingDownload" type="button" class="hidden mt-3 border border-slate-600 px-4 py-2 rounded-lg"></button><p id="listingNote" class="text-xs text-slate-400 mt-3"></p>';
+  document.getElementById('scanButton').before(box);
+  const el=id=>document.getElementById(id);
+  const w=()=>words[currentLang==='tr'?'tr':'en'];
+  function text(tag,value,cls=''){const n=document.createElement(tag);n.textContent=value;n.className=cls;return n;}
+  function summary(){const labels=new Set(rows.filter(r=>r.data).map(r=>r.data.verdict));return labels.has('AI')&&labels.has('REAL')?w().mixed:w().consistent;}
+  function render(){
+    const t=w(); for(const [id,key] of Object.entries({listingTitle:'title',listingDesc:'desc',listingChoose:'choose',listingRun:'run',listingDownload:'download',listingNote:'note'}))el(id).textContent=t[key];
+    el('listingSelection').textContent=files.map(f=>f.name).join(' · ');
+    el('listingProgress').textContent=busy?`${t.waiting} ${rows.length}/${files.length}`:'';
+    const out=el('listingResults');out.replaceChildren();
+    if(rows.length){out.append(text('p',`${t.mode}: ${t[reportMode]}`,'text-sm font-bold'));out.append(text('p',summary(),'text-sm text-slate-300'));}
+    rows.forEach(r=>{const card=text('article','','p-3 rounded-lg bg-slate-800 break-words');card.append(text('h3',r.name,'font-semibold text-sm'));
+      if(r.error)card.append(text('p',t.error,'text-amber-300 text-sm'));
+      else {card.append(text('p',t[r.data.verdict]||t.UNCERTAIN,'font-bold mt-1'));card.append(text('p',`${t.score}: ${formatPercent(r.data.ai_probability)}`,'text-sm text-slate-400'));
+        const report=r.data.evidence_report; const translated=report?.localized?.[currentLang]||report;
+        if(translated?.decision_reasons)translated.decision_reasons.slice(0,2).forEach(reason=>card.append(text('p',typeof reason==='string'?reason:(reason.description||reason.message||''),'text-xs mt-1')));
+        if(r.data.category_check?.status==='mismatch'||report?.category_check?.status==='mismatch')card.append(text('p',t.mismatch,'text-amber-300 text-sm'));
+      }out.append(card);
+    });
+    el('listingDownload').classList.toggle('hidden',busy||!rows.length);
+  }
+  el('listingFiles').addEventListener('change',e=>{
+    if(busy)return;const selected=Array.from(e.target.files);
+    if(selected.length>10||selected.some(f=>f.size>10*1024*1024||!['image/jpeg','image/png','image/webp'].includes(f.type))){alert(w().limit);e.target.value='';return;}
+    const seen=new Set();files=selected.filter(f=>{const key=`${f.name}:${f.size}:${f.lastModified}`;if(seen.has(key))return false;seen.add(key);return true;});rows=[];render();
+  });
+  el('listingRun').addEventListener('click',async()=>{
+    if(busy||document.getElementById('scanButton').disabled)return;if(!files.length){alert(w().empty);return;}
+    busy=true;rows=[];reportMode=currentMode;
+    el('listingFiles').disabled=true;el('listingRun').disabled=true;el('scanButton').disabled=true;render();
+    try{for(const f of files){
+      const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),180000);
+      try{const body=new FormData();body.append('file',f);body.append('mode',reportMode);
+        const response=await fetch(`${BACKEND_URL}/predict`,{method:'POST',body,signal:controller.signal});const data=await response.json();
+        if(!response.ok||data.error||!Number.isFinite(data.ai_probability)||!['AI','REAL','UNCERTAIN'].includes(data.verdict))throw new Error('Invalid analysis');
+        rows.push({name:f.name,data});
+      }catch(error){rows.push({name:f.name,error:true});}finally{clearTimeout(timeout);}render();
+    }}finally{busy=false;el('listingFiles').disabled=false;el('listingRun').disabled=false;el('scanButton').disabled=false;render();}
+  });
+  el('listingDownload').addEventListener('click',()=>{
+    const t=w();const content=[t.title,`${t.mode}: ${t[reportMode]}`,new Date().toLocaleString(currentLang==='tr'?'tr-TR':'en-US'),summary(),'',...rows.map(r=>`${r.name}\n${r.error?t.failed:`${t[r.data.verdict]} · ${t.score}: ${formatPercent(r.data.ai_probability)}`}`),'',t.note].join('\n\n');
+    const url=URL.createObjectURL(new Blob([content],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='photo-analysis-report.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  });
+  const original=applyLanguage;applyLanguage=function(){original();render();};render();
+})();
+
 </script>
 </body>
 </html>
