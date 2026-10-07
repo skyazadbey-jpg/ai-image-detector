@@ -1168,6 +1168,65 @@ def refund_trial(guest_id):
         conn.execute("UPDATE guest_trials SET used=0 WHERE guest_id=?", (guest_id,))
         conn.commit(); conn.close()
 
+async def compare_domain_frames(contents, mode, full_score):
+    """Diagnostic crops use the pinned detector, not a damage/geometry model.
+    Preserve the benchmarked full-photo score and decision thresholds.
+    """
+    profile = {"method": "full_photo", "mode": mode, "views": [],
+               "changes_primary_score": False, "specialist_model": False}
+    if mode == "general":
+        return profile
+    profile["method"] = "car_frame_comparison" if mode == "car" else "property_frame_comparison"
+    with Image.open(io.BytesIO(contents)) as image:
+        width, height = image.size
+        if min(width, height) < 384:
+            profile["status"] = "insufficient_resolution"
+            return profile
+        # Fixed image coordinates, not object localization or detected parts.
+        frames = [("car_wide", (.05, .20, .95, .80))] if mode == "car" else [
+            ("property_left", (0, 0, .75, 1)), ("property_right", (.25, 0, 1, 1))]
+        image = image.convert("RGB")
+        for name, bounds in frames:
+            box = tuple(round(v * (width if i % 2 == 0 else height)) for i, v in enumerate(bounds))
+            crop = image.crop(box)
+            buffer = io.BytesIO(); crop.save(buffer, format="PNG")
+            try:
+                score, _ = await call_ai_model_ensemble(buffer.getvalue(), "image/png")
+                profile["views"].append({"name": name, "ai_score": round(score, 1), "box": list(bounds)})
+            except Exception:
+                profile["status"] = "partial"
+                break
+    values = [full_score] + [v["ai_score"] for v in profile["views"]]
+    profile["score_span"] = round(max(values) - min(values), 1)
+    profile.setdefault("status", "complete")
+    return profile
+
+def append_domain_evidence(report, profile):
+    mode = profile["mode"]
+    if mode == "general":
+        return
+    tr = "Araç kadrajı karşılaştırması" if mode == "car" else "Konut kadrajı karşılaştırması"
+    en = "Vehicle frame comparison" if mode == "car" else "Property frame comparison"
+    if profile.get("status") == "insufficient_resolution":
+        detail_tr = "Ek kadraj kontrolü için görselin kısa kenarı en az 384 piksel olmalı. Ana AI analizi tamamlandı."
+        detail_en = "Additional frame checks require a shortest edge of at least 384 pixels. The primary AI analysis completed."
+    elif profile.get("views"):
+        labels = {"car_wide": ("Geniş orta kadraj", "Wide central frame"),
+                  "property_left": ("Sol kadraj", "Left frame"), "property_right": ("Sağ kadraj", "Right frame")}
+        detail_tr = "; ".join(f"{labels[v['name']][0]}: {v['ai_score']}/100 AI" for v in profile["views"])
+        detail_en = "; ".join(f"{labels[v['name']][1]}: {v['ai_score']}/100 AI" for v in profile["views"])
+        detail_tr += f". Ana fotoğrafla skor fark aralığı: {profile['score_span']} puan. Kadraj değişimi modeli etkileyebilir; bu skorlar hasar veya dolandırıcılık tespiti değildir."
+        detail_en += f". Score span including the full photo: {profile['score_span']} points. Cropping can affect the model; these scores do not detect damage or fraud."
+        if profile.get("status") == "partial":
+            detail_tr += " Ek kontrollerin bir kısmı tamamlanamadı."
+            detail_en += " Some additional checks could not be completed."
+    else:
+        detail_tr = "Ek kadraj kontrolü tamamlanamadı. Ana fotoğraf skoru gösteriliyor."
+        detail_en = "Additional frame checks could not be completed. The full-photo score is shown."
+    report["observations"].insert(0, {"title": tr, "detail": detail_tr})
+    report["localized"]["en"]["observations"].insert(0, {"title": en, "detail": detail_en})
+    report["analysis_profile"] = profile
+
 @app.post("/predict")
 async def predict(request: Request, response: Response, file: UploadFile = File(None), image_url: str = Form(None), mode: str = Form("general")):
     guest_id = None
@@ -1197,7 +1256,7 @@ async def predict(request: Request, response: Response, file: UploadFile = File(
 
         guest_id = reserve_trial(request)
 
-        # Local object hints do not change the AI score or reject an upload.
+        # Domain analysis requires a confident category match before AI inference.
         category = {"status": "not_checked", "detected": "unknown"}
         if mode in ("car", "realestate"):
             try:
@@ -1206,9 +1265,15 @@ async def predict(request: Request, response: Response, file: UploadFile = File(
             except Exception as error:
                 print(json.dumps({"event": "category_check_unavailable", "error_type": type(error).__name__}))
                 category = {"status": "unavailable", "detected": "unknown"}
+            if category.get("status") != "compatible":
+                code = {"mismatch": "CATEGORY_MISMATCH", "unavailable": "CATEGORY_UNAVAILABLE"}.get(category.get("status"), "CATEGORY_UNCERTAIN")
+                response.status_code = 422 if code != "CATEGORY_UNAVAILABLE" else 503
+                return {"status": "rejected", "error_code": code, "error": code,
+                        "category_check": category, "requested_mode": mode}
 
         final_ai_score, breakdown = await call_ai_model_ensemble(contents, content_type)
         
+        profile = await compare_domain_frames(contents, mode, final_ai_score)
         final_real_score = 100.0 - final_ai_score
         available = [item["ai_score"] for item in breakdown if item["ai_score"] is not None]
         degraded = len(available) != len(MODEL_CONFIGS)
@@ -1217,6 +1282,7 @@ async def predict(request: Request, response: Response, file: UploadFile = File(
                                  degraded or disagreement)
         image_hash = compute_image_hash(original_contents)
         report = build_report(original_contents, mode, breakdown, verdict, degraded, disagreement, category)
+        append_domain_evidence(report, profile)
         analysis_token = jwt.encode({"scope": "analysis_feedback", "image_hash": image_hash,
             "score": round(final_ai_score, 1), "verdict": verdict, "mode": mode,
             "exp": time.time() + 3600}, JWT_SECRET, algorithm="HS256")
@@ -1247,6 +1313,7 @@ async def predict(request: Request, response: Response, file: UploadFile = File(
             "decision_threshold": DECISION_THRESHOLD,
             "evidence_report": report,
             "category_check": category,
+            "analysis_profile": profile,
             "analysis_token": analysis_token,
         }
     except HTTPException:

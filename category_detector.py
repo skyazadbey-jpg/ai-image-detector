@@ -1,4 +1,4 @@
-"""Conservative ImageNet object hints; never an AI or fraud score."""
+"""Conservative category gate; uncertain inputs require General Scan. Not an AI/fraud score."""
 import io,json,hashlib,threading
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent
@@ -7,6 +7,9 @@ MODEL_SHA='70fc6f84dfd48becf4f409a6372af34f8028d1d2a83d1f38d6762a9550f79bb2'
 CAR={'beach wagon','cab','convertible','jeep','limousine','minivan','Model T','pickup','racer','sports car','ambulance','minibus'}
 PROPERTY={'bathtub','boathouse','bookcase','castle','china cabinet','church','desk','dining table','four-poster','greenhouse','library','mobile home','monastery','mosque','palace','patio','restaurant','studio couch','wardrobe','washbasin','medicine chest','chiffonier','entertainment center','fire screen','window shade','window screen','tub','shower curtain','barn'}
 PROPERTY.update({'stove','microwave','dishwasher','washer','refrigerator','plate rack'})
+# Non-residential buildings and buses do not qualify for the specialist sections.
+PROPERTY.difference_update({'church','monastery','mosque','palace','castle','restaurant','library','greenhouse','barn','boathouse'})
+CAR.difference_update({'ambulance','minibus'})
 _session=None
 _lock=threading.Lock()
 
