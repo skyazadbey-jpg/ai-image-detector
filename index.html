@@ -2020,6 +2020,8 @@ async function pollForProStatus(attempt = 0) {
         }
         function renderDomainMethod() {
             const note=document.getElementById('domainMethodNote');if(!note)return;
+            const rejection=document.getElementById('categoryRejection');
+            if(rejection&&!rejection.hidden)rejection.textContent=categoryError(rejection.dataset.code,rejection.dataset.mode);
             const tr=currentLang==='tr';
             note.textContent=currentMode==='car'?(tr?'Araba fotoğrafı kontrolü → ana AI analizi → geniş orta kadraj karşılaştırması. Net dış çekim kullanın. Bu işlem hasar tespiti değildir.':'Car category check → primary AI analysis → wide central frame comparison. Use a clear exterior photo. This does not detect damage.'):
                 currentMode==='realestate'?(tr?'Konut/iç mekân kontrolü → ana AI analizi → sol ve sağ kadraj karşılaştırması. Bu işlem mülkün kimliğini veya ilanı doğrulamaz.':'Property/interior check → primary AI analysis → left and right frame comparison. This does not verify property identity or the listing.'):
@@ -2102,6 +2104,7 @@ async function pollForProStatus(attempt = 0) {
     }
 }
 
+            document.getElementById('categoryRejection').hidden=true;
             currentAnalysisToken = null;
             currentImageHash = null;
             lastEvidenceData = null;
@@ -2124,7 +2127,12 @@ async function pollForProStatus(attempt = 0) {
             try {
                 const {res:response,data} = await requestPhotoAnalysis(formData);
                 if (data.error) {
-            alert(translateServiceMessage(data.error));
+            if(data.error_code?.startsWith('CATEGORY_')) {
+                const rejection=document.getElementById('categoryRejection');
+                rejection.dataset.code=data.error_code;rejection.dataset.mode=data.requested_mode;
+                rejection.textContent=categoryError(data.error_code,data.requested_mode);rejection.hidden=false;
+                resultArea.classList.add('hidden');
+            } else alert(translateServiceMessage(data.error));
             loadingState.classList.add('hidden');
             return;
         }
@@ -2736,7 +2744,8 @@ studio.innerHTML=`<div class="rs-tabs" role="tablist"><button id="rsSingle" role
 const originalTabs=document.getElementById('tabFileBtn').parentElement;
 originalTabs.before(document.getElementById('guestTrialNotice'));
 const methodNote=node('p','','mb-4 rounded-xl border border-slate-600/40 p-4 text-sm text-slate-400');methodNote.id='domainMethodNote';originalTabs.before(methodNote);originalTabs.before(studio);
-const oldMode=switchMode;switchMode=function(mode){oldMode(mode);renderDomainMethod();};renderDomainMethod();
+const rejection=node('p','','mb-4 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-300');rejection.id='categoryRejection';rejection.hidden=true;rejection.setAttribute('role','alert');originalTabs.before(rejection);
+const oldMode=switchMode;switchMode=function(mode){if(mode!==currentMode)rejection.hidden=true;oldMode(mode);renderDomainMethod();};renderDomainMethod();
 const $=id=>document.getElementById(id),t=()=>copy[currentLang==='tr'?'tr':'en'];
 function node(tag,value,cls=''){const n=document.createElement(tag);n.textContent=value;n.className=cls;return n;}
 function image(item,cls=''){const img=document.createElement('img');img.src=item.url;img.alt=item.file.name;img.className=cls;return img;}
