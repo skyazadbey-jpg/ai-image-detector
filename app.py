@@ -1,7 +1,7 @@
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, EmailStr
 import os
 import sqlite3
@@ -1110,8 +1110,68 @@ async def call_ai_model_ensemble(contents: bytes, content_type: str):
     return final_ai_score, breakdown
 
 
+# One successful photo per guest browser; reservations also stop concurrent requests.
+GUEST_COOKIE = "detector_guest"
+
+def guest_claims(request):
+    claims = decode_jwt(request.cookies.get(GUEST_COOKIE, ""))
+    return claims if claims and claims.get("scope") == "guest_trial" else None
+
+def set_guest_cookie(response, request, guest_id, used=False):
+    token = jwt.encode({"scope": "guest_trial", "guest_id": guest_id, "used": used,
+                        "exp": time.time() + 365 * 86400}, JWT_SECRET, algorithm="HS256")
+    response.set_cookie(GUEST_COOKIE, token, max_age=365 * 86400, httponly=True,
+                        secure=request.url.scheme == "https", samesite="lax")
+
+@app.get("/auth/guest")
+def guest_status(request: Request, response: Response):
+    claims = guest_claims(request)
+    guest_id = claims["guest_id"] if claims else secrets.token_hex(24)
+    conn = get_db()
+    conn.execute("CREATE TABLE IF NOT EXISTS guest_trials (guest_id TEXT PRIMARY KEY, used INTEGER NOT NULL DEFAULT 0)")
+    conn.execute("INSERT OR IGNORE INTO guest_trials (guest_id, used) VALUES (?, ?)",
+                 (guest_id, int(bool(claims and claims.get("used")))))
+    used = conn.execute("SELECT used FROM guest_trials WHERE guest_id=?", (guest_id,)).fetchone()["used"]
+    conn.commit(); conn.close()
+    set_guest_cookie(response, request, guest_id, bool(claims and claims.get("used")))
+    response.headers["Cache-Control"] = "no-store"
+    return {"remaining": 0 if used else 1}
+
+def reserve_trial(request):
+    authorization = request.headers.get("authorization", "")
+    if authorization:
+        claims = decode_jwt(authorization[7:]) if authorization.startswith("Bearer ") else None
+        if not claims or claims.get("scope") or not claims.get("user_id"):
+            raise HTTPException(401, detail="SESSION_EXPIRED")
+        conn = get_db()
+        row = conn.execute("SELECT is_verified FROM users WHERE id=?", (claims["user_id"],)).fetchone()
+        conn.close()
+        if not row or not row["is_verified"]:
+            raise HTTPException(401, detail="SESSION_EXPIRED")
+        return None
+    claims = guest_claims(request)
+    if not claims or claims.get("used"):
+        raise HTTPException(401, detail="GUEST_LOGIN_REQUIRED")
+    conn = get_db()
+    try:
+        updated = conn.execute("UPDATE guest_trials SET used=1 WHERE guest_id=? AND used=0", (claims["guest_id"],)).rowcount
+        conn.commit()
+    finally:
+        conn.close()
+    if updated != 1:
+        raise HTTPException(401, detail="GUEST_LOGIN_REQUIRED")
+    return claims["guest_id"]
+
+def refund_trial(guest_id):
+    if guest_id:
+        conn = get_db()
+        conn.execute("UPDATE guest_trials SET used=0 WHERE guest_id=?", (guest_id,))
+        conn.commit(); conn.close()
+
 @app.post("/predict")
-async def predict(file: UploadFile = File(None), image_url: str = Form(None), mode: str = Form("general")):
+async def predict(request: Request, response: Response, file: UploadFile = File(None), image_url: str = Form(None), mode: str = Form("general")):
+    guest_id = None
+    completed = False
     acquired = False
     if AI_BACKEND == "local":
         if ANALYSIS_GATE.locked():
@@ -1134,6 +1194,8 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
         contents, content_type = normalize_image_bytes(contents)
         if mode not in ("general", "car", "realestate"):
             return {"error": "Geçersiz analiz modu."}
+
+        guest_id = reserve_trial(request)
 
         # Local object hints do not change the AI score or reject an upload.
         category = {"status": "not_checked", "detected": "unknown"}
@@ -1163,6 +1225,9 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
             "duration_ms": round((time.monotonic() - started_at) * 1000),
             "verdict": verdict, "degraded": degraded, "disagreement": disagreement,
             "models": breakdown}, ensure_ascii=False), flush=True)
+        completed = True
+        if guest_id:
+            set_guest_cookie(response, request, guest_id, True)
         return {
             "ai_probability": round(final_ai_score, 1),
             "image_hash": image_hash,
@@ -1184,9 +1249,13 @@ async def predict(file: UploadFile = File(None), image_url: str = Form(None), mo
             "category_check": category,
             "analysis_token": analysis_token,
         }
+    except HTTPException:
+        raise
     except Exception as e:
         return {"error": str(e)}
     finally:
+        if not completed:
+            refund_trial(guest_id)
         if acquired:
             ANALYSIS_GATE.release()
 
