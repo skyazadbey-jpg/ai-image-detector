@@ -2023,8 +2023,8 @@ async function pollForProStatus(attempt = 0) {
             const rejection=document.getElementById('categoryRejection');
             if(rejection&&!rejection.hidden)rejection.textContent=categoryError(rejection.dataset.code,rejection.dataset.mode);
             const tr=currentLang==='tr';
-            note.textContent=currentMode==='car'?(tr?'Araba fotoğrafı kontrolü → ana AI analizi → geniş orta kadraj karşılaştırması. Net dış çekim kullanın. Bu işlem hasar tespiti değildir.':'Car category check → primary AI analysis → wide central frame comparison. Use a clear exterior photo. This does not detect damage.'):
-                currentMode==='realestate'?(tr?'Konut/iç mekân kontrolü → ana AI analizi → sol ve sağ kadraj karşılaştırması. Bu işlem mülkün kimliğini veya ilanı doğrulamaz.':'Property/interior check → primary AI analysis → left and right frame comparison. This does not verify property identity or the listing.'):
+            note.textContent=currentMode==='car'?(tr?'Araç içeriği fotoğrafın tamamında ve orta bölümünde kontrol edilir. Ardından AI analizi ve geniş kadraj karşılaştırması yapılır. Net dış çekim kullanın; bu bir hasar tespiti değildir.':'Vehicle content is checked in the whole photo and its center. AI analysis and a wide-frame comparison follow. Use a clear exterior photo; this does not detect damage.'):
+                currentMode==='realestate'?(tr?'Konut içeriği fotoğrafın tamamında ve orta bölümünde kontrol edilir. Ardından AI analizi ve sol–sağ kadraj karşılaştırması yapılır. Bu işlem mülkün kimliğini veya ilanı doğrulamaz.':'Property content is checked in the whole photo and its center. AI analysis and left/right frame comparisons follow. This does not verify property identity or the listing.'):
                 (tr?'Genel Tarama bütün görsel türleri için ana AI analizini kullanır.':'General Scan uses the primary AI analysis for all image types.');
         }
 
