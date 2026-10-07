@@ -2065,7 +2065,7 @@ async function pollForProStatus(attempt = 0) {
             const token=localStorage.getItem('authToken');
             const res=await fetch(`${BACKEND_URL}/predict`,{method:'POST',body,signal,credentials:'same-origin',headers:currentUser&&token?{'Authorization':`Bearer ${token}`}:{}});
             const data=await res.json();
-            if(data.error_code?.startsWith("CATEGORY_")) data.error=categoryError(data.error_code);
+            if(data.error_code?.startsWith("CATEGORY_")) data.error=categoryError(data.error_code,data.requested_mode||currentMode);
             if (res.status===401) {
                 if(data.detail==='SESSION_EXPIRED'){currentUser=null;localStorage.removeItem('authToken');updateAuthUI();}
                 guestRemaining=0;renderGuestTrial();openAuthModal();
@@ -2108,6 +2108,7 @@ async function pollForProStatus(attempt = 0) {
             lastAnalysisStatus = null;
             document.getElementById('evidenceReport').classList.add('hidden');
             scanButton.disabled = true;
+            document.querySelectorAll('.mode-tab').forEach(n=>n.disabled=true);
             scanButton.classList.add('opacity-70', 'cursor-not-allowed');
             buttonText.innerText = currentLang === 'tr' ? "Analiz Ediliyor..." : "Analyzing...";
             buttonIcon.className = "fas fa-circle-notch fa-spin";
@@ -2179,6 +2180,7 @@ async function pollForProStatus(attempt = 0) {
                 alert(translations[currentLang].connError);
             } finally {
                 scanButton.disabled = false;
+                document.querySelectorAll('.mode-tab').forEach(n=>n.disabled=false);
                 scanButton.classList.remove('opacity-70', 'cursor-not-allowed');
                 buttonText.innerText = translations[currentLang].scanBtn;
                 buttonIcon.className = "fas fa-robot";
