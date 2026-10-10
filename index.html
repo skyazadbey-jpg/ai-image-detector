@@ -1,15 +1,46 @@
 <!DOCTYPE html>
 <html lang="en" id="htmlRoot" class="dark">
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-1E9XXG3QRB"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-1E9XXG3QRB');
-</script>
 <head>
+<script id="usageAnalytics">
+// Only allow aggregate product events. Never pass API responses or file metadata here.
+window.detectorAnalytics = (() => {
+  const id = 'G-1E9XXG3QRB';
+  const modes = ['general','car','realestate'];
+  const events = ['mode_opened','analysis_started','analysis_completed','analysis_failed','category_rejected','login_required'];
+  let enabled = false, lastMode = null;
+  const read = () => { try { return localStorage.getItem('analyticsConsent'); } catch (_) { return null; } };
+  function track(name, mode, reason) {
+    if (!enabled || !events.includes(name) || !modes.includes(mode)) return;
+    const params = {analysis_mode: mode};
+    if (['trial_used','multiple_photos','session_expired','network','cancelled','server','category'].includes(reason)) params.reason = reason;
+    window.gtag('event', name, params);
+  }
+  function mode(mode) {
+    if (!modes.includes(mode) || mode === lastMode) return;
+    lastMode = mode; track('mode_opened', mode);
+  }
+  function start(currentMode) {
+    if (enabled || read() !== 'granted' || ['localhost','127.0.0.1'].includes(location.hostname)) return;
+    enabled = true;
+    window['ga-disable-'+id] = false;
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function(){window.dataLayer.push(arguments);};
+    window.gtag('consent','default',{analytics_storage:'granted',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
+    window.gtag('js', new Date());
+    window.gtag('config',id,{page_location:location.origin+location.pathname,page_referrer:'',allow_google_signals:false,allow_ad_personalization_signals:false});
+    const tag = document.createElement('script'); tag.async = true;
+    tag.src = 'https://www.googletagmanager.com/gtag/js?id='+id;
+    document.head.appendChild(tag);
+    lastMode = null; mode(currentMode);
+  }
+  function choose(value,currentMode) {
+    try { localStorage.setItem('analyticsConsent',value); } catch (_) { return; }
+    if (value === 'granted') start(currentMode);
+    else { enabled = false; window['ga-disable-'+id] = true; location.reload(); }
+  }
+  return {track,mode,start,choose,read};
+})();
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Görsel Tespit | Araba ve Emlak İlanlarında Sahte Fotoğraf Kontrolü</title>
@@ -590,7 +621,8 @@
 
     <div id="cookieBanner" class="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-slate-950/95 border border-slate-800 p-4 z-40 hidden rounded-2xl shadow-2xl backdrop-blur-md flex flex-col gap-3">
         <p class="text-xs text-slate-300 leading-relaxed" data-i18n="cookieText">We use cookies.</p>
-        <button onclick="acceptCookies()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-md" data-i18n="cookieBtn">Accept & Close</button>
+        <button onclick="acceptCookies()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-md" data-i18n="cookieBtn">Allow Analytics</button>
+        <button onclick="declineCookies()" class="w-full text-slate-300 text-xs py-2.5 rounded-xl border border-slate-600" data-i18n="cookieDecline">Continue without Analytics</button>
     </div>
 
     <!-- AUTH MODAL -->
@@ -847,8 +879,9 @@
                 distanceLink: "Distance Sales Agreement",
                 refundLink: "Refund Policy",
                 closeBtn: "Close",
-                cookieText: "We use cookies.",
-                cookieBtn: "Accept & Close",
+                cookieText: "Allow Google Analytics to measure which features are useful? Photos and file details are not included in our usage events.",
+                cookieDecline: "Continue without Analytics",
+                cookieBtn: "Allow Analytics",
                 privacyTitle: "Privacy Policy",
                 privacyBody: "<strong>Privacy:</strong> Images are never stored.",
                 termsTitle: "Terms of Service",
@@ -1013,7 +1046,7 @@
                 privacyLink: "Gizlilik Politikası", termsLink: "Kullanım Koşulları",
                 methodologyLink: "Nasıl Çalışır?",
                 distanceLink: "Mesafeli Satış Sözleşmesi", refundLink: "İptal ve İade",
-                closeBtn: "Kapat", cookieText: "Çerez kullanıyoruz.", cookieBtn: "Kabul Et",
+                closeBtn: "Kapat", cookieText: "Hangi özelliklerin kullanıldığını Google Analytics ile ölçmemize izin verir misiniz? Fotoğraflar ve dosya bilgileri kullanım olaylarına eklenmez.", cookieBtn: "Analytics’e izin ver", cookieDecline: "Analytics olmadan devam et",
                 privacyTitle: "Gizlilik Politikası",
                 privacyBody: "<strong>Gizlilik:</strong> Görseller asla saklanmaz.",
                 termsTitle: "Kullanım Koşulları", termsBody: "<strong>Koşullar:</strong> 18+.",
@@ -1794,15 +1827,15 @@ async function pollForProStatus(attempt = 0) {
         }
 
         function checkCookieConsent() {
-            if (!localStorage.getItem('cookieAccepted')) {
-                document.getElementById('cookieBanner').classList.remove('hidden');
-            }
+            if (!window.detectorAnalytics.read()) document.getElementById('cookieBanner').classList.remove('hidden');
+            window.detectorAnalytics.start(currentMode);
         }
-
         function acceptCookies() {
-            localStorage.setItem('cookieAccepted', 'true');
+            window.detectorAnalytics.choose('granted',currentMode);
             document.getElementById('cookieBanner').classList.add('hidden');
         }
+        function declineCookies() { window.detectorAnalytics.choose('denied',currentMode); }
+
 
         async function updateCreditDisplay() {
             if(currentUser) document.getElementById('creditBadge').textContent=currentLang==='tr'?'Aktif':'Active';
@@ -2057,6 +2090,7 @@ async function pollForProStatus(attempt = 0) {
                 guestRemaining=(await res.json()).remaining;
                 renderGuestTrial();
                 if (guestRemaining && count===1) return true;
+                window.detectorAnalytics.track("login_required",currentMode,count>1 && guestRemaining?"multiple_photos":"trial_used");
                 openAuthModal();
                 document.getElementById('guestAuthPrompt').textContent=count>1 && guestRemaining
                     ? (currentLang==='tr'?'Bir fotoğrafı giriş yapmadan ücretsiz deneyebilirsiniz. Çoklu fotoğraf analizi için ücretsiz hesabınızla giriş yapın.':'Try one photo for free without signing in. Sign in with a free account to analyze multiple photos.') : guestCopy().used;
@@ -2064,17 +2098,26 @@ async function pollForProStatus(attempt = 0) {
             } catch(e) { showToast(currentLang==='tr'?'Bağlantı kurulamadı. Lütfen tekrar deneyin.':'Could not connect. Please try again.','error');return false; }
         }
         async function requestPhotoAnalysis(body,signal) {
+            const analysisMode=body.get('mode') || currentMode;
+            window.detectorAnalytics.track('analysis_started',analysisMode);
+            try {
             const token=localStorage.getItem('authToken');
             const res=await fetch(`${BACKEND_URL}/predict`,{method:'POST',body,signal,credentials:'same-origin',headers:currentUser&&token?{'Authorization':`Bearer ${token}`}:{}});
             const data=await res.json();
             if(data.error_code?.startsWith("CATEGORY_")) data.error=categoryError(data.error_code,data.requested_mode||currentMode);
             if (res.status===401) {
+                window.detectorAnalytics.track('login_required',analysisMode,data.detail==='SESSION_EXPIRED'?'session_expired':'trial_used');
                 if(data.detail==='SESSION_EXPIRED'){currentUser=null;localStorage.removeItem('authToken');updateAuthUI();}
                 guestRemaining=0;renderGuestTrial();openAuthModal();
                 return {res,data:{error:guestCopy().used,login_required:true}};
             }
             if(res.ok&&data.status==='success'&&!currentUser){guestRemaining=0;renderGuestTrial();}
+            window.detectorAnalytics.track(res.ok && data.status==='success' ? 'analysis_completed' : data.error_code?.startsWith('CATEGORY_') ? 'category_rejected' : 'analysis_failed',analysisMode,res.ok && data.status==='success'?undefined:data.error_code?.startsWith('CATEGORY_')?'category':'server');
             return {res,data};
+            } catch (error) {
+                window.detectorAnalytics.track('analysis_failed',analysisMode,error.name==='AbortError'?'cancelled':'network');
+                throw error;
+            }
         }
 
        async function analyzeImage() {
@@ -2371,8 +2414,8 @@ async function pollForProStatus(attempt = 0) {
                 en: { title: "Is that image real, or AI-generated?", subtitle: "Find out in seconds.", tip: "💡 Tip: Upload a clear, high-resolution image for best results." }
             },
             car: {
-                tr: { title: "Bu araç fotoğrafı gerçek mi?", subtitle: "Araç fotoğrafındaki AI sinyallerini ve kadrajlar arasındaki farkı inceleyin.", tip: "💡 İpucu: Plaka, kilometre ve şasi numarasını da kontrol edin." },
-                en: { title: "Is this car photo real?", subtitle: "Review AI signals and differences between frames in vehicle photos.", tip: "💡 Tip: Also check the license plate, mileage, and chassis number." }
+                tr: { title: "Araç ilanındaki fotoğrafları birlikte inceleyin.", subtitle: "Yapay zekâ işaretlerini inceleyin. Bir fotoğrafı ücretsiz deneyin; ücretsiz hesabınızla aynı ilanın fotoğraflarını birlikte değerlendirin.", tip: "💡 İpucu: Plaka, kilometre ve şasi numarasını da kontrol edin." },
+                en: { title: "Review a car listing’s photos together.", subtitle: "Check for AI signals. Try one photo for free; use a free account to review multiple photos from the same listing.", tip: "💡 Tip: Also check the license plate, mileage, and chassis number." }
             },
             realestate: {
                 tr: { title: "Bu daire fotoğrafı gerçek mi?", subtitle: "Konut fotoğrafındaki AI sinyallerini farklı kadrajlarda karşılaştırın.", tip: "💡 İpucu: Tapu, imar durumu ve emlak vergisi bilgilerini kontrol edin." },
@@ -2464,6 +2507,7 @@ async function pollForProStatus(attempt = 0) {
         }
 
         function switchMode(mode) {
+            window.detectorAnalytics.mode(mode);
             if (currentMode !== mode) {
                 currentImageHash = null;
                 currentAnalysisToken = null;
@@ -2787,5 +2831,6 @@ $('rsPdf').onclick=pdf;$('rsPrint').onclick=printReport;render();renderGuestTria
 })();
 
 </script>
+<button onclick="document.getElementById('cookieBanner').classList.remove('hidden')" class="block mx-auto my-4 text-xs text-slate-400 underline">Analytics / Çerez tercihleri</button>
 </body>
 </html>
