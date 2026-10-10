@@ -338,7 +338,7 @@ window.detectorAnalytics = (() => {
                         </button>
                     </div>
                     <p id="fileName" class="text-xs text-slate-300 font-semibold truncate max-w-xs"></p>
-                    <span class="text-xs text-indigo-400 bg-indigo-950/80 px-2 py-1 rounded-md border border-indigo-800" data-i18n="changeText">Click or drop to change</span>
+                    <button type="button" onclick="event.stopPropagation(); document.getElementById('imageInput').click()" class="text-xs text-indigo-400 bg-indigo-950/80 px-2 py-1 rounded-md border border-indigo-800 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400" data-i18n="changeText">Click or drop to change</button>
                 </div>
             </div>
         </div>
