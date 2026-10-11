@@ -27,7 +27,20 @@ window.detectorAnalytics = (() => {
     window.gtag = function(){window.dataLayer.push(arguments);};
     window.gtag('consent','default',{analytics_storage:'granted',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
     window.gtag('js', new Date());
-    window.gtag('config',id,{page_location:location.origin+location.pathname,page_referrer:'',allow_google_signals:false,allow_ad_personalization_signals:false});
+    // Only known public campaign values; never forward arbitrary URL parameters.
+    const query = new URLSearchParams(location.search);
+    const source = query.get('utm_source');
+    const medium = query.get('utm_medium');
+    const campaign = query.get('utm_campaign');
+    const safe = new URL(location.origin+location.pathname);
+    if (['twitter','instagram','tiktok','producthunt'].includes(source) && ['social','referral'].includes(medium) && ['photo_review','launch'].includes(campaign)) {
+      safe.searchParams.set('utm_source',source);
+      safe.searchParams.set('utm_medium',medium);
+      safe.searchParams.set('utm_campaign',campaign);
+    }
+    let referrer = '';
+    try { const from = new URL(document.referrer); if (['https:','http:'].includes(from.protocol)) referrer = from.origin+'/'; } catch (_) {}
+    window.gtag('config',id,{page_location:safe.href,page_referrer:referrer,allow_google_signals:false,allow_ad_personalization_signals:false});
     const tag = document.createElement('script'); tag.async = true;
     tag.src = 'https://www.googletagmanager.com/gtag/js?id='+id;
     document.head.appendChild(tag);
