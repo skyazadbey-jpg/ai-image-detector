@@ -10,3 +10,6 @@ email-validator
 pillow==12.3.0
 numpy==2.3.5
 onnxruntime==1.30.0
+
+psycopg[binary]==3.3.6
+cryptography==50.0.2

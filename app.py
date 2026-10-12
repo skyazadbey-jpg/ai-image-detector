@@ -4,7 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, EmailStr
 import os
-import sqlite3
 import secrets
 import string
 import time
@@ -27,6 +26,8 @@ from passlib.hash import bcrypt
 from google.oauth2 import id_token as google_id_token
 from google.auth.transport import requests as google_requests
 from service_security import signing_secret, WindowLimiter, download_public_image
+import storage
+from storage import get_db
 
 app = FastAPI()
 app.add_middleware(
@@ -145,65 +146,7 @@ async def service_controls(request: Request, call_next):
 
 
 # ---------- DATABASE ----------
-def get_db():
-    conn = sqlite3.connect(DB_PATH, timeout=10)
-    conn.row_factory = sqlite3.Row
-    return conn
-
-
-def init_db():
-    conn = get_db()
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL,
-            password_hash TEXT,
-            google_id TEXT,
-            is_verified INTEGER DEFAULT 0,
-            is_pro INTEGER DEFAULT 0,
-            credits INTEGER DEFAULT 3,
-            otp_code TEXT,
-            otp_expires REAL,
-            created_at REAL
-        )
-        """
-    )
-    try:
-        conn.execute("ALTER TABLE users ADD COLUMN is_pro INTEGER DEFAULT 0")
-    except Exception:
-        pass
-    try:
-        conn.execute("ALTER TABLE users ADD COLUMN credits INTEGER DEFAULT 3")
-    except Exception:
-        pass
-    conn.commit()
-    conn.close()
-
-
-init_db()
-
-def init_feedback_table():
-    """Feedback (kullanıcı geri bildirimi) tablosu."""
-    conn = get_db()
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS feedback (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            image_hash TEXT NOT NULL,
-            ai_score REAL NOT NULL,
-            predicted TEXT NOT NULL,
-            actual TEXT NOT NULL,
-            mode TEXT DEFAULT 'general',
-            created_at REAL NOT NULL
-        )
-    """)
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_feedback_hash ON feedback(image_hash)")
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_feedback_created ON feedback(created_at)")
-    conn.commit()
-    conn.close()
-
-
-init_feedback_table()
+storage.initialize()
 
 # ---------- MODELS ----------
 class RegisterRequest(BaseModel):
@@ -1230,7 +1173,7 @@ async def predict(request: Request, response: Response, file: UploadFile = File(
         if ANALYSIS_GATE.locked():
             response.status_code = 503
             response.headers['Retry-After'] = '2'
-            return {"error": "Analiz motoru şu anda meşgul. Birkaç saniye sonra tekrar deneyin."}
+            return {"status": "busy", "error_code": "ANALYSIS_BUSY", "retry_after": 2, "error": "Analiz motoru şu anda meşgul. Birkaç saniye sonra tekrar deneyin."}
         await ANALYSIS_GATE.acquire()
         acquired = True
     try:
@@ -1243,7 +1186,8 @@ async def predict(request: Request, response: Response, file: UploadFile = File(
         elif image_url:
             contents, content_type = await asyncio.to_thread(download_analysis_image, image_url)
         else:
-            return {"error": "Görsel bulunamadı."}
+            response.status_code = 400
+            return {"status": "error", "error_code": "IMAGE_REQUIRED", "error": "Görsel bulunamadı."}
 
         original_contents = contents
         contents, content_type = normalize_image_bytes(contents)
@@ -1342,7 +1286,8 @@ async def predict_heatmap(file: UploadFile = File(None), image_url: str = Form(N
                 return {"error": "Görsel indirilemedi."}
             contents = img_response.content
         else:
-            return {"error": "Görsel bulunamadı."}
+            response.status_code = 400
+            return {"status": "error", "error_code": "IMAGE_REQUIRED", "error": "Görsel bulunamadı."}
 
         normalized_contents, content_type = normalize_image_bytes(contents)
                 # Feedback için görsel hash'i hesapla
@@ -1412,7 +1357,16 @@ def enterprise_keys():
 
 @app.get('/healthz', include_in_schema=False)
 def healthz():
-    return {'status': 'ok', 'service_version': '3.1', 'model_warm': local_detector._session is not None}
+    return {'status': 'ok', 'service_version': '3.2', 'model_warm': local_detector._session is not None}
+
+@app.get('/readyz', include_in_schema=False)
+def readiness():
+    try:
+        state = storage.check()
+        return {'status': 'ready', 'database': state['backend'], 'external_storage_configured': state['external_storage_configured'], 'stable_sessions': STABLE_SIGNING_KEY}
+    except Exception:
+        from fastapi.responses import JSONResponse
+        return JSONResponse({'status': 'unavailable', 'error_code': 'DATABASE_UNAVAILABLE'}, status_code=503)
 
 @app.post('/v1/analyze', tags=['Enterprise pilot'])
 async def enterprise_analyze(request: Request, response: Response,
