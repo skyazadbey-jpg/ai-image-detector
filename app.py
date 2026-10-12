@@ -26,14 +26,15 @@ from PIL import Image, ImageFilter, ImageDraw
 from passlib.hash import bcrypt
 from google.oauth2 import id_token as google_id_token
 from google.auth.transport import requests as google_requests
+from service_security import signing_secret, WindowLimiter, download_public_image
 
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "https://ai-image-detector.com,https://www.ai-image-detector.com").split(',') if origin.strip()],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-API-Key"],
 )
 
 # ---------- CONFIG ----------
@@ -90,16 +91,62 @@ if not 0 <= UNCERTAINTY_MARGIN < min(DECISION_THRESHOLD, 100 - DECISION_THRESHOL
     raise ValueError("Karar eşiği / belirsizlik aralığı geçersiz")
 
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
-JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production")
+JWT_SECRET, STABLE_SIGNING_KEY = signing_secret()
+if not STABLE_SIGNING_KEY:
+    print(json.dumps({"event": "configuration_warning", "code": "EPHEMERAL_SESSION_KEY"}), flush=True)
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 FROM_EMAIL = os.getenv("FROM_EMAIL", "onboarding@resend.dev")
 
-DB_PATH = "users.db"
+DB_PATH = os.getenv("DB_PATH", "users.db")
+Path(DB_PATH).resolve().parent.mkdir(parents=True, exist_ok=True)
+REQUEST_LIMITER = WindowLimiter()
+
+
+@app.middleware("http")
+async def service_controls(request: Request, call_next):
+    # Accept no untrusted forwarding header as an identity or rate-limit bypass.
+    peer = request.client.host if request.client else 'unknown'
+    path = request.url.path
+    bucket = 'auth' if path.startswith('/auth/') and request.method == 'POST' else 'analysis'
+    limited = bucket == 'auth' or path in ('/predict', '/predict-heatmap', '/feedback', '/v1/analyze')
+    if limited:
+        identity = peer
+        if bucket == 'analysis':
+            auth = request.headers.get('authorization', '')
+            claims = decode_jwt(auth[7:]) if auth.startswith('Bearer ') else None
+            if claims and not claims.get('scope') and claims.get('user_id'):
+                identity = 'user:' + str(claims['user_id'])
+            elif path == '/v1/analyze' and request.headers.get('x-api-key'):
+                # Arbitrary invalid keys do not create independent limit buckets.
+                supplied = request.headers['x-api-key']
+                if supplied in enterprise_keys():
+                    identity = 'api:' + supplied
+        if not REQUEST_LIMITER.allow(identity, bucket, 12 if bucket == 'auth' else 30):
+            from fastapi.responses import JSONResponse
+            return JSONResponse({'error_code': 'RATE_LIMITED', 'error': 'Please retry later.'},
+                                status_code=429, headers={'Retry-After': '60'})
+    length = request.headers.get('content-length', '')
+    if request.method == 'POST' and length:
+        try:
+            too_large = int(length) > 21 * 1024 * 1024
+        except ValueError:
+            too_large = True
+        if too_large:
+            from fastapi.responses import JSONResponse
+            return JSONResponse({'error_code': 'UPLOAD_TOO_LARGE'}, status_code=413)
+    result = await call_next(request)
+    result.headers['X-Content-Type-Options'] = 'nosniff'
+    result.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    result.headers['Permissions-Policy'] = 'camera=(), microphone=(), geolocation=()'
+    result.headers['Content-Security-Policy'] = "frame-ancestors 'none'; object-src 'none'; base-uri 'self'"
+    if path.startswith(('/auth/', '/user/', '/v1/')) or path == '/predict':
+        result.headers['Cache-Control'] = 'no-store'
+    return result
 
 
 # ---------- DATABASE ----------
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=10)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -223,8 +270,15 @@ def get_current_user(authorization: str = Header(None)):
         raise HTTPException(status_code=401, detail="Oturum bulunamadı.")
     token = authorization.split(" ", 1)[1]
     payload = decode_jwt(token)
-    if not payload:
+    if not payload or payload.get('scope') or not isinstance(payload.get('user_id'), int):
         raise HTTPException(status_code=401, detail="Geçersiz veya süresi dolmuş oturum.")
+    conn = get_db()
+    try:
+        user = conn.execute('SELECT is_verified FROM users WHERE id=?', (payload['user_id'],)).fetchone()
+    finally:
+        conn.close()
+    if not user or not user['is_verified']:
+        raise HTTPException(status_code=401, detail="Geçersiz oturum.")
     return payload
 
 
@@ -298,6 +352,8 @@ def register(data: RegisterRequest):
 
 @app.post("/auth/verify")
 def verify(data: VerifyRequest):
+    if not REQUEST_LIMITER.allow(data.email.strip().lower(), 'otp', 5):
+        raise HTTPException(429, detail='RATE_LIMITED', headers={'Retry-After': '60'})
     conn = get_db()
     row = conn.execute("SELECT * FROM users WHERE email = ?", (data.email,)).fetchone()
     if not row:
@@ -368,6 +424,8 @@ def resend_otp(data: ResendRequest):
 
 @app.post("/auth/login")
 def login(data: LoginRequest):
+    if not REQUEST_LIMITER.allow(data.email.strip().lower(), 'login', 10):
+        raise HTTPException(429, detail='RATE_LIMITED', headers={'Retry-After': '60'})
     conn = get_db()
     row = conn.execute("SELECT * FROM users WHERE email=?", (data.email,)).fetchone()
     conn.close()
@@ -563,7 +621,7 @@ def submit_feedback(data: FeedbackRequest):
     )
     conn.commit()
     conn.close()
-    print(f"[FEEDBACK] hash={data.image_hash} predicted={data.predicted} actual={data.actual} score={data.ai_score}")
+    print(json.dumps({"event": "feedback_received", "mode": data.mode}), flush=True)
     return {"status": "ok", "message": "Geri bildiriminiz kaydedildi, teşekkürler!"}
 
 
@@ -575,15 +633,15 @@ def feedback_stats():
     if total == 0:
         conn.close()
         return {"total": 0, "self_reported_agreement": None, "verified_accuracy": None, "by_mode": []}
-    
+
     correct = conn.execute(
         "SELECT COUNT(*) FROM feedback WHERE predicted = actual"
     ).fetchone()[0]
-    
+
     modes = conn.execute(
         "SELECT mode, COUNT(*) as total, SUM(CASE WHEN predicted = actual THEN 1 ELSE 0 END) as correct FROM feedback GROUP BY mode"
     ).fetchall()
-    
+
     conn.close()
     return {
         "total": total,
@@ -598,84 +656,18 @@ def feedback_stats():
 @app.get("/api")
 def api_home():
     return {"status": "AI Image Detector API is running"}
-@app.get("/test-ateeqq-raw")
-def test_ateeqq_raw():
-    """GEÇİCİ TEST: Ateeqq modelinin ham cevabını gösterir."""
-    import requests, os, json, io
-    from PIL import Image
-    try:
-        # Kod içinde basit bir görsel oluştur (kırmızı kare)
-        img = Image.new("RGB", (384, 384), color=(200, 100, 150))
-        buffered = io.BytesIO()
-        img.save(buffered, format="JPEG", quality=90)
-        img_bytes = buffered.getvalue()
-        
-        print(f"[TEST] Görsel boyutu: {len(img_bytes)} bytes")
-        
-        # Ateeqq modeline gönder
-        url = "https://router.huggingface.co/hf-inference/models/Ateeqq/ai-vs-human-image-detector"
-        headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": "image/jpeg"}
-        r = requests.post(url, headers=headers, data=img_bytes, timeout=30)
-        
-        print(f"[TEST] HF cevabı: {r.status_code}")
-        print(f"[TEST] HF body: {r.text[:500]}")
-        
-        return {
-            "status_code": r.status_code,
-            "raw_response": r.json() if r.status_code == 200 else r.text,
-            "image_size_bytes": len(img_bytes)
-        }
-    except Exception as e:
-        return {"error": f"{type(e).__name__}: {str(e)}"}
+# Legacy debug and unauthenticated payment endpoints are deliberately disabled.
+@app.get('/test-ateeqq-raw', include_in_schema=False)
+def disabled_debug():
+    raise HTTPException(410, detail='DEBUG_ENDPOINT_REMOVED')
 
-
-# ---------- GUMROAD WEBHOOK ----------
-@app.post("/webhooks/gumroad")
-async def gumroad_webhook(request: Request):
-    try:
-        form_data = await request.form()
-        data = dict(form_data)
-        event_name = data.get("event_name", "sale")
-        user_email = data.get("email")
-
-        print(f"GUMROAD WEBHOOK: event={event_name} email={user_email}")
-
-        conn = get_db()
-        matched = False
-
-        if user_email:
-            normalized_email = user_email.strip().lower()
-            row = conn.execute(
-                "SELECT id FROM users WHERE LOWER(TRIM(email))=?", (normalized_email,)
-            ).fetchone()
-            if row:
-                matched = True
-                conn.execute("UPDATE users SET is_pro=1 WHERE id=?", (row["id"],))
-                conn.commit()
-                print(f"GUMROAD: email={normalized_email} eslesti, Pro yapildi.")
-
-        conn.close()
-        if not matched:
-            print(f"GUMROAD UYARI: Hicbir kullanici eslesmedi. email={user_email}")
-
-        return {"status": "ok", "matched": matched}
-    except Exception as e:
-        print(f"Gumroad Webhook Hatasi: {e}")
-        return {"status": "error", "message": str(e)}
-
+@app.post('/webhooks/gumroad', include_in_schema=False)
+def disabled_legacy_payment():
+    raise HTTPException(410, detail='PAYMENT_INTEGRATION_DISABLED')
 
 # ---------- PREDICT (tek ve doğru versiyon) ----------
 def download_analysis_image(url):
-    if not url.lower().startswith(("http://", "https://")):
-        raise ValueError("Geçerli bir HTTP/HTTPS görsel bağlantısı kullanın.")
-    with requests.get(url, timeout=20, stream=True) as response:
-        response.raise_for_status()
-        result = io.BytesIO()
-        for chunk in response.iter_content(64 * 1024):
-            if result.tell() + len(chunk) > 20 * 1024 * 1024:
-                raise ValueError("Görsel 20 MB sınırını aşıyor.")
-            result.write(chunk)
-        return result.getvalue(), response.headers.get("content-type", "image/jpeg")
+    return download_public_image(url)
 
 
 def normalize_image_bytes(contents: bytes):
@@ -834,41 +826,41 @@ def check_exif(contents: bytes) -> tuple:
 def check_plate_region(contents: bytes) -> tuple:
     """
     Araba fotoğraflarında plaka bölgesi kontrolü.
-    
-    Basit yaklaşım: Arabanın alt-orta bölgesini kes, 
+
+    Basit yaklaşım: Arabanın alt-orta bölgesini kes,
     oradaki piksel yoğunluğunu ve deseni analiz et.
-    
+
     AI üretimi plakalar: genellikle bulanık veya anlamsız desen.
     Gerçek plakalar: net, düzgün dikdörtgen, yazı var.
-    
+
     Dönüş: (gerçek_olma_skoru 0-100, sebep)
     """
     try:
         import numpy as np
         from PIL import Image, ImageFilter
         import io
-        
+
         img = Image.open(io.BytesIO(contents)).convert("L")
         w, h = img.size
         img = img.resize((512, 512), Image.LANCZOS)
-        
+
         # Plaka genellikle alt-orta bölgede (%60-90 yükseklik, %30-70 genişlik)
         top = int(512 * 0.60)
         bottom = int(512 * 0.90)
         left = int(512 * 0.30)
         right = int(512 * 0.70)
-        
+
         plate_region = img.crop((left, top, right, bottom))
-        
+
         # Kenar yoğunluğu (yazı varsa yüksek olur)
         edges = plate_region.filter(ImageFilter.FIND_EDGES)
         edge_array = np.array(edges, dtype=np.float32)
         edge_variance = float(edge_array.var())
-        
+
         # Kontrast (plaka beyaz, yazı siyah)
         region_array = np.array(plate_region, dtype=np.float32)
         contrast = float(region_array.std())
-        
+
         # Puanlama
         # Gerçek plaka: yüksek kontrast + yüksek kenar yoğunluğu
         if edge_variance > 400 and contrast > 50:
@@ -883,33 +875,33 @@ def check_plate_region(contents: bytes) -> tuple:
         else:
             score = 30.0
             reason = f"Plaka yok/bulanık (edge={edge_variance:.0f}) - AI olabilir"
-        
+
         return score, reason
     except Exception as e:
         return 50.0, f"Plaka analizi hatası: {str(e)[:50]}"
-    
+
 def check_blur(contents: bytes) -> tuple:
     """
     Bulanıklık/keskinlik analizi.
-    
+
     Dolandırıcılar genellikle bulanık screenshot kullanır.
     Ayrıca AI görselleri bazen aşırı pürüzsüz/bulanık olur.
-    
+
     Dönüş: (gerçek_olma_skoru 0-100, sebep)
     """
     try:
         import numpy as np
         from PIL import Image, ImageFilter
         import io
-        
+
         img = Image.open(io.BytesIO(contents)).convert("L")
         img = img.resize((512, 512), Image.LANCZOS)
-        
+
         # Laplacian varyansı = keskinlik ölçüsü
         laplacian = img.filter(ImageFilter.FIND_EDGES)
         lap_array = np.array(laplacian, dtype=np.float32)
         variance = float(lap_array.var())
-        
+
         # Puanlama
         if variance > 800:
             score = 85.0
@@ -926,54 +918,54 @@ def check_blur(contents: bytes) -> tuple:
         else:
             score = 20.0
             reason = f"Çok bulanık (variance={variance:.0f}) - screenshot olabilir"
-        
+
         return score, reason
     except Exception as e:
         return 50.0, f"Bulanıklık analizi hatası: {str(e)[:50]}"
-    
+
 def check_jpeg_blocks(contents: bytes) -> tuple:
     """
     JPEG 8x8 blok kalıntı analizi.
-    
+
     Gerçek fotoğraflar: Kameradan gelen JPEG → düzgün blok pattern.
     AI görselleri: Yapay üretilmiş → düzensiz blok pattern veya çok pürüzsüz.
-    
+
     Dönüş: (gerçek_olma_skoru 0-100, sebep)
     """
     try:
         import numpy as np
         from PIL import Image
         import io
-        
+
         img = Image.open(io.BytesIO(contents)).convert("L")  # Gri tonlama
         img = img.resize((256, 256), Image.LANCZOS)
         arr = np.array(img, dtype=np.float32)
-        
+
         # 8x8 blokların sınırlarındaki farklılıkları ölç
         # JPEG sıkıştırması 8x8 bloklarda "blocking artifacts" yaratır
         # Gerçek JPEG'lerde bu belirgin, AI görsellerinde zayıf
-        
+
         h, w = arr.shape
-        
+
         # Yatay blok sınırları (her 8. sütun)
         vertical_diffs = []
         for x in range(8, w, 8):
             diff = np.abs(arr[:, x-1] - arr[:, x]).mean()
             vertical_diffs.append(diff)
-        
+
         # Dikey blok sınırları (her 8. satır)
         horizontal_diffs = []
         for y in range(8, h, 8):
             diff = np.abs(arr[y-1, :] - arr[y, :]).mean()
             horizontal_diffs.append(diff)
-        
+
         # Blok sınırlarının ortalaması
         block_energy = np.mean(vertical_diffs + horizontal_diffs)
-        
+
         # Blok içi (blok sınırı olmayan yerler) enerjisi
         non_block_x = [x for x in range(4, w, 8)]
         non_block_y = [y for y in range(4, h, 8)]
-        
+
         non_block_energy = 0
         count = 0
         for x in non_block_x:
@@ -984,10 +976,10 @@ def check_jpeg_blocks(contents: bytes) -> tuple:
             if y < h - 1:
                 non_block_energy += np.abs(arr[y, :] - arr[y+1, :]).mean()
                 count += 1
-        
+
         if count > 0:
             non_block_energy /= count
-        
+
         # Oran: blok sınırları, blok içinden ne kadar farklı?
         # Gerçek JPEG → yüksek oran (belirgin blok sınırları)
         # AI görsel → düşük oran (her yer aynı)
@@ -995,7 +987,7 @@ def check_jpeg_blocks(contents: bytes) -> tuple:
             ratio = block_energy / non_block_energy
         else:
             ratio = 1.0
-        
+
         # Puanlama
         if ratio > 1.5:
             score = 85.0
@@ -1012,7 +1004,7 @@ def check_jpeg_blocks(contents: bytes) -> tuple:
         else:
             score = 20.0
             reason = f"Blok yapısı yok (ratio={ratio:.2f}) - AI olma ihtimali yüksek"
-        
+
         return score, reason
     except Exception as e:
         return 50.0, f"JPEG blok analizi hatası: {str(e)[:50]}"
@@ -1138,6 +1130,8 @@ def guest_status(request: Request, response: Response):
     return {"remaining": 0 if used else 1}
 
 def reserve_trial(request):
+    if getattr(request.state, 'enterprise_authorized', False):
+        return None
     authorization = request.headers.get("authorization", "")
     if authorization:
         claims = decode_jwt(authorization[7:]) if authorization.startswith("Bearer ") else None
@@ -1234,6 +1228,8 @@ async def predict(request: Request, response: Response, file: UploadFile = File(
     acquired = False
     if AI_BACKEND == "local":
         if ANALYSIS_GATE.locked():
+            response.status_code = 503
+            response.headers['Retry-After'] = '2'
             return {"error": "Analiz motoru şu anda meşgul. Birkaç saniye sonra tekrar deneyin."}
         await ANALYSIS_GATE.acquire()
         acquired = True
@@ -1252,6 +1248,7 @@ async def predict(request: Request, response: Response, file: UploadFile = File(
         original_contents = contents
         contents, content_type = normalize_image_bytes(contents)
         if mode not in ("general", "car", "realestate"):
+            response.status_code = 400
             return {"error": "Geçersiz analiz modu."}
 
         guest_id = reserve_trial(request)
@@ -1272,7 +1269,7 @@ async def predict(request: Request, response: Response, file: UploadFile = File(
                         "category_check": category, "requested_mode": mode}
 
         final_ai_score, breakdown = await call_ai_model_ensemble(contents, content_type)
-        
+
         profile = await compare_domain_frames(contents, mode, final_ai_score)
         final_real_score = 100.0 - final_ai_score
         available = [item["ai_score"] for item in breakdown if item["ai_score"] is not None]
@@ -1319,7 +1316,10 @@ async def predict(request: Request, response: Response, file: UploadFile = File(
     except HTTPException:
         raise
     except Exception as e:
-        return {"error": str(e)}
+        print(json.dumps({"event": "analysis_failed", "error_type": type(e).__name__}), flush=True)
+        response.status_code = 400 if isinstance(e, (ValueError, Image.UnidentifiedImageError)) else 503
+        return {"status": "error", "error_code": "INVALID_IMAGE" if response.status_code == 400 else "ANALYSIS_UNAVAILABLE",
+                "error": "Görsel işlenemedi. Dosyayı kontrol edip tekrar deneyin."}
     finally:
         if not completed:
             refund_trial(guest_id)
@@ -1404,6 +1404,51 @@ async def predict_heatmap(file: UploadFile = File(None), image_url: str = Form(N
     except Exception as e:
         return {"error": str(e)}
 
+
+# ---------- OPT-IN ENTERPRISE PILOT ----------
+def enterprise_keys():
+    return [value.strip() for value in os.getenv('ENTERPRISE_API_KEYS', '').split(',')
+            if len(value.strip()) >= 32]
+
+@app.get('/healthz', include_in_schema=False)
+def healthz():
+    return {'status': 'ok', 'service_version': '3.1', 'model_warm': local_detector._session is not None}
+
+@app.post('/v1/analyze', tags=['Enterprise pilot'])
+async def enterprise_analyze(request: Request, response: Response,
+        file: UploadFile = File(...), mode: str = Form('general'),
+        x_api_key: str = Header(None)):
+    keys = enterprise_keys()
+    if not keys:
+        raise HTTPException(503, detail='PILOT_NOT_ENABLED')
+    if not x_api_key or not any(secrets.compare_digest(x_api_key, key) for key in keys):
+        raise HTTPException(401, detail='INVALID_API_KEY')
+    request.state.enterprise_authorized = True
+    result = await predict(request, response, file, None, mode)
+    request_id = secrets.token_hex(16)
+    if result.get('status') != 'success':
+        if (response.status_code or 200) < 400:
+            response.status_code = 503
+        return {'request_id': request_id, 'status': 'unavailable',
+                'error_code': result.get('error_code', 'ANALYSIS_UNAVAILABLE'),
+                'category_check': result.get('category_check'),
+                'recommendation': 'human_review', 'fraud_assessment': 'not_determined'}
+    return {'request_id': request_id, 'status': 'success', 'mode': mode,
+            'ai_model_score': result['ai_probability'], 'score_type': result['score_type'],
+            'verdict': result['verdict'], 'recommendation': 'human_review' if result['verdict'] in ('AI', 'UNCERTAIN') else 'no_ai_flag',
+            'fraud_assessment': 'not_determined', 'analysis_version': result['analysis_version'],
+            'category_check': result['category_check'], 'model_breakdown': result['model_breakdown'],
+            'evidence_report': result['evidence_report'],
+            'limitations': ['Not a fraud or ownership assessment.', 'No automated listing rejection.',
+                            'Not calibrated probabilities.', 'Performance on real listings is not validated.']}
+
+@app.get('/business.html', include_in_schema=False)
+def serve_business():
+    return FileResponse(Path(__file__).resolve().parent / 'business.html')
+
+@app.get('/methodology.html', include_in_schema=False)
+def serve_methodology():
+    return FileResponse(Path(__file__).resolve().parent / 'methodology.html')
 
 # ---------- STATIC FILES ----------
 @app.get("/brand-logo.png", include_in_schema=False)

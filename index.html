@@ -614,9 +614,9 @@ window.detectorAnalytics = (() => {
             <span>•</span>
             <button onclick="openModal('terms')" class="hover:underline" data-i18n="termsLink">Terms of Service</button>
             <span>•</span>
-            <button onclick="openModal('distance')" class="hover:underline" data-i18n="distanceLink">Distance Sales Agreement</button>
+            <button onclick="openModal('distance')" hidden class="hover:underline" data-i18n="distanceLink">Distance Sales Agreement</button>
             <span>•</span>
-            <button onclick="openModal('refund')" class="hover:underline" data-i18n="refundLink">Refund Policy</button>
+            <button onclick="openModal('refund')" hidden class="hover:underline" data-i18n="refundLink">Refund Policy</button>
         </div>
     </footer>
 
@@ -642,7 +642,7 @@ window.detectorAnalytics = (() => {
     <div id="authModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-700 pb-3">
-                
+
                 <h3 id="authModalTitle" class="text-xl font-bold text-indigo-400 flex items-center gap-2">
                     <i class="fas fa-lock-keyhole"></i> <span data-i18n="authTitle">Secure Account Access</span>
                 </h3>
@@ -697,7 +697,7 @@ window.detectorAnalytics = (() => {
                     <button onclick="resetAuthForm()" class="text-indigo-400 hover:underline"><span data-i18n="changeEmail">E-postayı değiştir</span></button>
                 </div>
             </div>
-        
+
 
             <!-- PASSWORD SETUP SECTION -->
             <div id="passwordSetupSection" class="hidden space-y-4 pt-2 border-t border-slate-700">
@@ -795,14 +795,14 @@ window.detectorAnalytics = (() => {
                 neonBadgeText: "⚡ KEEP IT ALIVE",
                 sidePiggyTitle: "Community Piggy Bank",
                 sidePiggyDesc: "Support us to keep this project 100% free and ad-free!",
-                sidePiggyStats: "45% Supported",
+                sidePiggyStats: "Optional support",
                 donateBadgeBtn: "Support Us",
                 sidePiggyTitle: "Community Piggy Bank",
                 sidePiggyDesc: "This project is 100% free and sustained by your support.",
                 piggyDescHtml: "I am developing this project from scratch, using my own resources.<br><br>I am not a big company yet—just a 19-year-old Turkish entrepreneur who believes an idea can truly turn into a product.<br><br>Any small support you provide will help this project take another step forward. ❤️",
                 navPiggyTitle: "Community Piggy Bank",
-                piggyStatsComplete: "45% Completed",
-                navPiggySub: "45% Supported",
+                piggyStatsComplete: "Thank you for your support",
+                navPiggySub: "Optional support",
                 donateBtn: "Support",
                 closeBtn: "Close",
                 piggyBankTitle: "Community Piggy Bank",
@@ -946,7 +946,7 @@ window.detectorAnalytics = (() => {
                 trustCard2Title: "Transparent results",
                 trustCard2Desc: "Model scores, not definitive verdicts.",
                 trustCard3Title: "Encrypted connection",
-                trustCard3Desc: "All data is encrypted.",
+                trustCard3Desc: "HTTPS protects data in transit.",
                 heatmapTitle: "AI Detection Heatmap",
                 heatmapOriginal: "Original",
                 heatmapAnalyzed: "Analysis",
@@ -986,7 +986,7 @@ window.detectorAnalytics = (() => {
                 inviteMenuBtn: "Invite Friends",
                 historyMenuBtn: "My Scan History",
                 logoutMenuBtn: "Sign Out"
-    
+
             },
             tr: {
                 categoryMismatchTitle: "Bu görsel seçtiğin bölüme uymuyor olabilir.",
@@ -994,12 +994,12 @@ window.detectorAnalytics = (() => {
                 neonBadgeText: "⚡ PROJEYİ YAŞAT",
                 sidePiggyTitle: "Topluluk Kumbarası",
                 sidePiggyDesc: "Reklamsız ve %100 ücretsiz kalması için bize destek ol!",
-                sidePiggyStats: "%45 Desteklendi",
+                sidePiggyStats: "İsteğe bağlı destek",
                 donateBadgeBtn: "Destek Ol",
                 piggyBankTitle: "Topluluk Kumbarası",
                 piggyDescHtml: "Bu projeyi sıfırdan, kendi imkânlarımla geliştiriyorum.<br><br>Henüz büyük bir şirket değilim. Sadece bir fikrin gerçekten ürüne dönüşebileceğine inanan 19 yaşında bir Türk girişimciyim.<br><br>Bana yapacağınız küçük bir destek, bu projenin bir adım daha ileri gitmesini sağlayacak. ❤️",
                 targetSupport: "Hedef Destek",
-                piggyStatsComplete: "%45 Tamamlandı",
+                piggyStatsComplete: "Desteğiniz için teşekkürler",
                 donateBtn: "Destek Ol",
                 closeBtn: "Kapat",
                 piggyBankTitle: "Topluluk Kumbarası",
@@ -1248,19 +1248,19 @@ if (piggyProgressBar) setTimeout(() => piggyProgressBar.style.width = '75%', 300
         if (!res.ok) throw new Error();
         const data = await res.json();
         currentUser = data.user;
-        
+
         // Pro kontrolleri tamamen kaldırıldı, sistem herkes için eşit ve sınırsız!
         const creditBadge = document.getElementById('creditBadge');
         if (creditBadge) {
             creditBadge.innerHTML = '<i class="fas fa-check-circle"></i> <span>' + (currentLang === 'tr' ? 'Aktif' : 'Active') + '</span>';
         }
-        
+
         const btn = document.getElementById('buttonText');
         if (btn) btn.innerText = currentLang === 'tr' ? 'Görseli Tara' : 'Scan Image';
 
-    } catch { 
-        localStorage.removeItem('authToken'); 
-        currentUser = null; 
+    } catch {
+        localStorage.removeItem('authToken');
+        currentUser = null;
     }
     updateAuthUI();
 }
@@ -1304,22 +1304,22 @@ if (piggyProgressBar) setTimeout(() => piggyProgressBar.style.width = '75%', 300
         function doLogout() {
     currentUser = null;
     localStorage.removeItem('authToken');
-    
+
     // Pro ile ilgili tüm eski kısıtlama ve rozet temizlikleri kaldırıldı
     const creditBadge = document.getElementById('creditBadge');
     if (creditBadge) {
         creditBadge.innerHTML = '<i class="fas fa-check-circle text-emerald-400"></i> <span class="hidden xs:inline">' + (currentLang === 'tr' ? 'Tamamen Ücretsiz' : 'Completely Free') + '</span>';
     }
-    
+
     const btnText = document.getElementById('buttonText');
     if (btnText) btnText.innerText = translations[currentLang].scanBtn;
 
     updateAuthUI();
     closeLogoutConfirm();
-    
+
     const userDropdown = document.getElementById('userDropdown');
     if (userDropdown) userDropdown.classList.add('hidden');
-    
+
     showToast(currentLang === 'tr' ? "Çıkış yapıldı." : "Signed out.", 'info');
 }
 
@@ -1351,8 +1351,8 @@ if (piggyProgressBar) setTimeout(() => piggyProgressBar.style.width = '75%', 300
                 dropdown.classList.add('hidden');
             }
         });
-      
-       
+
+
         function switchAuthTab(mode) {
             authMode = mode;
             const loginBtn = document.getElementById('authTabLogin');
@@ -1654,7 +1654,7 @@ function submitFeedback(isCorrect, actualOverride = null) {
         showToast(currentLang === 'tr' ? 'Önce bir görsel tarayın' : 'Scan an image first', 'error');
         return;
     }
-    
+
     const predicted = lastAnalysisStatus?.statusKey === 'AI' ? 'AI' : (lastAnalysisStatus?.statusKey === 'Real' ? 'REAL' : 'UNCERTAIN');
     if (isCorrect && predicted === 'UNCERTAIN') {
         showWrongFeedback();
@@ -1662,9 +1662,9 @@ function submitFeedback(isCorrect, actualOverride = null) {
         return;
     }
     const actual = isCorrect ? predicted : actualOverride;
-    
+
     if (!actual) return;
-    
+
     // Backend'e gönder
     fetch(`${BACKEND_URL}/feedback`, {
         method: 'POST',
@@ -1738,22 +1738,22 @@ async function pollForProStatus(attempt = 0) {
     }
 }
 
-   
+
 
       function loginSuccess(token, user) {
     localStorage.setItem('authToken', token);
     currentUser = user;
-    
+
     // Pro ve kısıtlayıcı kredi kontrolleri kaldırıldı, herkes için tamamen serbest!
     const creditBadge = document.getElementById('creditBadge');
     if (creditBadge) {
         creditBadge.innerHTML = '<i class="fas fa-check-circle text-emerald-400"></i> <span class="hidden xs:inline">' + (currentLang === 'tr' ? 'Tamamen Ücretsiz' : 'Completely Free') + '</span>';
     }
-    
+
     const btn = document.getElementById('buttonText');
     if (btn) btn.innerText = translations[currentLang].scanBtn;
 
-    updateAuthUI(); 
+    updateAuthUI();
     closeAuthModal();
     showToast(currentLang === 'tr' ? "Giriş başarılı!" : "Signed in!", 'success');
 }
@@ -1763,7 +1763,7 @@ async function pollForProStatus(attempt = 0) {
     const btnText = document.getElementById('authNavText');
     const chevron = document.getElementById('userMenuChevron');
     const dropdownEmail = document.getElementById('dropdownEmail');
-    
+
     if (currentUser) {
         if (btnText) btnText.innerText = currentUser.email.split('@')[0];
         if (chevron) chevron.classList.remove('hidden');
@@ -2135,7 +2135,7 @@ async function pollForProStatus(attempt = 0) {
 
        async function analyzeImage() {
 
-    
+
     if (!await ensureAnalysisAccess()) return;
 
     if (!currentLoadedFile) { alert(translations[currentLang].selectFirst); return; }
@@ -2220,7 +2220,7 @@ async function pollForProStatus(attempt = 0) {
                     lastAnalysisStatus = { aiScore, statusKey };
                     showC2PAInfo(data);
                     updateSummaryMessage(aiScore, statusKey);
-                 
+
                     addToHistory(currentLoadedFile.name, aiScore, statusKey);
                     // Heatmap is optional; avoid 27 automatic API calls per scan.
                                         // Feedback için
@@ -2690,28 +2690,20 @@ function handleImageValidation(event) {
         </div>
 
         <!-- Büyük ve İddialı Kumbara Kartı -->
-        <div class="relative group cursor-pointer" onclick="openModal();">
+        <div class="relative group cursor-pointer" onclick="openSupportModal();">
             <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 rounded-3xl blur-md opacity-40 group-hover:opacity-80 transition duration-500 animate-pulse"></div>
 
             <div class="relative bg-slate-900/95 backdrop-blur-xl border border-emerald-500/50 p-5 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.2)] flex flex-col items-center text-center w-56 hover:border-emerald-400 transition-all duration-300">
-                
+
                 <!-- İkon -->
                 <div class="w-14 h-14 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform text-2xl border border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.4)]">
                     <i class="fas fa-piggy-bank"></i>
                 </div>
-                
+
                 <h4 class="text-sm font-extrabold text-slate-100 mb-1" data-i18n="sidePiggyTitle">Topluluk Kumbarası</h4>
                 <p class="text-[11px] text-slate-300 mb-4 leading-relaxed font-medium" data-i18n="sidePiggyDesc">Reklamsız ve %100 ücretsiz kalması için bize destek ol!</p>
 
-                <!-- İlerleme Çubuğu (%45) -->
-                <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden mb-2 border border-slate-700/60 p-0.5 shadow-inner">
-                    <div class="bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 h-full rounded-full shadow-[0_0_10px_rgba(52,211,153,0.9)]" style="width: 45%"></div>
-                </div>
-                
-                <div class="flex justify-between items-center text-[11px] w-full px-1 mb-3">
-                    <span class="text-slate-400 font-medium" data-i18n="targetSupport">Hedef</span>
-                    <span class="text-emerald-400 font-bold drop-shadow-[0_0_6px_rgba(52,211,153,0.6)]" data-i18n="sidePiggyStats">%45 Desteklendi</span>
-                </div>
+
 
                 <!-- Destek Ol Buton Hissi -->
                 <div class="w-full bg-emerald-600/20 hover:bg-emerald-600/40 border border-emerald-500/40 text-emerald-300 text-xs font-semibold py-2 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm">
@@ -2729,12 +2721,12 @@ function handleImageValidation(event) {
         <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-100 transition-colors">
             <i class="fas fa-times text-lg"></i>
         </button>
-        
+
         <!-- Kumbara İkonu -->
         <div class="w-14 h-14 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
             <i class="fas fa-piggy-bank"></i>
         </div>
-        
+
         <!-- Başlık ve Metin -->
         <h3 class="text-xl font-bold text-slate-100 mb-3" data-i18n="piggyBankTitle">Topluluk Kumbarası</h3>
         <p class="text-xs text-slate-300 mb-4 leading-relaxed text-left bg-slate-800/50 p-3.5 rounded-xl border border-slate-700/50" data-i18n="piggyDescHtml">
@@ -2742,16 +2734,9 @@ function handleImageValidation(event) {
             Henüz büyük bir şirket değilim. Sadece bir fikrin gerçekten ürüne dönüşebileceğine inanan 19 yaşında bir Türk girişimciyim.<br><br>
             Bana yapacağınız küçük bir destek, bu projenin bir adım daha ileri gitmesini sağlayacak. ❤️
         </p>
-        
-        <!-- İlerleme Çubuğu (%45) -->
-        <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden mb-2 border border-slate-700/60 p-0.5">
-            <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full shadow-[0_0_8px_rgba(52,211,153,0.8)]" style="width: 45%"></div>
-        </div>
-        <div class="flex justify-between items-center text-xs text-slate-400 mb-6 px-1">
-            <span data-i18n="targetSupport">Hedef Destek</span>
-            <span class="text-emerald-400 font-semibold" data-i18n="piggyStatsComplete">%45 Tamamlandı</span>
-        </div>
-        
+
+
+
         <!-- Bağış Yap / Destek Ol Butonu -->
         <div class="flex gap-3">
             <a href="https://buymeacoffee.com/skyazad" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-xl transition-colors text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/40" data-i18n="donateBtn">
@@ -2766,7 +2751,7 @@ function handleImageValidation(event) {
 
 <!-- ================= 3. JAVASCRIPT ================= -->
 <script>
-    function openModal() {
+    function openSupportModal() {
         const modal = document.getElementById('upgradeModal');
         if (modal) {
             modal.classList.remove('hidden');
@@ -2876,107 +2861,72 @@ $('rsPdf').onclick=pdf;$('rsPrint').onclick=printReport;render();renderGuestTria
 })();
 </script>
 
-<script id="carPilotScript">
-(() => {
-  'use strict';
-  const contactUrl = 'https://x.com/SKYazadqz';
-  const copy = {
-    tr: {
-      badge: 'Yeni hizmet · Talep topluyoruz', title: 'Aracı görmeye gitmeden önce, fotoğrafların kaynağını da incelet.',
-      intro: 'Ücretsiz AI kontrolünü yaptın. Kaynak araştırmasını ve bulguların açıklamasını bir kişiye bırakmak ister misin?',
-      price: '149 TL', unit: 'önerilen tek seferlik pilot fiyatı · en fazla 5 fotoğraf',
-      features: ['Bulunabilen görsel kaynakları ve bağlantıları', 'Fotoğraflarda görülebilen farkların elle incelenmesi', 'Bulgular ve satıcıdan istenebilecek ek fotoğraflar'],
-      free: 'Diğer fotoğrafları ücretsiz kontrol et', sample: 'Raporun kapsamını gör', interest: '149 TL fiyatıyla ilgileniyorum',
-      note: 'Hizmet henüz satışta değil. Bu bir ilgi bildirimi; sipariş veya ödeme değil. Ücretsiz analiz ve PDF devam ediyor.',
-      limitation: 'Fotoğraf incelemesi satıcıyı, aracın sahipliğini veya ilanın güvenliğini doğrulamaz; ekspertiz yerine geçmez.',
-      thanks: 'Teşekkürler. Sipariş oluşturulmadı ve ödeme alınmadı.',
-      consent: 'Analytics izni verdiysen fiyatlı ilgin toplu ölçüme dahil edilir. İzin vermediysen bu tıklama ölçülmez. İletişim bilgisi toplamadığımız için sana kendiliğimizden ulaşamayız.',
-      contact: 'Kurucuyla X üzerinden görüş', contactNote: 'Profil açılır; mesaj otomatik gönderilmez. Şimdilik fotoğraf veya ödeme bilgisi göndermene gerek yok.',
-      dialogTitle: 'Nasıl bir rapor hazırlanacak?', dialogBadge: 'Kapsam önizlemesi · Yapılmış bir inceleme değil',
-      dialogIntro: 'Pilot hazır olduğunda aşağıdaki kontrollerin hangilerinin yapılabildiği, kaynakları ve sınırlamaları raporda açıkça belirtilecek.',
-      sections: [
-        ['01 · Fotoğraf başına AI analizi', 'Mevcut ücretsiz model sonucu ve belirsizlikleri. Model skoru kesin olasılık veya doğruluk oranı olarak sunulmaz.'],
-        ['02 · Kaynak araştırması', 'İzin verdiğin fotoğraflar için üçüncü taraf görsel arama araçlarıyla bulunabilen eşleşmeler ve bağlantılar. Eşleşme bulunamaması özgünlük kanıtı değildir.'],
-        ['03 · Görülebilen farklar', 'Fotoğraflardaki araç özelliklerinin elle karşılaştırılması. Işık, açı ve görüntü kalitesi gibi alternatif açıklamalar da belirtilir. Aynı araç olduğu garanti edilmez.'],
-        ['04 · Sonraki kontrol adımları', 'Bulgulara göre satıcıdan istenebilecek ek çekimler. Yapılamayan kontroller tamamlanmış gibi gösterilmez.']
-      ],
-      share: 'Kaynak araştırması fotoğrafın üçüncü taraf arama hizmetleriyle paylaşılmasını gerektirebilir. Hizmet açıldığında bunun için ayrıca izin istenecek. Bu önizlemede hiçbir fotoğraf paylaşılmaz.', close: 'Kapat'
-    },
-    en: {
-      badge: 'New service · Gathering interest', title: 'Before going to see the car, have its photo sources checked.',
-      intro: 'You have tried the free AI check. Would you like a person to research photo sources and explain the findings?',
-      price: 'TRY 149', unit: 'proposed one-time pilot price · up to 5 photos',
-      features: ['Available image sources and links', 'Manual review of visible differences between photos', 'Findings and additional photos to request from the seller'],
-      free: 'Check more photos for free', sample: 'Explore the report scope', interest: 'Interested at TRY 149',
-      note: 'The service is not on sale yet. This expresses interest; it is not an order or payment. Free analysis and PDF remain available.',
-      limitation: 'Photo review does not verify the seller, vehicle ownership or listing safety, and does not replace a vehicle inspection.',
-      thanks: 'Thank you. No order was created and no payment was taken.',
-      consent: 'If you allowed Analytics, your price interest is included in aggregate measurement. Otherwise this click is not measured. We collect no contact details, so we cannot contact you automatically.',
-      contact: 'Talk to the founder on X', contactNote: 'Opens the profile; no message is sent automatically. No photos or payment details are needed at this stage.',
-      dialogTitle: 'What will the report cover?', dialogBadge: 'Scope preview · Not a completed review',
-      dialogIntro: 'When the pilot is ready, the report will identify which checks could be completed, their sources and their limitations.',
-      sections: [
-        ['01 · Per-photo AI analysis', 'The existing free model result and uncertainty. Model scores are not presented as calibrated probabilities or accuracy rates.'],
-        ['02 · Source research', 'Available matches and links using third-party image search tools for photos you authorize. No match does not prove originality.'],
-        ['03 · Visible differences', 'Manual comparison of visible vehicle features, including alternative explanations such as lighting, angle and image quality. Matching vehicle identity is not guaranteed.'],
-        ['04 · Further checks', 'Additional views to request from the seller based on the findings. Unavailable checks are never presented as completed.']
-      ],
-      share: 'Source research may require sharing photos with third-party search services. Separate permission will be requested when the service opens. This preview shares no photos.', close: 'Close'
-    }
-  };
-  let eligible = false, interested = false, viewed = false;
-  const t = () => copy[currentLang === 'tr' ? 'tr' : 'en'];
-  const node = (tag, cls, text) => { const el = document.createElement(tag); el.className = cls || ''; if (text) el.textContent = text; return el; };
-  const card = node('section', 'pilot-card'); card.id = 'carPilot'; card.hidden = true; card.setAttribute('aria-labelledby', 'pilotTitle');
-  document.getElementById('resultArea').after(card);
-  const dialog = node('dialog', 'pilot-dialog'); dialog.id = 'pilotScope'; dialog.setAttribute('aria-labelledby', 'pilotScopeTitle'); document.body.append(dialog);
-  const style = node('style'); style.textContent = `
-    .pilot-card[hidden]{display:none!important}.pilot-card{margin-top:24px;padding:28px;border:1px solid #475569;border-radius:20px;background:linear-gradient(145deg,#182436,#101827);color:#e2e8f0;text-align:left}
-    .pilot-label{font-size:12px;font-weight:600;letter-spacing:.04em;color:#a7b8cc}.pilot-card h2{font-size:24px;line-height:1.3;font-weight:700;margin:14px 0}.pilot-copy,.pilot-card li{font-size:14px;line-height:1.7;color:#cbd5e1}.pilot-card ul{list-style:disc;padding-left:20px;margin:18px 0}.pilot-price{font-size:30px;font-weight:700;margin:20px 0 3px}.pilot-unit,.pilot-note{font-size:12px;line-height:1.65;color:#b6c3d4}.pilot-actions{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 15px}.pilot-button{padding:12px 16px;border-radius:12px;border:1px solid #64748b;font:inherit;font-size:14px;font-weight:600;cursor:pointer;background:#253449;color:#f1f5f9}.pilot-primary{background:#cbdcf3;color:#101827;border-color:#cbdcf3}.pilot-button:focus-visible{outline:3px solid #a78bfa;outline-offset:3px}.pilot-button:disabled{opacity:.65;cursor:default}.pilot-response{border-top:1px solid #475569;padding-top:18px;margin-top:18px}.pilot-response strong{display:block;margin-bottom:8px}.pilot-response a{display:inline-block;margin:12px 0;color:#c4b5fd;text-decoration:underline}
-    .pilot-dialog{width:min(680px,calc(100vw - 28px));max-height:88vh;padding:28px;background:#152133;color:#e2e8f0;border:1px solid #64748b;border-radius:20px;overflow:auto}.pilot-dialog::backdrop{background:rgba(0,0,0,.75)}.pilot-dialog h2{font-size:24px;font-weight:700;margin:12px 0}.pilot-dialog h3{font-size:16px;font-weight:600;margin:22px 0 7px}.pilot-dialog p{font-size:14px;line-height:1.7;color:#cbd5e1}.pilot-dialog .pilot-label{font-size:12px}.pilot-dialog .pilot-button{margin-top:20px}@media(max-width:480px){.pilot-card,.pilot-dialog{padding:20px}.pilot-card h2,.pilot-dialog h2{font-size:21px}.pilot-actions{flex-direction:column}.pilot-button{width:100%}}
-  `; document.head.append(style);
-  function event(name) { window.detectorAnalytics.track(name, 'car'); }
-  function renderDialog() {
-    const c = t(); dialog.replaceChildren(node('p', 'pilot-label', c.dialogBadge));
-    const heading = node('h2', '', c.dialogTitle); heading.id = 'pilotScopeTitle'; heading.tabIndex = -1; dialog.append(heading, node('p', '', c.dialogIntro));
-    for (const [title, body] of c.sections) dialog.append(node('h3', '', title), node('p', '', body));
-    dialog.append(node('p', '', c.share), node('p', '', c.limitation));
-    const close = node('button', 'pilot-button', c.close); close.type = 'button'; close.onclick = () => dialog.close(); dialog.append(close);
-  }
-  function render() {
-    card.hidden = !eligible || currentMode !== 'car'; const c = t(); card.replaceChildren();
-    card.append(node('p', 'pilot-label', c.badge)); const title = node('h2', '', c.title); title.id = 'pilotTitle'; card.append(title, node('p', 'pilot-copy', c.intro));
-    const list = node('ul'); for (const text of c.features) list.append(node('li', '', text)); card.append(list, node('p', 'pilot-price', c.price), node('p', 'pilot-unit', c.unit));
-    const free = node('button', 'pilot-button', c.free); free.id = 'pilotFree'; free.type = 'button'; free.onclick = () => { document.getElementById('rsMulti').click(); document.getElementById('rsPanel').scrollIntoView({block:'start',behavior:'smooth'}); };
-    card.append(free);
-    const actions = node('div', 'pilot-actions'); const sample = node('button', 'pilot-button', c.sample); sample.id = 'pilotPreview'; sample.type = 'button'; sample.onclick = () => { renderDialog(); dialog.showModal(); document.getElementById('pilotScopeTitle').focus(); event('pilot_scope_opened'); };
-    const interest = node('button', 'pilot-button pilot-primary', c.interest); interest.id = 'pilotInterest'; interest.type = 'button'; interest.disabled = interested;
-    interest.onclick = () => { if (interested) return; interested = true; event('pilot_interest'); render(); document.getElementById('pilotResponse').focus(); };
-    actions.append(sample, interest); card.append(actions, node('p', 'pilot-note', c.note), node('p', 'pilot-note', c.limitation));
-    if (interested) {
-      const response = node('div', 'pilot-response'); response.id = 'pilotResponse'; response.tabIndex = -1; response.setAttribute('role', 'status');
-      response.append(node('strong', '', c.thanks), node('p', 'pilot-note', c.consent));
-      const contact = node('a', '', c.contact); contact.href = contactUrl; contact.target = '_blank'; contact.rel = 'noopener noreferrer'; contact.onclick = () => event('pilot_contact_opened');
-      response.append(contact, node('p', 'pilot-note', c.contactNote)); card.append(response);
-    }
-    if (dialog.open) renderDialog();
-  }
-  const request = requestPhotoAnalysis;
-  requestPhotoAnalysis = async function(body, signal) {
-    const result = await request(body, signal);
-    if (body.get('mode') === 'car' && result.res.ok && result.data.status === 'success' && !result.data.error && Number.isFinite(result.data.ai_probability) && ['AI','REAL','UNCERTAIN'].includes(result.data.verdict)) { eligible = true; render(); }
-    return result;
-  };
-  const mode = switchMode;
-  switchMode = function(...args) { if (args[0] !== currentMode) { eligible = false; if (dialog.open) dialog.close(); } const result = mode(...args); render(); return result; };
-  const language = applyLanguage;
-  applyLanguage = function(...args) { const result = language(...args); render(); return result; };
-  const observer = new IntersectionObserver(entries => {
-    if (!viewed && !card.hidden && entries.some(e => e.isIntersecting) && window.detectorAnalytics.read() === 'granted') { event('pilot_offer_viewed'); viewed = true; }
-  }, {threshold: .25}); observer.observe(card);
-  render();
-})();
 
+<script id="enterpriseLinks">
+(() => {
+  const en = '<h3>Service terms</h3><p>This free service provides model signals for image review, not proof of authenticity, fraud, ownership or seller identity. Do not automatically reject a listing based on a score. Analysis may be unavailable or incorrect. Images are processed in memory; read our <a href="privacy.html">privacy notice</a> for account and analytics data. No paid analysis service is currently sold on this site. Optional support is separate from analysis access.</p><p>Operator: Muhammed Azad Çayırlık · <a href="mailto:skyazadbey@gmail.com">skyazadbey@gmail.com</a></p>';
+  const tr = '<h3>Hizmet koşulları</h3><p>Bu ücretsiz hizmet görsel incelemesine yardımcı model sinyalleri sunar. Özgünlük, dolandırıcılık, mülkiyet veya satıcı kimliği kanıtı değildir. Skora dayanarak ilanı otomatik reddetmeyin. Analiz hatalı veya kullanılamaz olabilir. Fotoğraflar bellekte işlenir; hesap ve analitik verileri için <a href="privacy.html">gizlilik açıklamasını</a> okuyun. Bu sitede şu anda ücretli analiz hizmeti satılmıyor. İsteğe bağlı destek analiz erişiminden ayrıdır.</p><p>İşleten: Muhammed Azad Çayırlık · <a href="mailto:skyazadbey@gmail.com">skyazadbey@gmail.com</a></p>';
+  translations.tr.termsBody=tr; translations.en.termsBody=en;
+  const footer=document.querySelector('footer');
+  const links=document.createElement('p'); links.style.cssText='margin-top:16px;font-size:13px';
+  const business=document.createElement('a'); business.href='/business.html';
+  const contact=document.createElement('a'); contact.href='mailto:skyazadbey@gmail.com';
+  links.append(business,document.createTextNode(' · '),contact); footer.append(links);
+  const sync=()=>{business.textContent=currentLang==='tr'?'Platformlar için pilot':'Platform pilot';contact.textContent=currentLang==='tr'?'İletişim':'Contact';};
+  const original=toggleLanguage; toggleLanguage=function(...args){const value=original.apply(this,args);sync();return value;};sync();
+})();
 </script>
+
+<style id="workspaceLayout">
+#workspaceMore{width:min(1200px,100%);margin:28px auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:start}#workspaceMore>div{width:100%;max-width:none;margin:0;padding:0}#workspaceMore>.workspaceWide{grid-column:1/-1}@media(max-width:800px){#workspaceMore{grid-template-columns:1fr}}
+#analysisWorkspace{width:min(1200px,100%);margin:20px auto 0;display:grid;grid-template-columns:minmax(0,1fr);gap:24px;align-items:start}
+#analysisWorkspace #analysisCard{width:100%;max-width:none;margin:0}
+#analysisSidebar{display:flex;flex-direction:column;gap:20px;min-width:0}
+#analysisSidebar>section{background:#172235;border:1px solid #334155;border-radius:18px;padding:20px}
+#analysisSidebar h3{text-align:left;margin-bottom:14px;font-size:16px}
+#analysisSidebar .workspacePanel{max-width:none;width:100%;padding:0;margin:0}
+#analysisSidebar .grid{grid-template-columns:1fr;gap:10px}
+#analysisSidebar .grid>div{padding:12px;text-align:left}
+#analysisSidebar .grid>div>div.w-9{float:left;margin:0 12px 12px 0}
+#analysisSidebar #secondaryTrust{margin:0;padding:0;grid-template-columns:repeat(3,minmax(0,1fr))}
+#analysisSidebar #secondaryTrust>div{text-align:center;padding:8px 3px}
+#workspaceSupport{position:static;transform:none;display:block}
+#workspaceSupport .animate-pulse{animation:none}
+#workspaceSupport .blur-md{display:none}
+#workspaceSupport .w-56{width:100%}
+#workspaceSupport>div{align-items:stretch}
+#compactHero{max-width:1200px;width:100%}#compactHero p{text-align:left;margin-top:12px}#compactHero{margin-top:24px!important}#analysisSidebar summary{cursor:pointer}#analysisSidebar summary h3{display:inline}#analysisSidebar #secondaryTrust{min-height:88px}#workspaceSupport .w-14{display:none}#workspaceSupport .mb-3.text-center{display:none}#workspaceSupport .shadow-\[0_0_30px_rgba\(16\,185\,129\,0\.2\)\]{box-shadow:none}
+@media(min-width:1100px){#analysisWorkspace{grid-template-columns:minmax(0,1fr) 340px}#compactHero{text-align:left;padding:0}#analysisWorkspace #analysisCard{padding:28px}#analysisSidebar{gap:16px}}
+@media(max-width:1099px){#analysisWorkspace{max-width:720px}#analysisSidebar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}#analysisSidebar #workspaceSupport{display:none}}
+@media(max-width:640px){#analysisWorkspace{margin-top:12px;gap:16px}#analysisSidebar{display:flex}#analysisSidebar>section{padding:16px}}
+</style>
+<script id="workspaceLayoutScript">
+(()=>{
+ const card=document.getElementById('analysisCard');if(!card)return;
+ const workspace=document.createElement('main');workspace.id='analysisWorkspace';
+ const aside=document.createElement('aside');aside.id='analysisSidebar';
+ card.before(workspace);workspace.append(card,aside);
+ const trust=document.getElementById('secondaryTrust');if(trust)aside.append(trust);
+ for(const key of ['howTitle','howToUseTitle']){
+  const heading=document.querySelector('[data-i18n="'+key+'"]');if(!heading)continue;
+  const panel=heading.parentElement;panel.classList.add('workspacePanel');
+  const section=document.createElement('section');
+  if(key==='howToUseTitle'){
+   const details=document.createElement('details'),summary=document.createElement('summary');
+   summary.append(heading);details.append(summary,panel);section.append(details);
+  }else section.append(panel);
+  aside.append(section);
+ }
+ const support=document.querySelector('body>div.fixed.right-6');
+ if(support){support.id='workspaceSupport';aside.append(support)}
+ const more=document.createElement('div');more.id='workspaceMore';workspace.after(more);
+ const tips=document.getElementById('modeTips');if(tips){tips.classList.add('workspaceWide');more.append(tips)}
+ const faq=document.querySelector('[data-i18n="faqTitle"]');if(faq)more.append(faq.parentElement);
+ const accuracy=document.querySelector('[data-i18n="accuracyTitle"]');if(accuracy)more.append(accuracy.closest('div.bg-gradient-to-r').parentElement);
+ const trustTitle=document.querySelector('[data-i18n="trustTitle"]');
+ if(trustTitle){const trustCards=trustTitle.nextElementSibling,trustPanel=document.createElement('div');trustPanel.className='workspaceWide';trustPanel.append(trustTitle,trustCards);more.append(trustPanel)}
+})();
+</script>
+
 </body>
 </html>
