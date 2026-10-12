@@ -49,6 +49,10 @@ def get_db():
             config = conninfo_to_dict(url)
             if not config.get('host') or config.get('sslmode') != 'verify-full':
                 raise ValueError('DATABASE_URL requires a host and sslmode=verify-full.')
+            # Separate secret avoids requiring founders to URI-encode passwords.
+            password = os.environ.get('DATABASE_PASSWORD')
+            if password:
+                config['password'] = password
             certificate = os.environ.get('DATABASE_SSL_ROOT_CERT')
             bundled_certificate = Path(__file__).with_name('supabase-ca.crt')
             if not certificate and bundled_certificate.is_file():

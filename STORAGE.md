@@ -5,7 +5,9 @@ when that variable is absent. A configured PostgreSQL failure stops startup;
 it must never silently create a second empty account database.
 
 Set the server-only environment variable using the Supabase session pooler
-connection shown in the dashboard. Require `sslmode=verify-full` and configure
+connection shown in the dashboard. The password may be omitted from that URI
+and set separately as server-only `DATABASE_PASSWORD`, avoiding URI encoding.
+Require `sslmode=verify-full` and configure
 `DATABASE_SSL_ROOT_CERT` to a trusted CA certificate file if the provider needs
 one. Do not put connection strings, passwords or signing secrets into Git,
 frontend JavaScript, screenshots or chat. Use a stable server-only
