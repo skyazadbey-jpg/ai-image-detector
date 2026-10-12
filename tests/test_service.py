@@ -1,4 +1,5 @@
 import io
+import asyncio
 import os
 from pathlib import Path
 import sys
@@ -18,6 +19,34 @@ import app
 import service_security as security
 
 class ServiceTests(unittest.TestCase):
+    def test_concurrent_requests_busy_without_consuming_guest_trial(self):
+        import httpx
+        async def scenario():
+            entered, release = asyncio.Event(), asyncio.Event()
+            async def infer(*args):
+                entered.set()
+                await release.wait()
+                return 80.0, [{'model': 'concurrency-fixture', 'ai_score': 80.0}]
+            app.ANALYSIS_GATE = asyncio.Lock()
+            async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app.app), base_url='https://testserver') as client:
+                await client.get('/auth/guest')
+                with patch.object(app, 'call_ai_model_ensemble', infer):
+                    active = asyncio.create_task(client.post('/v1/analyze', headers={'X-API-Key': os.environ['ENTERPRISE_API_KEYS']},
+                        files={'file': ('sample.jpg', self.image, 'image/jpeg')}))
+                    await asyncio.wait_for(entered.wait(), 5)
+                    try:
+                        busy = await client.post('/predict', files={'file': ('sample.jpg', self.image, 'image/jpeg')})
+                        self.assertEqual(busy.status_code, 503)
+                        self.assertEqual(busy.headers['retry-after'], '2')
+                        self.assertEqual(busy.json()['error_code'], 'ANALYSIS_BUSY')
+                        self.assertEqual((await client.get('/auth/guest')).json()['remaining'], 1)
+                    finally:
+                        release.set()
+                        response = await active
+                    self.assertEqual(response.status_code, 200)
+                    self.assertFalse(app.ANALYSIS_GATE.locked())
+        asyncio.run(scenario())
+
     def setUp(self):
         app.REQUEST_LIMITER = security.WindowLimiter()
         self.client = TestClient(app.app)
