@@ -50,6 +50,9 @@ def get_db():
             if not config.get('host') or config.get('sslmode') != 'verify-full':
                 raise ValueError('DATABASE_URL requires a host and sslmode=verify-full.')
             certificate = os.environ.get('DATABASE_SSL_ROOT_CERT')
+            bundled_certificate = Path(__file__).with_name('supabase-ca.crt')
+            if not certificate and bundled_certificate.is_file():
+                certificate = str(bundled_certificate)
             if certificate:
                 config['sslrootcert'] = certificate
             connection = psycopg.connect(**config, connect_timeout=8, prepare_threshold=None,
