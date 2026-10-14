@@ -40,7 +40,7 @@ CAR_SUPPORT={'car wheel','grille','seat belt'}
 PROPERTY_SUPPORT={'quilt','pillow','home theater','sliding door','shoji','table lamp','toilet seat','radiator','rocking chair','cradle','crib','mosquito net'}
 # Furniture/fixtures can appear in a room or in a close-up; this is a hint, not scene verification.
 PROPERTY.update({'home theater','sliding door','shoji','toilet seat','crib','cradle','rocking chair'})
-POLICY_VERSION='two_view_evidence_v3'
+POLICY_VERSION='two_view_evidence_v4_vehicle'
 _labels=None
 
 def decide_evidence(scores, labels):
@@ -106,4 +106,16 @@ def classify(contents,mode):
             if logits.shape!=(1000,) or not np.isfinite(logits).all():raise RuntimeError('Invalid category response')
             scores=np.exp(logits-logits.max());scores/=scores.sum()
             views.append(dict(view=name,**decide_evidence(scores,_labels)))
-        return combine_evidence(views,mode)
+        result=combine_evidence(views,mode)
+        # Keep explicit mismatches and property evidence authoritative. Only
+        # unresolved car inputs may use independent dominant-object evidence.
+        if mode=='car' and result['status']=='uncertain' and result['property_related_score']<.2:
+            try:
+                from vehicle_detector import dominant_car
+                vehicle=dominant_car(contents)
+                result['vehicle_check']={'status':'detected' if vehicle else 'not_detected'}
+                if vehicle:
+                    result.update(status='compatible',detected='car',vehicle_check=dict(status='detected',**vehicle))
+            except Exception:
+                result['vehicle_check']={'status':'unavailable'}
+        return result
